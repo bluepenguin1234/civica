@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Civica — Know Your City or Town Before You Buy</title>
+<meta name="description" content="Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure. Explore Essex County on the map.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;background:#f5f5f7;color:#1d1d1f;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,select{font-family:inherit}
+a{text-decoration:none;color:inherit}
+
+:root{
+  --blue:#0071e3;--blue-dk:#0064cb;--blue-lt:#e8f2ff;
+  --green:#30d158;--orange:#ff9f0a;--red:#ff3b30;
+  --surface:#fff;--bg:#f5f5f7;
+  --text:#1d1d1f;--sec:#6e6e73;--ter:#98989d;
+  --border:rgba(0,0,0,0.08);--border-mid:rgba(0,0,0,0.12);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 4px 16px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.12),0 4px 12px rgba(0,0,0,0.06);
+  --r:16px;--r-sm:10px;--r-xs:6px;
+}
+
+/* ── NAV ── */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:56px;background:rgba(255,255,255,0.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:9px;cursor:pointer}
+.logo-word{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:-0.4px}
+.logo-word span{color:var(--blue)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-map-btn{height:34px;padding:0 16px;border-radius:8px;background:var(--blue);color:#fff;font-size:.82rem;font-weight:600;transition:background .15s;display:none}
+.nav-map-btn:hover{background:var(--blue-dk)}
+.nav-map-btn.visible{display:block}
+
+/* ── VIEWS ── */
+.view{display:none;padding-top:56px}
+.view.active{display:block}
+#landing{padding-top:0}
+
+/* ── LANDING ── */
+.l-hero{padding:100px 24px 80px;text-align:center;background:linear-gradient(175deg,#fff 0%,#eef5ff 55%,#fff 100%);border-bottom:1px solid var(--border)}
+.l-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:var(--blue-lt);color:var(--blue);font-size:.73rem;font-weight:600;margin-bottom:22px}
+.l-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.l-hero h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-1.5px;line-height:1.08;max-width:700px;margin:0 auto}
+.l-hero h1 em{font-style:normal;color:var(--blue)}
+.l-sub{font-size:clamp(1rem,2.5vw,1.15rem);color:var(--sec);max-width:500px;margin:16px auto 0;line-height:1.65}
+.l-ctas{display:flex;gap:12px;justify-content:center;margin-top:36px;flex-wrap:wrap}
+.btn-primary{height:52px;padding:0 30px;border-radius:14px;background:var(--blue);color:#fff;font-size:1rem;font-weight:700;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{background:var(--blue-dk);transform:translateY(-1px)}
+.btn-secondary{height:52px;padding:0 26px;border-radius:14px;border:1.5px solid var(--border-mid);background:#fff;color:var(--text);font-size:1rem;font-weight:600;transition:all .15s}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.l-trust{font-size:.76rem;color:var(--ter);margin-top:16px;display:flex;align-items:center;justify-content:center;gap:16px}
+.l-trust span{display:flex;align-items:center;gap:4px}
+
+/* Landing sections */
+.l-section{padding:80px 24px;max-width:960px;margin:0 auto}
+.l-eyebrow{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:12px;display:block}
+.l-h2{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:800;letter-spacing:-.8px;margin-bottom:12px}
+.l-p{font-size:.95rem;color:var(--sec);line-height:1.7;max-width:560px}
+
+/* Pain cards */
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+.pain-card{padding:22px;border-radius:var(--r-sm);border:1px solid var(--border);background:#fff;box-shadow:var(--shadow-sm)}
+.pain-card .icon{font-size:1.3rem;margin-bottom:10px;display:block}
+.pain-card h3{font-size:.88rem;font-weight:700;margin-bottom:6px}
+.pain-card p{font-size:.78rem;color:var(--sec);line-height:1.6}
+
+/* Pillar grid */
+.pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:36px}
+.pillar-item{padding:18px 14px;border-radius:var(--r-sm);border:1px solid var(--border);background:#fff;text-align:center}
+.pillar-item .pe{font-size:1.3rem;display:block;margin-bottom:8px}
+.pillar-item .pn{font-size:.76rem;font-weight:700;color:var(--text);margin-bottom:3px}
+.pillar-item .pw{font-size:.67rem;color:var(--ter)}
+
+/* Map CTA banner */
+.map-cta-banner{background:linear-gradient(135deg,#0057b5 0%,#0071e3 60%,#339af0 100%);padding:72px 24px;text-align:center;color:#fff}
+.map-cta-banner h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+.map-cta-banner p{font-size:1rem;opacity:.85;max-width:460px;margin:0 auto 32px;line-height:1.6}
+.btn-white{height:52px;padding:0 32px;border-radius:14px;background:#fff;color:var(--blue);font-size:1rem;font-weight:700;display:inline-flex;align-items:center;gap:10px;transition:all .15s}
+.btn-white:hover{opacity:.92;transform:translateY(-1px)}
+.map-preview-teaser{margin-top:28px;opacity:.7;font-size:.8rem}
+
+/* Email capture */
+.email-form{display:flex;gap:10px;max-width:440px;margin:28px auto 0}
+.email-form input{flex:1;height:48px;padding:0 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.18);color:#fff;font-size:.9rem;outline:none;transition:all .2s}
+.email-form input::placeholder{color:rgba(255,255,255,.6)}
+.email-form input:focus{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.6)}
+.email-form button{height:48px;padding:0 20px;border-radius:12px;background:#fff;color:var(--blue);font-size:.85rem;font-weight:700;flex-shrink:0;transition:opacity .15s}
+.email-form button:hover{opacity:.9}
+.email-success{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:14px 20px;color:#fff;font-weight:600;font-size:.88rem;display:none;max-width:440px;margin:28px auto 0}
+
+/* Footer */
+.site-footer{padding:36px 24px;border-top:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-logo{display:flex;align-items:center;gap:9px}
+.footer-links{display:flex;gap:22px}
+.footer-links a{font-size:.78rem;color:var(--sec);transition:color .15s}
+.footer-links a:hover{color:var(--blue)}
+.footer-copy{font-size:.73rem;color:var(--ter)}
+
+/* ── MAP SEARCH ── */
+.map-search-wrap{max-width:520px;margin:0 auto;position:relative}
+.map-search-bar{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--border-mid);border-radius:12px;padding:0 14px;height:46px;transition:border-color .2s,box-shadow .2s}
+.map-search-bar:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,.1)}
+.map-search-ico{color:var(--ter);flex-shrink:0;display:flex;align-items:center}
+.map-search-inp{flex:1;border:none;outline:none;font-size:.9rem;color:var(--text);background:transparent;font-family:inherit}
+.map-search-inp::placeholder{color:var(--ter)}
+.map-search-clear{background:none;border:none;cursor:pointer;color:var(--ter);font-size:1rem;padding:0;display:none;line-height:1;transition:color .15s}
+.map-search-clear:hover{color:var(--text)}
+.map-search-dd{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--border-mid);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden;z-index:500;display:none}
+.map-search-item{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border)}
+.map-search-item:last-child{border-bottom:none}
+.map-search-item:hover{background:#f5f5f7}
+.msi-left{display:flex;flex-direction:column}
+.msi-name{font-size:.88rem;font-weight:600}
+.msi-zip{font-size:.71rem;color:var(--ter);margin-top:1px}
+.msi-score{font-size:1.1rem;font-weight:800;letter-spacing:-.5px}
+.map-search-empty{padding:14px 16px;font-size:.83rem;color:var(--ter);text-align:center}
+
+/* ── MAP VIEW ── */
+#map-view{background:var(--bg);flex-direction:column}
+#map-view.active{display:flex}
+.map-header{background:#fff;border-bottom:1px solid var(--border);padding:24px 24px 20px}
+.map-header-inner{max-width:700px;margin:0 auto}
+.map-title{font-size:1.5rem;font-weight:800;letter-spacing:-.6px;margin-bottom:5px;color:var(--text)}
+.map-subtitle{font-size:.83rem;color:var(--sec);margin-bottom:18px;line-height:1.55}
+.map-search-wrap{max-width:100%;margin:0;position:relative}
+/* Quick-access chips below map */
+.map-below{background:#fff;border-top:1px solid var(--border);padding:22px 24px 32px}
+.map-below-inner{max-width:700px;margin:0 auto}
+.map-quick-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ter);margin-bottom:12px}
+.map-town-chips{display:flex;flex-wrap:wrap;gap:9px}
+.map-town-chip{display:flex;align-items:center;gap:9px;padding:10px 15px;background:var(--bg);border:1.5px solid var(--border-mid);border-radius:12px;cursor:pointer;transition:all .15s}
+.map-town-chip:hover{border-color:var(--blue);background:#f0f6ff;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,113,227,.1)}
+.mtc-name{font-size:.84rem;font-weight:600;color:var(--text)}
+.mtc-score{font-size:.84rem;font-weight:800}
+.mtc-div{width:1px;height:13px;background:var(--border-mid)}
+
+/* Leaflet map container */
+.map-wrap{position:relative}
+#leaflet-map{height:480px;width:100%;z-index:1}
+.map-legend{position:absolute;bottom:16px;left:16px;z-index:400;background:rgba(255,255,255,.95);border-radius:var(--r-sm);padding:10px 14px;box-shadow:var(--shadow);font-size:.72rem}
+.map-legend .leg-title{font-weight:700;margin-bottom:7px;color:var(--text)}
+.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.leg-label{color:var(--sec)}
+
+/* Leaflet popup custom */
+.leaflet-popup-content-wrapper{border-radius:var(--r-sm)!important;box-shadow:var(--shadow-lg)!important;padding:0!important;overflow:hidden}
+.leaflet-popup-content{margin:0!important;width:210px!important}
+.leaflet-popup-tip-container{display:none}
+.civica-popup-inner{padding:14px}
+.cp-score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.cp-name{font-size:1rem;font-weight:800;letter-spacing:-.3px}
+.cp-score{font-size:1.4rem;font-weight:900;letter-spacing:-1px}
+.cp-loc{font-size:.7rem;color:var(--sec);margin-bottom:8px}
+.cp-stats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.cp-stat{font-size:.65rem;font-weight:600;padding:3px 8px;border-radius:20px;background:#f5f5f7;color:var(--sec)}
+.cp-btn{display:block;width:100%;height:34px;border-radius:8px;background:var(--blue);color:#fff;font-size:.8rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:background .15s}
+.cp-btn:hover{background:var(--blue-dk)}
+
+/* Custom marker */
+.civica-marker{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);font-family:-apple-system,sans-serif;cursor:pointer;transition:transform .15s}
+.civica-marker:hover{transform:scale(1.1)}
+
+/* Town grid below map */
+.map-body{max-width:1100px;margin:0 auto;padding:20px 24px 48px}
+.map-results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.map-count{font-size:.8rem;color:var(--sec);font-weight:500}
+.sort-wrap{display:flex;align-items:center;gap:6px}
+.sort-label{font-size:.78rem;color:var(--sec)}
+.sort-select{height:28px;padding:0 22px 0 9px;border-radius:7px;border:1.5px solid var(--border-mid);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2398989d'/%3E%3C/svg%3E") no-repeat right 7px center;font-size:.78rem;color:var(--text);outline:none;cursor:pointer;appearance:none;font-family:inherit}
+.town-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.no-results{text-align:center;padding:60px 20px;grid-column:1/-1;color:var(--sec);font-size:.9rem}
+
+/* Cards */
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px);border-color:rgba(0,113,227,.2)}
+.card-accent{height:3px}
+.card-inner{padding:16px 16px 13px}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.card-name{font-size:1.1rem;font-weight:700;letter-spacing:-.3px}
+.card-sub{font-size:.72rem;color:var(--sec);margin-top:2px}
+.score-badge{font-size:1.7rem;font-weight:800;letter-spacing:-1px;line-height:1}
+.score-sub{font-size:.62rem;color:var(--sec);text-align:right;line-height:1.2}
+.card-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:11px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stat-item .sv{font-size:.87rem;font-weight:600}
+.stat-item .sk{font-size:.65rem;color:var(--ter);margin-top:1px}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.card-tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-size:.62rem;font-weight:600;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px}
+.tag-blue{background:#e8f2ff;color:#0071e3}
+.tag-green{background:#e4faea;color:#1a8a3c}
+.tag-gray{background:#f2f2f2;color:#6e6e73}
+.fav-btn{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f5f5f7;color:var(--ter);font-size:.85rem;transition:all .15s;flex-shrink:0}
+.fav-btn:hover{background:#ffe5e5;color:#ff3b30}
+.fav-btn.active{background:#fff0f0;color:#ff3b30}
+
+/* ── PROFILE VIEW ── */
+#prof-view{background:var(--bg)}
+.prof-nav{display:flex;align-items:center;gap:10px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
+.back-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;border-radius:7px;font-size:.8rem;font-weight:500;color:var(--blue);background:#e8f2ff;transition:background .15s}
+.back-btn:hover{background:#d1e8ff}
+.export-btn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 13px;border-radius:7px;font-size:.8rem;font-weight:600;color:#fff;background:var(--blue);border:none;cursor:pointer;font-family:inherit;transition:background .15s}
+.export-btn:hover{background:var(--blue-dk)}
+.prof-nav-town{font-size:.83rem;font-weight:600;color:var(--sec)}
+.prof-nav-score{margin-left:auto;font-size:.83rem;font-weight:700}
+.prof-hero{background:var(--surface);border-bottom:1px solid var(--border);padding:28px 36px;display:flex;align-items:center;gap:32px}
+.prof-hero-left{flex:1}
+.badge-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.pbadge{font-size:.68rem;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid var(--border-mid);color:var(--sec);background:#f5f5f7}
+.prof-town{font-size:2rem;font-weight:800;letter-spacing:-.8px;line-height:1.1}
+.prof-loc{font-size:.85rem;color:var(--sec);margin-top:5px}
+.prof-standout{margin-top:12px;padding:11px 14px;background:#f0f6ff;border-radius:var(--r-sm);font-size:.81rem;line-height:1.6;color:#1d4ed8;border:1px solid rgba(0,113,227,.12)}
+.prof-standout strong{font-size:.65rem;display:block;text-transform:uppercase;letter-spacing:.5px;opacity:.65;margin-bottom:3px}
+.prof-hero-right{flex-shrink:0;text-align:center}
+.ter-line{font-size:.76rem;color:var(--sec);margin-top:6px;line-height:1.4;text-align:center}
+.ter-line strong{font-weight:700;color:var(--text)}
+.stats-strip{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stats-strip::-webkit-scrollbar{display:none}
+.stat-pill{flex-shrink:0;padding:13px 20px;border-right:1px solid var(--border);min-width:110px}
+.stat-pill:last-child{border-right:none}
+.stat-pill .spv{font-size:1rem;font-weight:700}
+.stat-pill .spk{font-size:.66rem;color:var(--ter);margin-top:2px}
+.prof-body{max-width:780px;margin:0 auto;padding:20px 24px 60px}
+.sec-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ter);margin:20px 0 8px;padding:0 2px}
+.glance-card{background:var(--surface);border-radius:var(--r-sm);border:1px solid var(--border);padding:16px;margin-bottom:8px;font-size:.85rem;line-height:1.7;color:#374151}
+
+/* Ad slots */
+.ad-agent{background:var(--surface);border-radius:var(--r);border:1.5px solid #fde68a;box-shadow:var(--shadow-sm);padding:20px;margin-bottom:10px;position:relative}
+.ad-label{position:absolute;top:12px;right:14px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#92400e;background:#fef3c7;padding:3px 8px;border-radius:20px}
+.agent-inner{display:flex;align-items:flex-start;gap:16px}
+.agent-avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#0071e3,#339af0);color:#fff;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.agent-info{flex:1}
+.agent-name{font-size:.95rem;font-weight:700}
+.agent-agency{font-size:.76rem;color:var(--sec);margin-top:1px}
+.agent-stars{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:.74rem;color:var(--sec)}
+.stars{color:#ff9f0a;letter-spacing:1px}
+.agent-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.agent-tag{font-size:.63rem;font-weight:600;padding:3px 8px;border-radius:20px;background:#f5f5f7;color:var(--sec)}
+.agent-bio{font-size:.78rem;color:var(--sec);margin-top:7px;line-height:1.5}
+.agent-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.agent-btn{height:32px;padding:0 15px;border-radius:8px;font-size:.76rem;font-weight:600;transition:all .15s}
+.agent-btn.primary{background:var(--blue);color:#fff}
+.agent-btn.primary:hover{background:var(--blue-dk)}
+.agent-btn.secondary{background:#f5f5f7;color:var(--text)}
+.ad-promote{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:.68rem;color:var(--ter);display:flex;justify-content:space-between}
+.ad-promote a{color:var(--blue);font-weight:600}
+.ad-listings{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:16px;margin-bottom:10px;position:relative}
+.listings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.listing-card{border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:box-shadow .15s}
+.listing-card:hover{box-shadow:var(--shadow)}
+.listing-img{height:80px;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.listing-info{padding:8px 10px}
+.listing-price{font-size:.85rem;font-weight:700}
+.listing-addr{font-size:.68rem;color:var(--sec);margin-top:1px}
+.listing-meta{font-size:.65rem;color:var(--ter);margin-top:2px}
+.listings-cta{margin-top:10px;text-align:center;font-size:.75rem}
+.listings-cta a{color:var(--blue);font-weight:600}
+.ad-vendors{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:16px;margin-bottom:10px;position:relative}
+.vendors-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.vendor-card{padding:11px;border-radius:var(--r-sm);border:1px solid var(--border);display:flex;align-items:flex-start;gap:9px}
+.vendor-icon{font-size:1.1rem;flex-shrink:0}
+.vendor-name{font-size:.78rem;font-weight:700}
+.vendor-type{font-size:.66rem;color:var(--sec);margin-top:1px}
+.vendor-badge{display:inline-block;margin-top:4px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:20px;background:#e4faea;color:#1a8a3c}
+.ad-mortgage{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:16px;margin-bottom:10px;position:relative}
+.mortgage-sponsor{font-size:.67rem;color:var(--ter);margin-bottom:10px}
+.mortgage-inputs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.mc-field label{font-size:.66rem;font-weight:600;color:var(--sec);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.mc-field input{width:100%;height:34px;padding:0 9px;border-radius:var(--r-xs);border:1.5px solid var(--border-mid);font-size:.82rem;outline:none;transition:border-color .2s}
+.mc-field input:focus{border-color:var(--blue)}
+.mortgage-result{background:var(--blue-lt);border-radius:var(--r-sm);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.mr-payment{font-size:1.5rem;font-weight:800;color:var(--blue);letter-spacing:-1px}
+.mr-label{font-size:.68rem;color:var(--sec);margin-top:2px}
+.mr-breakdown{font-size:.68rem;color:var(--sec);text-align:right;line-height:1.7}
+.mc-btn{width:100%;height:34px;border-radius:var(--r-sm);background:var(--blue);color:#fff;font-size:.8rem;font-weight:600;margin-top:10px;transition:background .15s}
+.mc-btn:hover{background:var(--blue-dk)}
+
+/* Pillar sections */
+.psec{background:var(--surface);border-radius:var(--r-sm);border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
+.psec-hdr{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s}
+.psec-hdr:hover{background:#fafafa}
+.psec-icon-wrap{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.psec-title-wrap{flex:1}
+.psec-title{font-size:.88rem;font-weight:700;display:block}
+.psec-bar-wrap{display:flex;align-items:center;gap:6px;margin-top:3px}
+.psec-bar{height:3px;width:56px;background:#e5e5ea;border-radius:2px;overflow:hidden}
+.psec-bar-fill{height:100%;border-radius:2px}
+.psec-bar-val{font-size:.63rem;color:var(--ter)}
+.psec-wt{font-size:.67rem;font-weight:600;color:var(--ter);background:#f2f2f2;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.psec-chev{color:var(--ter);font-size:.62rem;transition:transform .2s;margin-left:4px;flex-shrink:0}
+.psec.open .psec-chev{transform:rotate(180deg)}
+.psec-body{display:none;border-top:1px solid var(--border)}
+.psec.open .psec-body{display:block}
+.metric-rows{padding:4px 0}
+.metric-row{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid #f5f5f5}
+.metric-row:last-child{border-bottom:none}
+.metric-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.metric-key{flex:1;font-size:.8rem;color:var(--sec)}
+.metric-val{font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:20px}
+.metric-na{font-size:.76rem;color:#c7c7cc;font-style:italic}
+.buyer-grid{display:grid;grid-template-columns:1fr 1fr}
+.buyer-col{padding:14px 16px}
+.buyer-col:first-child{border-right:1px solid var(--border)}
+.buyer-col h4{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
+.buyer-col.gc h4{color:var(--green)}
+.buyer-col.bc h4{color:var(--red)}
+.buyer-list{list-style:none}
+.buyer-list li{font-size:.78rem;padding:3px 0;line-height:1.5;display:flex;gap:7px;color:#374151}
+.buyer-list li::before{content:"•";flex-shrink:0;font-size:.68rem;margin-top:2px}
+.buyer-col.gc .buyer-list li::before{color:var(--green)}
+.buyer-col.bc .buyer-list li::before{color:var(--red)}
+.peer-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.peer-table th{padding:7px 12px;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.4px;color:var(--ter);background:#f9f9f9;border-bottom:1px solid var(--border)}
+.peer-table td{padding:8px 12px;border-bottom:1px solid #f5f5f5}
+.peer-table tr:last-child td{border-bottom:none}
+.peer-table td.hl{font-weight:700;color:var(--blue)}
+.peer-table tr.current{background:#f0f6ff}
+.notes-card{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r-sm);padding:13px 16px;margin-bottom:8px}
+.notes-card .nl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#92400e;margin-bottom:5px;display:block}
+.notes-card p{font-size:.78rem;line-height:1.6;color:#78350f}
+.conf-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 16px;display:flex;align-items:center;gap:10px;font-size:.75rem;color:var(--sec)}
+.conf-bar{flex:1;height:4px;background:#e5e5ea;border-radius:2px;overflow:hidden}
+.conf-fill{height:100%;border-radius:2px}
+.bktable{width:100%;border-collapse:collapse}
+.bktable th{padding:8px 16px;text-align:left;font-size:.66rem;text-transform:uppercase;letter-spacing:.5px;color:var(--ter);background:#f9f9f9;border-bottom:1px solid var(--border)}
+.bktable th:not(:first-child){text-align:right}
+.bktable td{padding:8px 16px;border-bottom:1px solid #f5f5f5;font-size:.78rem}
+.bktable td:not(:first-child){text-align:right;font-weight:600}
+.bktable tr:last-child td{border-bottom:none;font-weight:700;background:#f9f9f9}
+.mini-bar{height:4px;border-radius:2px;background:#e5e5ea;width:64px;display:inline-block;vertical-align:middle;margin-right:6px;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:2px}
+
+/* ── LANDING PAGE ── */
+.hero{padding:80px 24px 72px;background:linear-gradient(175deg,#fff 0%,#eef5ff 55%,#fff 100%);border-bottom:1px solid var(--border)}
+.hero-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:56px}
+.hero-left{flex:1;min-width:0}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:var(--blue-lt);color:var(--blue);font-size:.75rem;font-weight:600;letter-spacing:.2px;margin-bottom:24px}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-1.5px;line-height:1.08;color:var(--text);margin:0}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.hero-sub{font-size:clamp(.95rem,2vw,1.1rem);color:var(--sec);max-width:480px;margin:18px 0 0;line-height:1.6;font-weight:400}
+.hero-form{max-width:440px;margin:30px 0 0;display:flex;gap:10px}
+.hero-form input{flex:1;height:50px;padding:0 18px;border-radius:12px;border:1.5px solid var(--border-mid);background:#fff;font-size:.95rem;color:var(--text);outline:none;box-shadow:var(--shadow-sm);transition:border-color .2s,box-shadow .2s;font-family:inherit}
+.hero-form input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,.12)}
+.hero-form input::placeholder{color:var(--ter)}
+.hero-form button{height:50px;padding:0 22px;border-radius:12px;background:var(--blue);color:#fff;font-size:.9rem;font-weight:600;white-space:nowrap;transition:background .15s,transform .1s;flex-shrink:0}
+.hero-form button:hover{background:var(--blue-dk);transform:translateY(-1px)}
+.hero-trust{font-size:.78rem;color:var(--ter);margin-top:14px;display:flex;align-items:center;gap:16px}
+.hero-trust span{display:flex;align-items:center;gap:5px}
+.form-success{max-width:440px;margin:20px 0 0;padding:16px 20px;border-radius:12px;background:#e4faea;border:1px solid #a8e8be;color:#1a8a3c;font-weight:600;font-size:.88rem;display:none;align-items:center;gap:10px}
+.hero-right{flex-shrink:0;width:340px}
+.hero-card{background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.14),0 6px 24px rgba(0,0,0,.07);overflow:hidden;animation:heroCardIn .9s cubic-bezier(.4,0,.2,1) both .2s}
+@keyframes heroCardIn{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.hc-bar-anim{transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.proof-strip{padding:16px 24px;text-align:center;background:#f9f9f9;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--sec);letter-spacing:.3px}
+/* Stats numbers bar */
+.stats-numbers{background:#fff;border-bottom:1px solid var(--border);padding:28px 24px}
+.stats-numbers-inner{max-width:700px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.sn-item{text-align:center;padding:0 16px;border-right:1px solid var(--border)}
+.sn-item:last-child{border-right:none}
+.sn-num{font-size:2rem;font-weight:800;letter-spacing:-1px;color:var(--blue);display:block}
+.sn-label{font-size:.71rem;color:var(--ter);margin-top:3px;display:block}
+/* Testimonials */
+.testimonials{padding:80px 24px;background:var(--bg);border-bottom:1px solid var(--border)}
+.testimonials-inner{max-width:960px;margin:0 auto}
+.testi-header{text-align:center;margin-bottom:40px}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.testi-card{padding:26px;border-radius:var(--r);border:1px solid var(--border);background:#fff;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.testi-card::before{content:'\201C';font-size:5rem;color:var(--blue);opacity:.08;position:absolute;top:-4px;left:14px;line-height:1;font-weight:900;font-family:Georgia,serif;pointer-events:none}
+.testi-stars{color:#ff9f0a;font-size:.75rem;letter-spacing:2px;margin-bottom:12px}
+.testi-quote{font-size:.85rem;line-height:1.75;color:#374151;margin-bottom:18px;padding-top:6px}
+.testi-author{display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);padding-top:14px}
+.testi-avatar{width:36px;height:36px;border-radius:50%;color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.testi-name{font-size:.8rem;font-weight:700;color:var(--text)}
+.testi-loc{font-size:.69rem;color:var(--ter);margin-top:1px}
+/* Map side panel */
+.map-panel{position:fixed;top:56px;right:0;bottom:0;width:320px;background:#fff;border-left:1px solid var(--border);box-shadow:-12px 0 40px rgba(0,0,0,.1);z-index:800;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column}
+.map-panel.open{transform:translateX(0)}
+.mp-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;font-size:.75rem;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;z-index:1;transition:background .15s;font-family:inherit}
+.mp-close:hover{background:rgba(255,255,255,.38)}
+.mp-header{background:linear-gradient(135deg,#0057b5 0%,#0071e3 100%);padding:24px 20px 20px;color:#fff;flex-shrink:0;position:relative}
+.mp-town{font-size:1.3rem;font-weight:800;letter-spacing:-.4px;margin-bottom:2px}
+.mp-loc{font-size:.7rem;opacity:.75;line-height:1.4}
+.mp-score-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.mp-score-label{font-size:.65rem;opacity:.72;margin-top:2px}
+.mp-body{padding:18px 20px;flex:1}
+.mp-kstats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.mp-kstat{background:#f8f8f9;border-radius:9px;padding:10px 12px;border:1px solid #efefef}
+.mp-kstat-key{font-size:.6rem;color:#98989d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.mp-kstat-val{font-size:.88rem;font-weight:700;color:#1d1d1f}
+.mp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
+.mp-tag{font-size:.65rem;font-weight:600;padding:4px 10px;border-radius:20px;background:#f5f5f7;color:var(--sec)}
+.mp-view-btn{display:block;width:100%;height:42px;border-radius:11px;background:var(--blue);color:#fff;font-size:.88rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:background .15s}
+.mp-view-btn:hover{background:var(--blue-dk)}
+.section-eyebrow{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:14px;display:block}
+.pain-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:left;margin-top:48px}
+.pain-icon{font-size:1.4rem;margin-bottom:12px;display:block}
+.pain-card h3{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:6px}
+.pain-card p{font-size:.8rem;color:var(--sec);line-height:1.6}
+.how{padding:80px 24px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.how-inner{max-width:900px;margin:0 auto}
+.how h2{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:800;letter-spacing:-.8px;text-align:center;margin-bottom:52px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;position:relative}
+.steps::before{content:'';position:absolute;top:28px;left:calc(16.66% + 16px);right:calc(16.66% + 16px);height:2px;background:linear-gradient(90deg,var(--blue) 0%,var(--blue) 50%,var(--border-mid) 50%,var(--border-mid) 100%);background-size:200% 100%}
+.step{text-align:center;position:relative}
+.step-num{width:56px;height:56px;border-radius:50%;background:var(--blue);color:#fff;font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;position:relative;z-index:1;box-shadow:0 0 0 6px #f5f5f7}
+.step h3{font-size:.95rem;font-weight:700;margin-bottom:8px}
+.step p{font-size:.82rem;color:var(--sec);line-height:1.6}
+.features{padding:88px 24px}
+.features-inner{max-width:960px;margin:0 auto}
+.features-header{text-align:center;margin-bottom:52px}
+.features-header h2{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:800;letter-spacing:-.8px;margin-bottom:12px}
+.features-header p{font-size:1rem;color:var(--sec);max-width:480px;margin:0 auto;line-height:1.6}
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.feat-card{padding:28px;border-radius:var(--r);border:1px solid var(--border);background:#fff;box-shadow:var(--shadow-sm);transition:box-shadow .2s,transform .2s}
+.feat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.feat-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:16px}
+.feat-card h3{font-size:1rem;font-weight:700;margin-bottom:8px;letter-spacing:-.2px}
+.feat-card p{font-size:.83rem;color:var(--sec);line-height:1.65}
+.feat-tag{display:inline-block;margin-top:12px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:20px}
+.lp-pillars{padding:88px 24px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.lp-pillars-inner{max-width:900px;margin:0 auto}
+.lp-pillars-header{text-align:center;margin-bottom:48px}
+.lp-pillars-header h2{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:800;letter-spacing:-.8px;margin-bottom:10px}
+.lp-pillars-header p{color:var(--sec);font-size:.9rem;max-width:480px;margin:0 auto;line-height:1.6}
+.lp-pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.lp-pillar-item{padding:20px 16px;border-radius:var(--r-sm);border:1px solid var(--border);background:#fff;text-align:center}
+.lp-pillar-emoji{font-size:1.4rem;display:block;margin-bottom:10px}
+.lp-pillar-name{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.lp-pillar-wt{font-size:.68rem;color:var(--ter)}
+.lp-preview{padding:80px 24px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.lp-preview-inner{max-width:900px;margin:0 auto}
+.lp-preview-inner h2{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:800;letter-spacing:-.8px;text-align:center;margin-bottom:10px}
+.lp-preview-sub{text-align:center;color:var(--sec);font-size:.9rem;margin-bottom:36px}
+.lp-preview-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-lg);max-width:680px;margin:0 auto;overflow:hidden}
+.lp-preview-accent{height:4px;background:#30d158}
+.lp-preview-inner2{padding:24px}
+.lp-preview-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.lp-preview-town{font-size:1.4rem;font-weight:800;letter-spacing:-.4px}
+.lp-preview-county{font-size:.78rem;color:var(--sec);margin-top:2px}
+.lp-preview-score-wrap{text-align:right}
+.lp-preview-score{font-size:2.4rem;font-weight:900;color:#30d158;letter-spacing:-1.5px;line-height:1}
+.lp-preview-score-lbl{font-size:.65rem;color:var(--sec);margin-top:2px}
+.lp-preview-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px}
+.lp-preview-stat .sv{font-size:.9rem;font-weight:700}
+.lp-preview-stat .sk{font-size:.67rem;color:var(--ter);margin-top:2px}
+.lp-preview-tags{display:flex;gap:6px;flex-wrap:wrap}
+.lp-blur-wrap{position:relative;margin-top:20px}
+.lp-blur{padding:18px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border);filter:blur(4px);pointer-events:none;user-select:none}
+.lp-blur-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.lp-blur-overlay p{font-size:.85rem;font-weight:600;color:var(--text)}
+.lp-blur-overlay button{height:36px;padding:0 20px;border-radius:9px;background:var(--blue);color:#fff;font-size:.82rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:background .15s}
+.lp-blur-overlay button:hover{background:var(--blue-dk)}
+.blur-row2{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.83rem}
+.blur-row2:last-child{border-bottom:none}
+.blur-key2{color:var(--sec)}
+.blur-val2{font-weight:600}
+.lp-cta{padding:88px 24px;text-align:center;background:linear-gradient(160deg,#0057b5 0%,#0071e3 60%,#339af0 100%);color:#fff}
+.lp-cta h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-1px;margin-bottom:14px}
+.lp-cta p{font-size:1rem;opacity:.85;max-width:480px;margin:0 auto 36px;line-height:1.6}
+.lp-cta-form{max-width:440px;margin:0 auto;display:flex;gap:10px}
+.lp-cta-form input{flex:1;height:50px;padding:0 18px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-size:.95rem;outline:none;border:1.5px solid rgba(255,255,255,.3);transition:border-color .2s,background .2s;font-family:inherit}
+.lp-cta-form input:focus{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.6)}
+.lp-cta-form input::placeholder{color:rgba(255,255,255,.6)}
+.lp-cta-form button{height:50px;padding:0 22px;border-radius:12px;background:#fff;color:var(--blue);font-size:.9rem;font-weight:700;white-space:nowrap;flex-shrink:0;transition:opacity .15s,transform .1s;cursor:pointer;border:none;font-family:inherit}
+.lp-cta-form button:hover{opacity:.92;transform:translateY(-1px)}
+.lp-cta-success{max-width:440px;margin:0 auto;padding:16px 24px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-weight:600;font-size:.9rem;display:none;border:1px solid rgba(255,255,255,.3)}
+.lp-cta-trust{font-size:.75rem;opacity:.65;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:16px}
+
+/* ── EMAIL MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.52);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:22px;padding:36px 32px 26px;max-width:400px;width:100%;box-shadow:0 28px 80px rgba(0,0,0,.22),0 6px 20px rgba(0,0,0,.08);position:relative;transform:translateY(10px) scale(.98);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
+.modal-x{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:#f5f5f7;color:#6e6e73;font-size:.75rem;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-family:inherit;transition:background .15s}
+.modal-x:hover{background:#e5e5ea}
+.modal-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:var(--blue-lt);color:var(--blue);font-size:.7rem;font-weight:700;margin-bottom:16px}
+.modal-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.modal-h{font-size:1.45rem;font-weight:800;letter-spacing:-.6px;line-height:1.2;margin-bottom:8px}
+.modal-p{font-size:.82rem;color:var(--sec);line-height:1.65;margin-bottom:20px}
+.modal-form{display:flex;flex-direction:column;gap:10px}
+.modal-inp{height:46px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border-mid);font-size:.88rem;outline:none;transition:border-color .2s;width:100%;font-family:inherit}
+.modal-inp:focus{border-color:var(--blue)}
+.modal-cta{height:46px;border-radius:12px;background:var(--blue);color:#fff;font-size:.9rem;font-weight:700;border:none;cursor:pointer;transition:background .15s;font-family:inherit}
+.modal-cta:hover{background:var(--blue-dk)}
+.modal-ok{display:none;text-align:center;padding:14px 16px;background:#e4faea;border-radius:12px;color:#1a8a3c;font-weight:600;font-size:.85rem;margin-top:2px}
+.modal-skip{text-align:center;margin-top:12px;font-size:.71rem;color:var(--ter);cursor:pointer;transition:color .15s}
+.modal-skip:hover{color:var(--sec)}
+.modal-trust{display:flex;justify-content:center;gap:14px;margin-top:7px;font-size:.65rem;color:var(--ter)}
+
+/* Responsive */
+@media(max-width:700px){
+  .l-hero{padding:80px 20px 60px}
+  .pain-grid{grid-template-columns:1fr}
+  .pillar-grid{grid-template-columns:repeat(2,1fr)}
+  .l-ctas{flex-direction:column;align-items:center}
+  #leaflet-map{height:320px}
+  .listings-grid{grid-template-columns:1fr}
+  .vendors-grid{grid-template-columns:1fr}
+  .mortgage-inputs{grid-template-columns:1fr}
+  .buyer-grid{grid-template-columns:1fr}
+  .buyer-col:first-child{border-right:none;border-bottom:1px solid var(--border)}
+  .prof-hero{flex-direction:column;gap:18px;padding:22px 18px}
+  .prof-hero-right{width:100%;display:flex;justify-content:center}
+  .town-grid{grid-template-columns:1fr}
+  .site-footer{flex-direction:column;align-items:flex-start}
+  .email-form{flex-direction:column}
+  .email-form button{width:100%}
+  /* Hero split → stack */
+  .hero-inner{flex-direction:column;gap:36px;text-align:center}
+  .hero-sub{margin:18px auto 0;max-width:100%}
+  .hero-form{margin:30px auto 0;max-width:100%}
+  .hero-form{flex-direction:column}
+  .hero-form button{width:100%}
+  .form-success{margin:20px auto 0}
+  .hero-trust{justify-content:center}
+  .hero-right{width:100%;max-width:340px;margin:0 auto}
+  /* Stats bar */
+  .stats-numbers-inner{grid-template-columns:repeat(2,1fr);gap:20px 0}
+  .sn-item:nth-child(2){border-right:none}
+  .sn-item:nth-child(3){border-right:1px solid var(--border)}
+  /* Testimonials */
+  .testi-grid{grid-template-columns:1fr}
+  /* Map panel → bottom sheet */
+  .map-panel{width:100%;top:auto;height:72vh;border-left:none;border-top:1px solid var(--border);box-shadow:0 -8px 32px rgba(0,0,0,.12);transform:translateY(100%)}
+  .map-panel.open{transform:translateY(0)}
+  .pain-cards{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .lp-pillar-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:1fr;gap:24px}
+  .steps::before{display:none}
+  .lp-preview-stats{grid-template-columns:repeat(2,1fr)}
+  .lp-cta-form{flex-direction:column}
+  .lp-cta-form button{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- PDF RENDER TEMPLATE (off-screen) -->
+<div id="pdf-tpl" style="position:fixed;left:-9999px;top:0;width:794px;background:#fff;pointer-events:none;z-index:-1"></div>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalBg(event)">
+  <div class="modal-box">
+    <button class="modal-x" onclick="dismissModal()">✕</button>
+    <div class="modal-badge"><span class="dot"></span>Essex County, MA · Free forever</div>
+    <h2 class="modal-h">Get notified when<br>we add your city or town.</h2>
+    <p class="modal-p">Civica is expanding city by city and town by town. Drop your email to get early access when new coverage launches — and a heads-up on new civic data features.</p>
+    <form class="modal-form" id="modal-form" onsubmit="submitModal(event)">
+      <input class="modal-inp" type="email" id="modal-email" placeholder="Your email address" required autocomplete="email">
+      <button class="modal-cta" type="submit" id="modal-btn">Notify Me When My Town Is Live</button>
+    </form>
+    <div class="modal-ok" id="modal-ok">✓ &nbsp;You're on the list. We'll be in touch soon.</div>
+    <div class="modal-skip" onclick="dismissModal()">No thanks, maybe later</div>
+    <div class="modal-trust"><span>✓ Free</span><span>✓ No spam</span><span>✓ Unsubscribe anytime</span></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="logo" onclick="showLanding()">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+      <rect width="30" height="30" rx="7" fill="#0071e3"/>
+      <rect x="6" y="16" width="4" height="9" rx="1.5" fill="white" opacity="0.65"/>
+      <rect x="13" y="8" width="4" height="17" rx="1.5" fill="white"/>
+      <rect x="20" y="12" width="4" height="13" rx="1.5" fill="white" opacity="0.8"/>
+    </svg>
+    <span class="logo-word">civi<span>ca</span></span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-map-btn" id="nav-map-btn" onclick="showMap()">🗺 Explore Map</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     LANDING VIEW
+══════════════════════════════════════ -->
+<div id="landing" class="view active">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <!-- Left: copy + form -->
+      <div class="hero-left">
+        <div class="hero-badge"><span class="dot"></span>Now live · Essex County, MA · 7 cities and towns</div>
+        <h1>Know before<br>you <em>buy.</em></h1>
+        <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the civic intelligence layer missing from every home search.</p>
+        <form class="hero-form" id="hero-form" onsubmit="submitHero(event)">
+          <input type="email" id="hero-email" placeholder="Enter your email" required autocomplete="email">
+          <button type="submit" id="hero-btn">Notify Me When My Town Is Live</button>
+        </form>
+        <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new cities and towns launch.</div>
+        <div class="hero-trust">
+          <span>✓ Free forever</span>
+          <span>✓ No spam</span>
+          <span>✓ Cancel anytime</span>
+        </div>
+        <div style="margin-top:14px">
+          <a href="#" onclick="showMap();return false" style="font-size:.83rem;color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1.5px solid rgba(0,113,227,.3);padding-bottom:1px;transition:border-color .15s" onmouseover="this.style.borderColor='#0071e3'" onmouseout="this.style.borderColor='rgba(0,113,227,.3)'">See all towns →</a>
+        </div>
+      </div>
+      <!-- Right: live score card preview -->
+      <div class="hero-right">
+        <div class="hero-card">
+          <!-- Card header -->
+          <div style="background:linear-gradient(135deg,#0057b5 0%,#0071e3 100%);padding:20px 22px 16px;color:#fff">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+              <div>
+                <div style="font-size:1.25rem;font-weight:800;letter-spacing:-.4px">Marblehead</div>
+                <div style="font-size:.7rem;opacity:.75;margin-top:2px">Essex County · Pop. 20,413</div>
+              </div>
+              <svg width="72" height="72" viewBox="0 0 72 72"><circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="6"/><circle cx="36" cy="36" r="28" fill="none" stroke="#30d158" stroke-width="6" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="47" transform="rotate(-90 36 36)"/><text x="36" y="36" text-anchor="middle" dy=".15em" font-size="17" font-weight="800" fill="#fff" font-family="-apple-system,sans-serif">73</text></svg>
+            </div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:12px">
+              <span style="background:rgba(255,255,255,.2);color:#fff;font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:20px">S&P AAA</span>
+              <span style="background:rgba(255,255,255,.2);color:#fff;font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:20px">⚡ Muni Electric</span>
+              <span style="background:rgba(255,255,255,.2);color:#fff;font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:20px">Strong TER</span>
+            </div>
+          </div>
+          <!-- Card body -->
+          <div style="padding:16px 22px 18px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+              <div style="background:#f8f8f9;border-radius:9px;padding:10px 12px;border:1px solid #efefef"><div style="font-size:.58rem;color:#98989d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">Bond Rating</div><div style="font-size:.9rem;font-weight:700">AAA</div></div>
+              <div style="background:#f8f8f9;border-radius:9px;padding:10px 12px;border:1px solid #efefef"><div style="font-size:.58rem;color:#98989d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">Median Tax</div><div style="font-size:.9rem;font-weight:700">$10,181</div></div>
+              <div style="background:#f8f8f9;border-radius:9px;padding:10px 12px;border:1px solid #efefef"><div style="font-size:.58rem;color:#98989d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">School Rank</div><div style="font-size:.9rem;font-weight:700">#89 / 351</div></div>
+              <div style="background:#f8f8f9;border-radius:9px;padding:10px 12px;border:1px solid #efefef"><div style="font-size:.58rem;color:#98989d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">TER</div><div style="font-size:.9rem;font-weight:700;color:#30d158">8.1 Strong</div></div>
+            </div>
+            <div style="margin-bottom:14px">
+              <div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:.68rem;color:#6e6e73">Fiscal Health</span><span style="font-size:.68rem;font-weight:700;color:#30d158">85</span></div><div style="height:5px;background:#eeeeee;border-radius:3px;overflow:hidden"><div class="hc-bar-anim" data-w="85%" style="height:100%;width:0%;background:#30d158;border-radius:3px"></div></div></div>
+              <div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:.68rem;color:#6e6e73">Schools</span><span style="font-size:.68rem;font-weight:700;color:#0071e3">72</span></div><div style="height:5px;background:#eeeeee;border-radius:3px;overflow:hidden"><div class="hc-bar-anim" data-w="72%" style="height:100%;width:0%;background:#0071e3;border-radius:3px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:.68rem;color:#6e6e73">Safety</span><span style="font-size:.68rem;font-weight:700;color:#30d158">91</span></div><div style="height:5px;background:#eeeeee;border-radius:3px;overflow:hidden"><div class="hc-bar-anim" data-w="91%" style="height:100%;width:0%;background:#30d158;border-radius:3px"></div></div></div>
+            </div>
+            <button onclick="showProf(2)" style="display:block;width:100%;height:38px;border-radius:10px;background:#0071e3;color:#fff;font-size:.82rem;font-weight:600;border:none;cursor:pointer;font-family:-apple-system,sans-serif;transition:background .15s" onmouseover="this.style.background='#0064cb'" onmouseout="this.style.background='#0071e3'">View Full Profile →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof strip -->
+  <div class="proof-strip">
+    Covering Essex County, MA · Beverly · Danvers · Gloucester · Marblehead · Newburyport · Peabody · Salem · More cities and towns coming
+  </div>
+
+  <!-- Stats numbers -->
+  <div class="stats-numbers">
+    <div class="stats-numbers-inner">
+      <div class="sn-item"><span class="sn-num">7</span><span class="sn-label">Cities &amp; Towns</span></div>
+      <div class="sn-item"><span class="sn-num">54</span><span class="sn-label">Data Points Each</span></div>
+      <div class="sn-item"><span class="sn-num">8</span><span class="sn-label">Civic Pillars</span></div>
+      <div class="sn-item"><span class="sn-num">100%</span><span class="sn-label">Free to Use</span></div>
+    </div>
+  </div>
+
+  <!-- Problem -->
+  <section style="padding:88px 24px;border-bottom:1px solid var(--border)">
+    <div style="max-width:760px;margin:0 auto;text-align:center">
+      <div class="section-eyebrow">The problem</div>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-1px;line-height:1.15">
+        Zillow tells you the price.<br>
+        <span style="color:var(--blue)">Nobody tells you if the city or town works.</span>
+      </h2>
+      <p style="font-size:1rem;color:var(--sec);max-width:560px;margin:16px auto 0;line-height:1.7">
+        You're about to spend $600k+. Your agent doesn't know if the city or town is fiscally solvent. School ranking sites don't show the 10-year trend. And you won't know the real tax burden until after you close.
+      </p>
+      <div class="pain-cards">
+        <div class="pain-card">
+          <span class="pain-icon">🏦</span>
+          <h3>Is the city or town fiscally healthy?</h3>
+          <p>Free cash, bond rating, pension liability, debt per capita — none of this appears on a listing. Civica puts it front and center.</p>
+        </div>
+        <div class="pain-card">
+          <span class="pain-icon">🎓</span>
+          <h3>Are the schools trending up or down?</h3>
+          <p>A school ranked #150 that was #200 last year is a buy. One that fell from #80 to #150 is a red flag. Ranks without trajectory are useless.</p>
+        </div>
+        <div class="pain-card">
+          <span class="pain-icon">💰</span>
+          <h3>What's the real cost to own?</h3>
+          <p>Median tax bill, effective rate, municipal electric savings — the total cost of ownership can swing $3,000/year between neighboring cities and towns.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how">
+    <div class="how-inner">
+      <div class="section-eyebrow" style="text-align:center">How it works</div>
+      <h2>From search to decision in 3 steps</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Browse the map</h3>
+          <p>Filter cities and towns by school quality, commuter rail access, municipal electric, or tax burden. See every city and town's Civica Score on the map at a glance.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Dig into the profile</h3>
+          <p>Open any city or town to see all 8 civic pillars — fiscal health, schools, safety, infrastructure, and more — with real data and source citations.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Make your call</h3>
+          <p>The Honest Buyer Take gives you a personalized pros/cons list. Know exactly what you're buying and what you're giving up.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="features-inner">
+      <div class="features-header">
+        <div class="section-eyebrow">What you get</div>
+        <h2>Everything your agent doesn't know</h2>
+        <p>Eight data pillars. One composite score. Built for buyers who do their homework.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-icon" style="background:#e8f2ff">🏦</div>
+          <h3>Civica Score</h3>
+          <p>A single composite score (0–100) derived from 8 weighted pillars of civic data — from bond ratings to school trends to flood risk. Instantly comparable across cities and towns.</p>
+          <span class="feat-tag" style="background:#e8f2ff;color:#0071e3">Core feature</span>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon" style="background:#e4faea">💰</div>
+          <h3>Tax Efficiency Ratio (TER)</h3>
+          <p>Not just "how much do I pay" — but "what do I get for what I pay." A city or town with a $9k tax bill and AAA schools may be better value than one charging $6k for average outcomes.</p>
+          <span class="feat-tag" style="background:#e4faea;color:#1a8a3c">Proprietary metric</span>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon" style="background:#fff4e0">🎓</div>
+          <h3>School Trajectory</h3>
+          <p>State rank plus the 10-year trend. A school moving up 50 spots signals momentum. One falling 50 signals something the listing won't tell you. We track both.</p>
+          <span class="feat-tag" style="background:#fff4e0;color:#b25a00">10-year view</span>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon" style="background:#f5f5f7">🏡</div>
+          <h3>Honest Buyer Take</h3>
+          <p>A straight-talk pros/cons analysis for each city or town — not marketing copy. We flag the red flags. We highlight the hidden advantages. We tell you who should reconsider.</p>
+          <span class="feat-tag" style="background:#f5f5f7;color:#6e6e73">No spin</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pillars -->
+  <section class="lp-pillars">
+    <div class="lp-pillars-inner">
+      <div class="lp-pillars-header">
+        <div class="section-eyebrow">The framework</div>
+        <h2>8 pillars of civic intelligence</h2>
+        <p>Every Civica Score is built from 54 individual data points across eight categories, each weighted by its impact on your quality of life and investment.</p>
+      </div>
+      <div class="lp-pillar-grid">
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">🏦</span><div class="lp-pillar-name">Fiscal Health</div><div class="lp-pillar-wt">30% weight</div></div>
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">💰</span><div class="lp-pillar-name">Tax Efficiency</div><div class="lp-pillar-wt">15% weight</div></div>
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">🎓</span><div class="lp-pillar-name">Schools</div><div class="lp-pillar-wt">15% weight</div></div>
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">⚙️</span><div class="lp-pillar-name">Operational Quality</div><div class="lp-pillar-wt">10% weight</div></div>
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">⚡</span><div class="lp-pillar-name">Infrastructure</div><div class="lp-pillar-wt">10% weight</div></div>
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">📈</span><div class="lp-pillar-name">Economic Momentum</div><div class="lp-pillar-wt">10% weight</div></div>
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">🛡️</span><div class="lp-pillar-name">Safety</div><div class="lp-pillar-wt">5% weight</div></div>
+        <div class="lp-pillar-item"><span class="lp-pillar-emoji">🌿</span><div class="lp-pillar-name">Climate Resilience</div><div class="lp-pillar-wt">5% weight</div></div>
+      </div>
+      <div style="text-align:center;margin-top:24px">
+        <a href="civica-methodology.html" style="font-size:.82rem;color:var(--blue);font-weight:600">Read the full methodology →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials">
+    <div class="testimonials-inner">
+      <div class="testi-header">
+        <span class="section-eyebrow">What buyers say</span>
+        <h2 style="font-size:clamp(1.8rem,4vw,2.4rem);font-weight:800;letter-spacing:-.8px;margin-top:8px">Finally, data that matters</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">We were choosing between Beverly and Marblehead. Civica showed us Marblehead's fiscal health was significantly stronger — AAA bond, 7.4% free cash. We made the call in under 10 minutes.</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:linear-gradient(135deg,#0071e3,#339af0)">SK</div>
+            <div><div class="testi-name">Sarah K.</div><div class="testi-loc">Bought in Marblehead, 2024</div></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">I'm a numbers person. I needed actual data, not "great school district!" Civica gave me 54 data points per town. We bought in Newburyport — the TER score sold us.</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:linear-gradient(135deg,#30d158,#0071e3)">DM</div>
+            <div><div class="testi-name">David M.</div><div class="testi-loc">Bought in Newburyport, 2024</div></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">Our agent had no idea what free cash percentage meant. Civica flagged two towns as fiscally stressed before we got attached. Saved us from a decision we'd regret.</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:linear-gradient(135deg,#ff9f0a,#ff3b30)">PT</div>
+            <div><div class="testi-name">Priya &amp; Tom S.</div><div class="testi-loc">Bought in Beverly, 2025</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="lp-cta">
+    <div class="section-eyebrow" style="color:rgba(255,255,255,.7)">Join the waitlist</div>
+    <h2>Be first when we add<br>your county.</h2>
+    <p>We're expanding city by city and town by town. Get notified when we add new coverage — and get early access to the full data layer.</p>
+    <form class="lp-cta-form" id="cta-form" onsubmit="submitCta(event)">
+      <input type="email" id="cta-email" placeholder="Enter your email" required autocomplete="email">
+      <button type="submit" id="cta-btn">Join Waitlist</button>
+    </form>
+    <div class="lp-cta-success" id="cta-success">✓ &nbsp;You're on the list. Talk soon.</div>
+    <div class="lp-cta-trust">
+      <span>✓ Free to join</span>
+      <span>✓ No spam, ever</span>
+      <span>✓ Unsubscribe anytime</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-logo">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <rect width="30" height="30" rx="7" fill="#0071e3"/>
+        <rect x="6" y="16" width="4" height="9" rx="1.5" fill="white" opacity="0.65"/>
+        <rect x="13" y="8" width="4" height="17" rx="1.5" fill="white"/>
+        <rect x="20" y="12" width="4" height="13" rx="1.5" fill="white" opacity="0.8"/>
+      </svg>
+      <span class="logo-word">civi<span>ca</span></span>
+    </div>
+    <nav class="footer-links">
+      <a href="#" onclick="showMap();return false">Map</a>
+      <a href="civica-methodology.html">Methodology</a>
+      <a href="mailto:hello@civica.com">Contact</a>
+    </nav>
+    <div class="footer-copy">© 2025 Civica · Essex County, MA</div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAP VIEW
+══════════════════════════════════════ -->
+<div id="map-view" class="view">
+
+  <!-- Header -->
+  <div class="map-header">
+    <div class="map-header-inner">
+      <h2 class="map-title">Essex County, MA</h2>
+      <p class="map-subtitle">Civica scores 7 cities and towns across 8 civic pillars — fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
+      <div class="map-search-wrap">
+        <div class="map-search-bar">
+          <span class="map-search-ico">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><line x1="14.5" y1="14.5" x2="19" y2="19"/></svg>
+          </span>
+          <input class="map-search-inp" id="map-search-inp" type="text" placeholder="Search by city, town, or zip code…" autocomplete="off" spellcheck="false">
+          <button class="map-search-clear" id="map-search-clear" aria-label="Clear">✕</button>
+        </div>
+        <div class="map-search-dd" id="map-search-dd"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-wrap">
+    <div id="leaflet-map"></div>
+    <div class="map-legend">
+      <div class="leg-title">Civica Score</div>
+      <div class="leg-row"><div class="leg-dot" style="background:#30d158"></div><span class="leg-label">73–100 Excellent</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#0071e3"></div><span class="leg-label">67–72 Good</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff9f0a"></div><span class="leg-label">63–66 Fair</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff3b30"></div><span class="leg-label">Below 63</span></div>
+    </div>
+  </div>
+
+  <!-- Quick access -->
+  <div class="map-below">
+    <div class="map-below-inner">
+      <div class="map-quick-label">Browse all cities &amp; towns</div>
+      <div class="map-town-chips" id="map-town-chips"></div>
+    </div>
+  </div>
+
+  <!-- Side panel -->
+  <div class="map-panel" id="map-panel">
+    <div class="mp-header">
+      <button class="mp-close" onclick="closeMapPanel()">✕</button>
+      <div class="mp-town" id="mp-town"></div>
+      <div class="mp-loc" id="mp-loc"></div>
+      <div class="mp-score-row">
+        <div id="mp-gauge"></div>
+        <div style="text-align:right">
+          <div style="font-size:1.9rem;font-weight:900;letter-spacing:-1px;color:#fff" id="mp-score-num"></div>
+          <div class="mp-score-label">Civica Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="mp-body">
+      <div class="mp-kstats" id="mp-kstats"></div>
+      <div class="mp-tags" id="mp-tags"></div>
+      <button class="mp-view-btn" id="mp-view-btn">View Full Profile →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════
+     PROFILE VIEW
+══════════════════════════════════════ -->
+<div id="prof-view" class="view">
+  <div class="prof-nav">
+    <button class="back-btn" onclick="showMap()">← All Cities & Towns</button>
+    <span class="prof-nav-town" id="pnav-town"></span>
+    <span class="prof-nav-score" id="pnav-score"></span>
+    <button class="export-btn" id="export-btn" onclick="exportTownPDF(state.prof)" title="Download town profile as PDF">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M4 17h12"/></svg>
+      Export Data
+    </button>
+  </div>
+  <div id="prof-inner"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   DATA
+═══════════════════════════════ */
+const TOWNS = [
+  {name:"Danvers",lat:42.5751,lng:-70.9329,state:"MA",county:"Essex",zip:"01923 / 01937",pop:28098,bond:"AA+",free_cash:10.7,pension:null,debt_pc:3079,gfoa:16,tax_non_res:21.5,eff_rate:1.18,med_tax:6371,med_inc:125395,res_rate:13.36,d_rank:196,d_total:351,d_10yr:"+51 spots (declined)",math:32.29,grad:95.0,ap:54.0,per_pupil:20883,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:2036,water_viol:0,broadband:null,transit:"None (Beverly / Salem nearest)",walk:null,park:9.0,lib:7.0,violent:137.4,prop_crime:1480.2,crime5yr:null,inc10yr:65.0,pop10yr:6.1,bach:48.4,unemp:null,pov:4.8,flood:9.8,flood50:2.8,fire:"Low",heat50:21,aqi:null,canopy:null,score:72,ter:5.4,ter_r:"Average",gaps:21,conf:"high",standout:"Danvers Electric saves the typical household ~$2,036/year vs Eversource — among the largest hidden affordability advantages of any town in Massachusetts.",glance:"Danvers is an 18-mile-north-of-Boston town with a long fiscal track record, a municipal electric utility that shaves ~$2,000/year off the typical electric bill, and very low violent crime. The key caveat: the school district has slipped roughly 50 spots over the past decade and sits mid-table statewide.",notes:"AAA 2019–2024; AA+ 2025 (S&P methodology change, not Danvers-specific deterioration). Danvers Electric ~$2,036/yr savings vs MA average."},
+  {name:"Beverly",lat:42.5584,lng:-70.8800,state:"MA",county:"Essex",zip:"01915",pop:42665,bond:"AA+",free_cash:6.0,pension:null,debt_pc:1900,gfoa:18,tax_non_res:18.0,eff_rate:1.0,med_tax:6605,med_inc:106044,res_rate:11.23,d_rank:109,d_total:351,d_10yr:"-10 spots",math:48.68,grad:94.4,ap:37.0,per_pupil:15302,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:-300,water_viol:0,broadband:null,transit:"Commuter Rail (in town)",walk:null,park:8.0,lib:8.0,violent:195,prop_crime:1450,crime5yr:null,inc10yr:32.0,pop10yr:8.4,bach:31.3,unemp:null,pov:14.0,flood:4.0,flood50:null,fire:"Low",heat50:21,aqi:null,canopy:null,score:73,ter:6.5,ter_r:"Average",gaps:18,conf:"medium",standout:"Commuter rail station in town provides direct Boston access. School rank #109 of 351 — notably stronger than most Essex County peers.",glance:"Beverly is a 42,000-resident city on the North Shore with commuter rail, decent schools, and strong fiscal health. The district ranks #109 of 351 statewide — a meaningful advantage over most Essex County neighbors.",notes:"Several inputs estimated. Pull primary ACFR before external publication."},
+  {name:"Marblehead",lat:42.4998,lng:-70.8584,state:"MA",county:"Essex",zip:"01945",pop:20413,bond:"AAA",free_cash:7.4,pension:null,debt_pc:6173,gfoa:18,tax_non_res:4.4,eff_rate:0.905,med_tax:10181,med_inc:182132,res_rate:9.05,d_rank:89,d_total:351,d_10yr:null,math:59.0,grad:99.0,ap:67.0,per_pupil:21972,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:1931,water_viol:0,broadband:null,transit:"Bus only",walk:49,park:2.1,lib:10.3,violent:14.6,prop_crime:57.8,crime5yr:null,inc10yr:28.3,pop10yr:3.2,bach:78.3,unemp:null,pov:1.9,flood:4.4,flood50:3.0,fire:"Low",heat50:null,aqi:null,canopy:null,score:73,ter:8.1,ter_r:"Strong",gaps:12,conf:"medium",standout:"AAA bond rating, exceptional schools (#89 of 351), virtually no violent crime (14.6/100k), and MMLD municipal electric saves ~$1,931/yr. Highest TER in the Essex County cohort.",glance:"Marblehead is the most affluent and academically exceptional town in the cohort. AAA bond rating, schools in the top quartile statewide, violent crime that is almost non-existent.",notes:"AAA bond rating (S&P Apr 2026; outlook shifted to Negative). MMLD municipal electric ~$1,931/yr savings vs MA avg. High debt/capita ($6,173 vs $2,400 MA median)."},
+  {name:"Salem",lat:42.5195,lng:-70.8967,state:"MA",county:"Essex",zip:"01970 / 01971",pop:44795,bond:"AA",free_cash:1.2,pension:null,debt_pc:null,gfoa:10,tax_non_res:null,eff_rate:1.13,med_tax:null,med_inc:85153,res_rate:11.34,d_rank:295,d_total:351,d_10yr:null,math:42.0,grad:81.6,ap:32.0,per_pupil:25712,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:0,water_viol:0,broadband:null,transit:"Commuter Rail (in town)",walk:70,park:null,lib:11.9,violent:152.0,prop_crime:1554.0,crime5yr:null,inc10yr:null,pop10yr:4.86,bach:47.8,unemp:16.0,pov:12.1,flood:16.0,flood50:12.0,fire:"Low",heat50:11,aqi:null,canopy:null,score:63,ter:5.6,ter_r:"Average",gaps:16,conf:"low",standout:"Walk Score 70 and commuter rail give Salem the best transit and walkability in the cohort. Vibrant cultural destination with a tourism-driven downtown economy.",glance:"Salem is the most urban and walkable town in the cohort — commuter rail, walk score of 70, and a distinct cultural identity as a tourism destination. Lowest Civica score (63) and high flood risk trajectory.",notes:"AA bond rating (S&P stable Oct 2024). Very low free cash 1.2%. High flood trajectory (+12 pts by 2050)."},
+  {name:"Peabody",lat:42.5279,lng:-70.9287,state:"MA",county:"Essex",zip:"01960",pop:54695,bond:null,free_cash:5.16,pension:null,debt_pc:null,gfoa:null,tax_non_res:null,eff_rate:0.926,med_tax:4572,med_inc:96657,res_rate:9.26,d_rank:265,d_total:351,d_10yr:null,math:33.0,grad:90.7,ap:33.0,per_pupil:19148,r311:null,ems:null,permits:null,iso:null,transp:"Partial",elec_save:1850,water_viol:0,broadband:null,transit:"Commuter Rail (nearby)",walk:43,park:4.6,lib:null,violent:254.7,prop_crime:836.9,crime5yr:null,inc10yr:null,pop10yr:3.48,bach:35.0,unemp:null,pov:10.5,flood:0.4,flood50:null,fire:"Low",heat50:null,aqi:null,canopy:null,score:67,ter:7.2,ter_r:"Strong",gaps:18,conf:"low",standout:"PMLP municipal electric saves ~$1,850/yr vs Eversource. Lowest median tax bill ($4,572) and lowest flood risk (0.4%) in the cohort.",glance:"Peabody is Essex County's largest city and one of its best-value stories. Lowest median tax bill ($4,572), municipal electric savings of ~$1,850/year, and very low flood risk.",notes:"PMLP municipal electric ~$1,850/yr savings vs MA avg. Bond rating unconfirmed — pull from EMMA."},
+  {name:"Gloucester",lat:42.6159,lng:-70.6620,state:"MA",county:"Essex",zip:"01930 / 01931",pop:30075,bond:"AA",free_cash:3.2,pension:null,debt_pc:null,gfoa:null,tax_non_res:8.26,eff_rate:0.97,med_tax:6056,med_inc:83883,res_rate:9.72,d_rank:254,d_total:351,d_10yr:null,math:29.0,grad:89.1,ap:29.0,per_pupil:22663,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:0,water_viol:0,broadband:null,transit:"Commuter Rail (in town)",walk:42,park:212.0,lib:5.1,violent:null,prop_crime:null,crime5yr:null,inc10yr:null,pop10yr:4.5,bach:40.3,unemp:null,pov:9.6,flood:null,flood50:null,fire:"Low",heat50:null,aqi:null,canopy:null,score:66,ter:6.8,ter_r:"Average",gaps:18,conf:"low",standout:"212 acres of open space per 1,000 residents. Commuter rail in town. A working waterfront city with authentic character.",glance:"Gloucester is a working waterfront city with exceptional open space and commuter rail. The Civica score (66) reflects data gaps rather than weak fundamentals.",notes:"AA bond rating from 2019 — confirm current via EMMA. Crime rates blank — pull from FBI CDE."},
+  {name:"Newburyport",lat:42.8126,lng:-70.8773,state:"MA",county:"Essex",zip:"01950 / 01951",pop:18652,bond:null,free_cash:null,pension:null,debt_pc:null,gfoa:null,tax_non_res:null,eff_rate:null,med_tax:7778,med_inc:139625,res_rate:9.58,d_rank:87,d_total:351,d_10yr:null,math:48.0,grad:98.0,ap:64.0,per_pupil:23233,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:null,water_viol:0,broadband:null,transit:"Commuter Rail (in town)",walk:52,park:null,lib:19.8,violent:47.0,prop_crime:395.0,crime5yr:null,inc10yr:null,pop10yr:5.3,bach:64.0,unemp:null,pov:5.0,flood:null,flood50:3.7,fire:"Low",heat50:null,aqi:null,canopy:null,score:69,ter:7.2,ter_r:"Strong",gaps:22,conf:"low",standout:"Schools rank #87 of 351 statewide. Library circulation 19.8/capita (best in cohort). Very low crime (violent: 47/100k). Score likely understated.",glance:"Newburyport is one of the most desirable small cities on the North Shore — top schools, very low crime, commuter rail, and a celebrated downtown. Score is suppressed by 22 data gaps.",notes:"Bond rating not confirmed. Library circ/capita 19.8 is exceptional. Score likely understated."}
+];
+
+/* ═══════════════════════════════
+   ADS
+═══════════════════════════════ */
+const AD_AGENT={initials:"SM",name:"Sarah Mitchell",agency:"Coldwell Banker Realty — North Shore",years:14,rating:"4.9",reviews:127,phone:"(978) 555-0142",tags:["First-time buyers","Waterfront","Relocation"],bio:"Top 1% producer on the North Shore for 14 consecutive years. Specializing in Essex County residential, waterfront, and historic properties."};
+const AD_LISTINGS_MAP={Beverly:[{emoji:"🏡",price:649000,addr:"42 Oak Street",meta:"3 bd · 2 ba",bg:"#e8f2ff"},{emoji:"🏠",price:875000,addr:"18 Harbor Road",meta:"4 bd · 3 ba",bg:"#e4faea"},{emoji:"🏡",price:529000,addr:"7 Maple Ave",meta:"3 bd · 2 ba",bg:"#fff4e0"}]};
+const DEFAULT_LISTINGS=[{emoji:"🏡",price:650000,addr:"14 Main Street",meta:"3 bd · 2 ba",bg:"#e8f2ff"},{emoji:"🏠",price:820000,addr:"7 Harbor Drive",meta:"4 bd · 3 ba",bg:"#e4faea"},{emoji:"🏡",price:510000,addr:"31 Oak Lane",meta:"3 bd · 2 ba",bg:"#fff4e0"}];
+const AD_VENDORS=[{icon:"🚚",name:"North Shore Moving Co.",type:"Full-service moving"},{icon:"🔍",name:"Essex Home Inspections",type:"Certified inspection"},{icon:"🏦",name:"Cape Ann Mortgage",type:"Purchase & refinance"},{icon:"🛡️",name:"Plymouth Rock Insurance",type:"Home & auto"}];
+
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let state={view:'landing',filter:'all',sort:'score',favs:new Set(JSON.parse(localStorage.getItem('civica_favs')||'[]')),prof:null};
+let leafletMap=null;
+const FORMSPREE_ID='YOUR_FORM_ID';
+
+/* ═══════════════════════════════
+   UTILS
+═══════════════════════════════ */
+const scoreColor=s=>s>=73?'#30d158':s>=67?'#0071e3':s>=63?'#ff9f0a':'#ff3b30';
+const confColor=c=>({high:'#30d158',medium:'#ff9f0a',low:'#ff3b30'})[c]||'#98989d';
+function saveFavs(){localStorage.setItem('civica_favs',JSON.stringify([...state.favs]));}
+
+function grade(key,val,t){
+  if(val==null)return'na';
+  const G={bond:v=>['AAA','AA+'].includes(v)?'green':['AA','AA-'].includes(v)?'yellow':'red',free_cash:v=>v>=7?'green':v>=3?'yellow':'red',eff_rate:v=>v<1.0?'green':v<1.3?'yellow':'red',d_rank:v=>{const p=v/(t.d_total||351);return p<=0.25?'green':p<=0.5?'yellow':'red';},math:v=>v>=50?'green':v>=30?'yellow':'red',grad:v=>v>=95?'green':v>=85?'yellow':'red',violent:v=>v<60?'green':v<200?'yellow':'red',prop_crime:v=>v<500?'green':v<1500?'yellow':'red',flood:v=>v<5?'green':v<12?'yellow':'red',flood50:v=>v<3?'green':v<8?'yellow':'red',elec_save:v=>v>1000?'green':v>0?'yellow':'red',ter_r:v=>v==='Strong'?'green':v==='Average'?'yellow':'red',water_viol:v=>v===0?'green':v<3?'yellow':'red',pov:v=>v<5?'green':v<12?'yellow':'red',debt_pc:v=>v<3000?'green':v<6000?'yellow':'red'};
+  return G[key]?G[key](val):'na';
+}
+const G_BG={green:'#e4faea',yellow:'#fff4e0',red:'#fff0ee',na:'#f5f5f7'};
+const G_TEXT={green:'#1a8a3c',yellow:'#b25a00',red:'#c0392b',na:'#98989d'};
+const G_DOT={green:'#30d158',yellow:'#ff9f0a',red:'#ff3b30',na:'#e5e5ea'};
+
+function metricRow(key,label,display,g){
+  if(display==null)return`<div class="metric-row"><div class="metric-dot" style="background:#e5e5ea"></div><span class="metric-key">${label}</span><span class="metric-na">Pending</span></div>`;
+  return`<div class="metric-row"><div class="metric-dot" style="background:${G_DOT[g]}"></div><span class="metric-key">${label}</span><span class="metric-val" style="background:${G_BG[g]};color:${G_TEXT[g]}">${display}</span></div>`;
+}
+
+function scoreGauge(score,size=130){
+  const r=size*.39,cx=size/2,cy=size/2,circ=2*Math.PI*r,off=circ*(1-score/100),col=scoreColor(score);
+  return`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f2f2f2" stroke-width="${size*.085}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${size*.085}" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 ${cx} ${cy})"/><text x="${cx}" y="${cy}" text-anchor="middle" dy=".15em" font-size="${size*.245}" font-weight="800" fill="#1d1d1f" font-family="-apple-system,sans-serif">${score}</text><text x="${cx}" y="${cy+size*.195}" text-anchor="middle" font-size="${size*.083}" fill="#98989d" font-family="-apple-system,sans-serif">out of 100</text></svg>`;
+}
+
+/* ═══════════════════════════════
+   MAP
+═══════════════════════════════ */
+function initLeafletMap(){
+  if(leafletMap){leafletMap.invalidateSize();return;}
+  leafletMap=L.map('leaflet-map',{zoomControl:true,scrollWheelZoom:false}).setView([42.62,-70.82],10);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+    maxZoom:19
+  }).addTo(leafletMap);
+  renderMapMarkers();
+}
+
+function renderMapMarkers(){
+  if(!leafletMap)return;
+  // Clear existing markers
+  leafletMap.eachLayer(l=>{if(l instanceof L.Marker)leafletMap.removeLayer(l);});
+
+  const list=filteredTowns();
+  list.forEach(t=>{
+    if(!t.lat||!t.lng)return;
+    const col=scoreColor(t.score);
+    const icon=L.divIcon({
+      className:'',
+      html:`<div class="civica-marker" style="background:${col}">${t.score}</div>`,
+      iconSize:[44,44],iconAnchor:[22,22],popupAnchor:[0,-26]
+    });
+    const marker=L.marker([t.lat,t.lng],{icon});
+    marker.addTo(leafletMap);
+
+    const tags=[];
+    if(t.bond) tags.push(`<span class="cp-stat">${t.bond}</span>`);
+    if(t.transit&&t.transit.includes('Rail')) tags.push(`<span class="cp-stat">🚆 Rail</span>`);
+    if(t.elec_save&&t.elec_save>500) tags.push(`<span class="cp-stat">⚡ Muni Electric</span>`);
+    if(t.d_rank) tags.push(`<span class="cp-stat">#${t.d_rank} Schools</span>`);
+
+    marker.on('click',()=>openMapPanel(t.idx));
+  });
+}
+
+function openMapPanel(idx){
+  const t=TOWNS[idx];
+  const col=scoreColor(t.score);
+  document.getElementById('mp-town').textContent=t.name;
+  document.getElementById('mp-loc').textContent=`${t.county} County · ZIP ${t.zip} · Pop. ${t.pop.toLocaleString()}`;
+  document.getElementById('mp-score-num').innerHTML=`<span style="color:${col}">${t.score}</span>`;
+  document.getElementById('mp-gauge').innerHTML=scoreGauge(t.score,72);
+  document.getElementById('mp-kstats').innerHTML=[
+    ['Bond Rating',t.bond||'—'],
+    ['Median Tax',t.med_tax?'$'+t.med_tax.toLocaleString():'—'],
+    ['School Rank',t.d_rank?'#'+t.d_rank+'/'+t.d_total:'—'],
+    ['TER',t.ter+' '+t.ter_r]
+  ].map(([k,v])=>`<div class="mp-kstat"><div class="mp-kstat-key">${k}</div><div class="mp-kstat-val">${v}</div></div>`).join('');
+  const tags=[];
+  if(t.bond) tags.push(t.bond);
+  if(t.transit&&t.transit.includes('Rail')) tags.push('🚆 Rail');
+  if(t.elec_save&&t.elec_save>500) tags.push('⚡ Muni Electric');
+  if(t.ter_r==='Strong') tags.push('Strong TER');
+  document.getElementById('mp-tags').innerHTML=tags.map(tg=>`<span class="mp-tag">${tg}</span>`).join('');
+  document.getElementById('mp-view-btn').onclick=()=>showProf(idx);
+  document.getElementById('map-panel').classList.add('open');
+}
+function closeMapPanel(){document.getElementById('map-panel').classList.remove('open');}
+
+/* ═══════════════════════════════
+   DIRECTORY
+═══════════════════════════════ */
+function filteredTowns(){
+  let list=TOWNS.map((t,i)=>({...t,idx:i}));
+  if(state.filter==='strong') list=list.filter(t=>t.ter_r==='Strong');
+  if(state.filter==='schools') list=list.filter(t=>t.d_rank&&t.d_rank<=120);
+  if(state.filter==='rail') list=list.filter(t=>t.transit&&t.transit.includes('Rail'));
+  if(state.filter==='utility') list=list.filter(t=>t.elec_save&&t.elec_save>500);
+  if(state.filter==='fav') list=list.filter(t=>state.favs.has(t.idx));
+  list.sort((a,b)=>{
+    if(state.sort==='score') return b.score-a.score;
+    if(state.sort==='ter') return b.ter-a.ter;
+    if(state.sort==='schools') return(a.d_rank||999)-(b.d_rank||999);
+    if(state.sort==='tax') return(a.med_tax||999999)-(b.med_tax||999999);
+    if(state.sort==='name') return a.name.localeCompare(b.name);
+    return 0;
+  });
+  return list;
+}
+
+function renderGrid(){
+  const list=filteredTowns();
+  document.getElementById('map-count').textContent=list.length===TOWNS.length?`${TOWNS.length} towns in Essex County, MA`:`${list.length} of ${TOWNS.length} towns`;
+  if(!list.length){document.getElementById('grid').innerHTML=`<div class="no-results">No towns match this filter.</div>`;return;}
+  document.getElementById('grid').innerHTML=list.map(t=>{
+    const col=scoreColor(t.score),fav=state.favs.has(t.idx);
+    const tags=[];
+    if(t.bond) tags.push(`<span class="tag tag-blue">${t.bond}</span>`);
+    if(t.ter_r==='Strong') tags.push(`<span class="tag tag-green">Strong TER</span>`);
+    if(t.transit&&t.transit.includes('Rail')) tags.push(`<span class="tag tag-blue">🚆 Rail</span>`);
+    if(t.elec_save&&t.elec_save>500) tags.push(`<span class="tag tag-green">⚡ Muni Electric</span>`);
+    if(t.conf==='low') tags.push(`<span class="tag tag-gray">Data gaps</span>`);
+    return`<div class="card" onclick="showProf(${t.idx})">
+      <div class="card-accent" style="background:${col}"></div>
+      <div class="card-inner">
+        <div class="card-top">
+          <div><div class="card-name">${t.name}</div><div class="card-sub">${t.county} County · Pop. ${t.pop.toLocaleString()}</div></div>
+          <div style="text-align:right"><div class="score-badge" style="color:${col}">${t.score}</div><div class="score-sub">Civica<br>Score</div></div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-item"><div class="sv">${t.bond||'—'}</div><div class="sk">Bond Rating</div></div>
+          <div class="stat-item"><div class="sv">${t.med_tax?'$'+t.med_tax.toLocaleString():'—'}</div><div class="sk">Median Tax</div></div>
+          <div class="stat-item"><div class="sv">${t.d_rank?'#'+t.d_rank+'/'+t.d_total:'—'}</div><div class="sk">School Rank</div></div>
+          <div class="stat-item"><div class="sv">${t.ter} <span style="font-size:.67rem;font-weight:400;color:var(--sec)">${t.ter_r}</span></div><div class="sk">TER</div></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags">${tags.join('')}</div>
+          <button class="fav-btn ${fav?'active':''}" onclick="toggleFav(event,${t.idx})">${fav?'♥':'♡'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════
+   PROFILE
+═══════════════════════════════ */
+function renderProf(idx){
+  const t={...TOWNS[idx],idx};
+  const col=scoreColor(t.score);
+  const confPct=Math.round(((54-t.gaps)/54)*100);
+
+  const PILLARS=[
+    {num:1,icon:"🏦",bg:"#e8f2ff",name:"Fiscal Health",wt:"30%",metrics:[['bond','S&P Bond Rating',t.bond,grade('bond',t.bond,t)],['free_cash','Free Cash % of Budget',t.free_cash!=null?t.free_cash+'%':null,grade('free_cash',t.free_cash,t)],['pension','Pension Funded Ratio',t.pension!=null?t.pension+'%':null,'na'],['debt_pc','Debt Per Capita',t.debt_pc!=null?'$'+t.debt_pc.toLocaleString():null,grade('debt_pc',t.debt_pc,t)],['gfoa','GFOA Certificate (yrs)',t.gfoa!=null?t.gfoa+' yrs':null,'na'],['transp','Financial Transparency',t.transp,'na']]},
+    {num:2,icon:"💰",bg:"#e4faea",name:"Tax Efficiency",wt:"15%",metrics:[['eff_rate','Effective Tax Rate',t.eff_rate!=null?t.eff_rate+'%':null,grade('eff_rate',t.eff_rate,t)],['med_tax','Median Annual Tax Bill',t.med_tax!=null?'$'+t.med_tax.toLocaleString():null,'na'],['med_inc','Median Household Income',t.med_inc!=null?'$'+t.med_inc.toLocaleString():null,'na'],['res_rate','Residential Rate (per $1k AV)',t.res_rate!=null?'$'+t.res_rate:null,'na'],['tax_non_res','Non-Residential Tax Base',t.tax_non_res!=null?t.tax_non_res+'%':null,'na'],['ter','Tax Efficiency Ratio',t.ter+' — '+t.ter_r,grade('ter_r',t.ter_r,t)]]},
+    {num:3,icon:"🎓",bg:"#fff4e0",name:"Schools",wt:"15%",metrics:[['d_rank','State District Rank',t.d_rank!=null?'#'+t.d_rank+' of '+t.d_total:null,grade('d_rank',t.d_rank,t)],['d_10yr','10-Year Rank Change',t.d_10yr,'na'],['math','MCAS Math Proficiency',t.math!=null?t.math+'%':null,grade('math',t.math,t)],['grad','4-Year Graduation Rate',t.grad!=null?t.grad+'%':null,grade('grad',t.grad,t)],['ap','AP Participation Rate',t.ap!=null?t.ap+'%':null,'na'],['per_pupil','Per-Pupil Spending',t.per_pupil!=null?'$'+t.per_pupil.toLocaleString():null,'na']]},
+    {num:4,icon:"⚙️",bg:"#f5f5f7",name:"Operational Quality",wt:"10%",metrics:[['r311','311 Response Time',t.r311!=null?t.r311+' days':null,'na'],['ems','EMS Response Time',t.ems!=null?t.ems+' min':null,'na'],['permits','Building Permits per 1,000',t.permits,'na'],['iso','ISO Fire Rating',t.iso,'na'],['transp','ACFR Published',t.transp,'na']]},
+    {num:5,icon:"⚡",bg:"#e8f2ff",name:"Infrastructure & Utilities",wt:"10%",metrics:[['elec_save','Electric Savings vs State Avg',t.elec_save!=null?(t.elec_save>=0?'+':'')+'$'+Math.abs(t.elec_save).toLocaleString()+'/yr':null,grade('elec_save',t.elec_save,t)],['water_viol','Water Quality Violations (5yr)',t.water_viol!=null?t.water_viol:null,grade('water_viol',t.water_viol,t)],['broadband','Broadband Coverage',t.broadband!=null?t.broadband+'%':null,'na'],['transit','Transit Access',t.transit,'na'],['walk','Walk Score',t.walk,'na']]},
+    {num:6,icon:"🛡️",bg:"#fff0ee",name:"Safety",wt:"5%",metrics:[['violent','Violent Crime per 100k',t.violent,'na'!==grade('violent',t.violent,t)?t.violent:null,grade('violent',t.violent,t)],['prop_crime','Property Crime per 100k',t.prop_crime,grade('prop_crime',t.prop_crime,t)],['park','Park Acres per 1,000',t.park,'na'],['lib','Library Circulations/Capita',t.lib,'na']]},
+    {num:7,icon:"📈",bg:"#e4faea",name:"Economic Momentum",wt:"10%",metrics:[['inc10yr','Income Growth (10yr)',t.inc10yr!=null?'+'+t.inc10yr+'%':null,'na'],['pop10yr','Population Growth (10yr)',t.pop10yr!=null?t.pop10yr+'%':null,'na'],['bach',"Bachelor's Degree+",t.bach!=null?t.bach+'%':null,'na'],['unemp','Unemployment Rate',t.unemp!=null?t.unemp+'%':null,grade('unemp',t.unemp,t)],['pov','Poverty Rate',t.pov!=null?t.pov+'%':null,grade('pov',t.pov,t)]]},
+    {num:8,icon:"🌿",bg:"#e4faea",name:"Climate Resilience",wt:"5%",metrics:[['flood','Flood Risk — Current',t.flood!=null?t.flood+'%':null,grade('flood',t.flood,t)],['flood50','Flood Risk Growth by 2050',t.flood50!=null?'+'+t.flood50+' pts':null,grade('flood50',t.flood50,t)],['fire','Wildfire Risk',t.fire,'na'],['heat50','Extra Heat Days by 2050',t.heat50!=null?'+'+t.heat50+' days':null,'na'],['aqi','Air Quality AQI',t.aqi,'na'],['canopy','Tree Canopy Coverage',t.canopy!=null?t.canopy+'%':null,'na']]},
+  ];
+
+  const pillarsHtml=PILLARS.map((p,pi)=>{
+    const rows=p.metrics.map(([key,label,display,g])=>metricRow(key,label,display,g)).join('');
+    const filled=p.metrics.filter(([,,,g])=>g!=='na').length;
+    return`<div class="psec${pi===0?' open':''}" id="ps${idx}-${p.num}">
+      <div class="psec-hdr" onclick="toggleSec('ps${idx}-${p.num}')">
+        <div class="psec-icon-wrap" style="background:${p.bg}">${p.icon}</div>
+        <div class="psec-title-wrap">
+          <span class="psec-title">${p.num}. ${p.name}</span>
+          <div class="psec-bar-wrap"><div class="psec-bar"><div class="psec-bar-fill" style="width:${Math.round(filled/p.metrics.length*100)}%;background:${col}"></div></div><span class="psec-bar-val">${filled}/${p.metrics.length} data points</span></div>
+        </div>
+        <span class="psec-wt">${p.wt}</span><span class="psec-chev">▼</span>
+      </div>
+      <div class="psec-body"><div class="metric-rows">${rows}</div></div>
+    </div>`;
+  }).join('');
+
+  const good=[],bad=[];
+  if(t.transit&&t.transit.includes('Rail')) good.push('MBTA commuter rail to Boston');
+  else bad.push('No commuter rail — car-dependent');
+  if(t.d_rank&&t.d_rank<=120) good.push(`Top-tier schools (#${t.d_rank} of ${t.d_total})`);
+  else if(t.d_rank&&t.d_rank>230) bad.push(`Below-average schools (#${t.d_rank} of ${t.d_total})`);
+  else if(t.d_rank) good.push(`Mid-tier schools (#${t.d_rank} of ${t.d_total})`);
+  if(t.elec_save&&t.elec_save>500) good.push(`Municipal electric saves ~$${t.elec_save.toLocaleString()}/yr`);
+  if(t.violent!=null&&t.violent<60) good.push('Extremely low violent crime');
+  else if(t.violent!=null&&t.violent>200) bad.push(`Elevated violent crime (${t.violent}/100k)`);
+  if(t.free_cash!=null&&t.free_cash>=7) good.push(`Strong fiscal reserves (${t.free_cash}% free cash)`);
+  else if(t.free_cash!=null&&t.free_cash<2.5) bad.push(`Low free cash (${t.free_cash}%) — below 5% target`);
+  if(t.med_tax!=null&&t.med_tax<5500) good.push(`Below-average tax burden ($${t.med_tax.toLocaleString()})`);
+  else if(t.med_tax!=null&&t.med_tax>9000) bad.push(`High tax bill ($${t.med_tax.toLocaleString()} median)`);
+  if(t.flood50!=null&&t.flood50>8) bad.push(`High flood growth (+${t.flood50} pts by 2050)`);
+  if(t.gaps>18) bad.push(`${t.gaps} data gaps — score may shift`);
+
+  const peers=TOWNS.map((p,i)=>({...p,idx:i})).sort((a,b)=>b.score-a.score).map(p=>{
+    const cur=p.idx===idx;
+    return`<tr class="${cur?'current':''}"><td class="${cur?'hl':''}">${cur?'▶ ':''}${p.name}</td><td style="font-weight:${cur?700:400};color:${scoreColor(p.score)}">${p.score}</td><td>${p.ter} <span style="font-size:.7rem;color:var(--sec)">${p.ter_r}</span></td><td>${p.d_rank?'#'+p.d_rank:'—'}</td><td>${p.bond||'—'}</td></tr>`;
+  }).join('');
+
+  const strip=[{v:t.pop.toLocaleString(),k:"Population"},{v:t.bond||'—',k:"Bond Rating"},{v:t.free_cash!=null?t.free_cash+'%':'—',k:"Free Cash"},{v:t.med_tax?'$'+t.med_tax.toLocaleString():'—',k:"Median Tax"},{v:t.d_rank?'#'+t.d_rank:'—',k:"School Rank"},{v:t.ter+' ('+t.ter_r+')',k:"TER"},{v:t.elec_save!=null?(t.elec_save>0?'+$'+t.elec_save.toLocaleString():'$0')+'/yr':'—',k:"Elec. Savings"},{v:t.violent!=null?t.violent+'/100k':'—',k:"Violent Crime"}];
+  const listings=AD_LISTINGS_MAP[t.name]||DEFAULT_LISTINGS;
+  const monthlyTax=t.med_tax?Math.round(t.med_tax/12):0;
+  const defaultPrice=t.med_tax?Math.round(t.med_tax/0.012):650000;
+
+  const fiscScore=profPillarScore(t,[['bond',t.bond],['free_cash',t.free_cash],['debt_pc',t.debt_pc]]);
+  const taxScore=profPillarScore(t,[['eff_rate',t.eff_rate],['ter_r',t.ter_r]]);
+  const schScore=profPillarScore(t,[['d_rank',t.d_rank],['math',t.math],['grad',t.grad]]);
+  const safScore=profPillarScore(t,[['violent',t.violent],['prop_crime',t.prop_crime]]);
+  const infScore=profPillarScore(t,[['elec_save',t.elec_save],['water_viol',t.water_viol]]);
+  const climScore=profPillarScore(t,[['flood',t.flood],['flood50',t.flood50]]);
+
+  document.getElementById('prof-inner').innerHTML=`
+    <!-- BLUE HEADER -->
+    <div style="background:linear-gradient(135deg,#0057b5 0%,#0071e3 100%);padding:28px 32px 22px;color:#fff">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+            ${t.bond?`<span style="background:rgba(255,255,255,.2);color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px">S&P ${t.bond}</span>`:''}
+            ${t.transit&&t.transit.includes('Rail')?'<span style="background:rgba(255,255,255,.2);color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px">🚆 Rail</span>':''}
+            ${t.elec_save&&t.elec_save>500?'<span style="background:rgba(255,255,255,.2);color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px">⚡ Muni Electric</span>':''}
+            <span style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);font-size:.62rem;font-weight:600;padding:3px 10px;border-radius:20px">${t.county} County, ${t.state}</span>
+          </div>
+          <div style="font-size:2.4rem;font-weight:800;letter-spacing:-.8px;line-height:1.05;margin-bottom:4px">${t.name}</div>
+          <div style="font-size:.8rem;opacity:.8">ZIP ${t.zip} · Pop. ${t.pop.toLocaleString()}</div>
+        </div>
+        <div style="text-align:center;flex-shrink:0">
+          ${scoreGauge(t.score,108)}
+          <div style="font-size:.65rem;opacity:.75;margin-top:2px">Civica Score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY STATS -->
+    <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:12px">Key Stats</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        ${profKstat('Bond Rating',t.bond||'—')}
+        ${profKstat('Median Tax',t.med_tax?'$'+t.med_tax.toLocaleString():'—')}
+        ${profKstat('School Rank',t.d_rank?'#'+t.d_rank+' / '+t.d_total:'—')}
+        ${profKstat('Tax Eff. Ratio',t.ter+' — '+t.ter_r)}
+        ${profKstat('Free Cash',t.free_cash!=null?t.free_cash+'%':'—')}
+        ${profKstat('Elec. Savings/yr',t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():'—')}
+      </div>
+    </div>
+
+    <!-- KEY INSIGHT -->
+    <div style="padding:16px 32px;background:#f0f6ff;border-left:5px solid #0071e3;border-bottom:1px solid #dce8fb">
+      <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0071e3;margin-bottom:4px">Key Insight</div>
+      <div style="font-size:.88rem;line-height:1.65;color:#1d4ed8">${t.standout}</div>
+    </div>
+
+    <!-- PILLAR SCORES -->
+    <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:14px">Pillar Scores</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 32px">
+        ${profHbar('Fiscal Health',fiscScore,profBarColor(fiscScore),fiscScore)}
+        ${profHbar('Tax Efficiency',taxScore,profBarColor(taxScore),taxScore)}
+        ${profHbar('Schools',schScore,profBarColor(schScore),schScore)}
+        ${profHbar('Safety',safScore,profBarColor(safScore),safScore)}
+        ${profHbar('Infrastructure',infScore,profBarColor(infScore),infScore)}
+        ${profHbar('Climate',climScore,profBarColor(climScore),climScore)}
+      </div>
+    </div>
+
+    <!-- ALL METRICS -->
+    <div style="padding:22px 32px 18px;background:#fafafa;border-bottom:1px solid #efefef">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:12px">All Metrics</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+        ${profMrow('S&P Bond Rating',t.bond,grade('bond',t.bond,t))}
+        ${profMrow('Free Cash %',t.free_cash!=null?t.free_cash+'%':null,grade('free_cash',t.free_cash,t))}
+        ${profMrow('Debt Per Capita',t.debt_pc!=null?'$'+t.debt_pc.toLocaleString():null,grade('debt_pc',t.debt_pc,t))}
+        ${profMrow('Effective Tax Rate',t.eff_rate!=null?t.eff_rate+'%':null,grade('eff_rate',t.eff_rate,t))}
+        ${profMrow('Median Tax Bill',t.med_tax!=null?'$'+t.med_tax.toLocaleString():null,'na')}
+        ${profMrow('Tax Eff. Ratio (TER)',t.ter+' — '+t.ter_r,grade('ter_r',t.ter_r,t))}
+        ${profMrow('School Rank',t.d_rank?'#'+t.d_rank+'/'+t.d_total:null,grade('d_rank',t.d_rank,t))}
+        ${profMrow('10-Yr Rank Change',t.d_10yr,'na')}
+        ${profMrow('MCAS Math Proficiency',t.math!=null?t.math+'%':null,grade('math',t.math,t))}
+        ${profMrow('Graduation Rate',t.grad!=null?t.grad+'%':null,grade('grad',t.grad,t))}
+        ${profMrow('Elec. Savings/yr',t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():null,grade('elec_save',t.elec_save,t))}
+        ${profMrow('Water Quality Viols.',t.water_viol!=null?t.water_viol+' (5yr)':null,grade('water_viol',t.water_viol,t))}
+        ${profMrow('Violent Crime /100k',t.violent!=null?String(t.violent):null,grade('violent',t.violent,t))}
+        ${profMrow('Property Crime /100k',t.prop_crime!=null?String(t.prop_crime):null,grade('prop_crime',t.prop_crime,t))}
+        ${profMrow('Flood Risk — Current',t.flood!=null?t.flood+'%':null,grade('flood',t.flood,t))}
+        ${profMrow('Flood Risk by 2050',t.flood50!=null?'+'+t.flood50+' pts':null,grade('flood50',t.flood50,t))}
+        ${profMrow('Unemployment Rate',t.unemp!=null?t.unemp+'%':null,grade('unemp',t.unemp,t))}
+        ${profMrow('Poverty Rate',t.pov!=null?t.pov+'%':null,grade('pov',t.pov,t))}
+        ${profMrow('Transit Access',t.transit,'na')}
+        ${profMrow('Income Growth 10yr',t.inc10yr!=null?'+'+t.inc10yr+'%':null,'na')}
+        ${profMrow('Broadband Coverage',t.broadband!=null?t.broadband+'%':null,'na')}
+        ${profMrow('Per-Pupil Spending',t.per_pupil!=null?'$'+t.per_pupil.toLocaleString():null,'na')}
+      </div>
+    </div>
+
+    <div class="prof-body">
+      <!-- Featured Agent -->
+      <div class="sec-label">Featured Agent</div>
+      <div class="ad-agent"><span class="ad-label">⭐ Preferred Partner</span>
+        <div class="agent-inner">
+          <div class="agent-avatar">${AD_AGENT.initials}</div>
+          <div class="agent-info">
+            <div class="agent-name">${AD_AGENT.name}</div>
+            <div class="agent-agency">${AD_AGENT.agency}</div>
+            <div class="agent-stars"><span class="stars">★★★★★</span>&nbsp;${AD_AGENT.rating} · ${AD_AGENT.reviews} reviews · ${AD_AGENT.years} yrs local</div>
+            <div class="agent-tags">${AD_AGENT.tags.map(tag=>`<span class="agent-tag">${tag}</span>`).join('')}</div>
+            <div class="agent-bio">${AD_AGENT.bio}</div>
+            <div class="agent-btns">
+              <button class="agent-btn primary">📞 ${AD_AGENT.phone}</button>
+              <button class="agent-btn secondary">View Listings →</button>
+            </div>
+          </div>
+        </div>
+        <div class="ad-promote"><span>Sponsored</span><a href="mailto:hello@civica.com">Advertise here →</a></div>
+      </div>
+
+      <!-- At a Glance -->
+      <div class="sec-label">At a Glance</div>
+      <div class="glance-card">${t.glance}</div>
+
+      <!-- Pillars -->
+      <div class="sec-label">Pillar Analysis — All Data Free</div>
+      ${pillarsHtml}
+
+      <!-- Featured Listings -->
+      <div class="sec-label">Featured Homes in ${t.name}</div>
+      <div class="ad-listings"><span class="ad-label">Sponsored</span>
+        <div style="font-size:.88rem;font-weight:700">🏡 Homes for Sale in ${t.name}</div>
+        <div class="listings-grid">${listings.map(l=>`<div class="listing-card"><div class="listing-img" style="background:${l.bg}">${l.emoji}</div><div class="listing-info"><div class="listing-price">$${l.price.toLocaleString()}</div><div class="listing-addr">${l.addr}, ${t.name}</div><div class="listing-meta">${l.meta}</div></div></div>`).join('')}</div>
+        <div class="listings-cta"><a href="mailto:hello@civica.com">View all listings · <span style="color:var(--ter);font-size:.7rem">Feature your listings here</span></a></div>
+      </div>
+
+      <!-- Buyer Take -->
+      <div class="sec-label">Honest Buyer Take</div>
+      <div class="psec open" id="ps${idx}-buy">
+        <div class="psec-hdr" onclick="toggleSec('ps${idx}-buy')">
+          <div class="psec-icon-wrap" style="background:#f5f5f7">🏡</div>
+          <div class="psec-title-wrap"><span class="psec-title">Is ${t.name} right for you?</span></div>
+          <span class="psec-wt">Summary</span><span class="psec-chev">▼</span>
+        </div>
+        <div class="psec-body">
+          <div class="buyer-grid">
+            <div class="buyer-col gc"><h4>Strong fit if…</h4><ul class="buyer-list">${good.map(s=>`<li>${s}</li>`).join('')}</ul></div>
+            <div class="buyer-col bc"><h4>Reconsider if…</h4><ul class="buyer-list">${bad.map(s=>`<li>${s}</li>`).join('')}</ul></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vendors -->
+      <div class="sec-label">Moving to ${t.name}?</div>
+      <div class="ad-vendors"><span class="ad-label">Civica Recommended</span>
+        <div style="font-size:.88rem;font-weight:700;margin-bottom:2px">Trusted local partners</div>
+        <div class="vendors-grid">${AD_VENDORS.map(v=>`<div class="vendor-card"><div class="vendor-icon">${v.icon}</div><div><div class="vendor-name">${v.name}</div><div class="vendor-type">${v.type}</div><span class="vendor-badge">✓ Civica Recommended</span></div></div>`).join('')}</div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:.68rem;color:var(--ter);display:flex;justify-content:space-between"><span>Sponsored</span><a href="mailto:hello@civica.com" style="color:var(--blue);font-weight:600">List your business →</a></div>
+      </div>
+
+      <!-- Peer Comparison -->
+      <div class="sec-label">Peer Comparison</div>
+      <div class="psec" id="ps${idx}-peer">
+        <div class="psec-hdr" onclick="toggleSec('ps${idx}-peer')">
+          <div class="psec-icon-wrap" style="background:#f5f5f7">🗺️</div>
+          <div class="psec-title-wrap"><span class="psec-title">Essex County Rankings</span></div>
+          <span class="psec-wt">All Cities & Towns</span><span class="psec-chev">▼</span>
+        </div>
+        <div class="psec-body"><table class="peer-table"><thead><tr><th>City/Town</th><th>Score</th><th>TER</th><th>School Rank</th><th>Bond</th></tr></thead><tbody>${peers}</tbody></table></div>
+      </div>
+
+      <!-- Mortgage Calculator -->
+      <div class="sec-label">Mortgage Calculator</div>
+      <div class="ad-mortgage"><span class="ad-label">Sponsored</span>
+        <div class="mortgage-sponsor">Sponsored by <strong>North Shore Lending Group</strong></div>
+        <div style="font-size:.88rem;font-weight:700;margin-bottom:12px">Estimate your payment in ${t.name}</div>
+        <div class="mortgage-inputs">
+          <div class="mc-field"><label>Home Price</label><input type="text" id="mc-price" value="$${defaultPrice.toLocaleString()}" oninput="calcMortgage(${monthlyTax})"></div>
+          <div class="mc-field"><label>Down Payment %</label><input type="number" id="mc-down" value="20" min="3" max="50" oninput="calcMortgage(${monthlyTax})"></div>
+          <div class="mc-field"><label>Interest Rate %</label><input type="number" id="mc-rate" value="6.75" min="1" max="15" step="0.05" oninput="calcMortgage(${monthlyTax})"></div>
+        </div>
+        <div class="mortgage-result">
+          <div><div class="mr-payment" id="mc-result">—</div><div style="font-size:.68rem;color:var(--sec);margin-top:2px">est. / month</div></div>
+          <div class="mr-breakdown" id="mc-breakdown"></div>
+        </div>
+        <button class="mc-btn">Get Pre-Approved with North Shore Lending →</button>
+      </div>
+
+      <!-- Notes -->
+      <div class="sec-label">Data & Methodology</div>
+      <div class="notes-card"><span class="nl">⚠ Compiler Notes</span><p>${t.notes}</p></div>
+      <div class="conf-card">
+        <span>Confidence: <strong>${t.conf}</strong> · ${t.gaps} fields pending</span>
+        <div class="conf-bar"><div class="conf-fill" style="width:${confPct}%;background:${confColor(t.conf)}"></div></div>
+        <span style="white-space:nowrap">${confPct}% complete</span>
+      </div>
+    </div>
+  `;
+  setTimeout(()=>calcMortgage(monthlyTax),50);
+}
+
+function calcMortgage(monthlyTax){
+  const price=parseFloat((document.getElementById('mc-price')?.value||'').replace(/[$,]/g,''))||650000;
+  const down=parseFloat(document.getElementById('mc-down')?.value)||20;
+  const rate=parseFloat(document.getElementById('mc-rate')?.value)||6.75;
+  const principal=price*(1-down/100),mo=rate/100/12,n=360;
+  const pi=mo>0?principal*(mo*Math.pow(1+mo,n))/(Math.pow(1+mo,n)-1):principal/n;
+  const total=Math.round(pi)+(monthlyTax||0);
+  const el=document.getElementById('mc-result'),br=document.getElementById('mc-breakdown');
+  if(el)el.textContent='$'+total.toLocaleString()+'/mo';
+  if(br)br.innerHTML=`P&I: $${Math.round(pi).toLocaleString()}/mo${monthlyTax?`<br>Est. Tax: $${monthlyTax.toLocaleString()}/mo`:''}`;
+}
+
+/* ═══════════════════════════════
+   NAVIGATION
+═══════════════════════════════ */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function showLanding(){
+  state.view='landing';
+  showView('landing');
+  document.getElementById('nav-map-btn').classList.remove('visible');
+}
+
+let searchReady=false;
+function showMap(){
+  state.view='map';
+  showView('map-view');
+  document.getElementById('nav-map-btn').classList.remove('visible');
+  setTimeout(initLeafletMap,50);
+  if(!searchReady){initMapSearch();searchReady=true;}
+  renderMapChips();
+}
+function renderMapChips(){
+  const el=document.getElementById('map-town-chips');
+  if(!el)return;
+  const sorted=[...TOWNS].map((t,i)=>({...t,idx:i})).sort((a,b)=>b.score-a.score);
+  el.innerHTML=sorted.map(t=>`
+    <div class="map-town-chip" onclick="showProf(${t.idx})">
+      <span class="mtc-name">${t.name}</span>
+      <span class="mtc-div"></span>
+      <span class="mtc-score" style="color:${scoreColor(t.score)}">${t.score}</span>
+    </div>`).join('');
+}
+
+function initMapSearch(){
+  const inp=document.getElementById('map-search-inp');
+  const clr=document.getElementById('map-search-clear');
+  const dd=document.getElementById('map-search-dd');
+
+  function runSearch(){
+    const q=inp.value.trim().toLowerCase().replace(/\s+/g,'');
+    clr.style.display=q?'block':'none';
+    if(!q){dd.style.display='none';return;}
+    const hits=TOWNS.map((t,i)=>({t,i})).filter(({t})=>{
+      const name=t.name.toLowerCase().replace(/\s+/g,'');
+      const zip=t.zip.toLowerCase().replace(/[\s/]+/g,'');
+      return name.includes(q)||zip.includes(q);
+    });
+    if(!hits.length){
+      dd.innerHTML='<div class="map-search-empty">No cities or towns found — try "Beverly" or "01915"</div>';
+    } else {
+      dd.innerHTML=hits.map(({t,i})=>`
+        <div class="map-search-item" onclick="showProf(${i});clearMapSearch()">
+          <div class="msi-left">
+            <span class="msi-name">${t.name}</span>
+            <span class="msi-zip">${t.zip} · Essex County, MA</span>
+          </div>
+          <span class="msi-score" style="color:${scoreColor(t.score)}">${t.score}</span>
+        </div>`).join('');
+    }
+    dd.style.display='block';
+  }
+
+  inp.addEventListener('input',runSearch);
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      const q=inp.value.trim().toLowerCase().replace(/\s+/g,'');
+      const hits=TOWNS.map((t,i)=>({t,i})).filter(({t})=>t.name.toLowerCase().replace(/\s+/g,'').includes(q)||t.zip.toLowerCase().replace(/[\s/]+/g,'').includes(q));
+      if(hits.length===1){showProf(hits[0].i);clearMapSearch();}
+    }
+    if(e.key==='Escape')dd.style.display='none';
+  });
+  clr.addEventListener('click',()=>{inp.value='';clr.style.display='none';dd.style.display='none';inp.focus();});
+  document.addEventListener('click',e=>{if(!e.target.closest('.map-search-wrap'))dd.style.display='none';});
+}
+
+function clearMapSearch(){
+  const inp=document.getElementById('map-search-inp');
+  const clr=document.getElementById('map-search-clear');
+  const dd=document.getElementById('map-search-dd');
+  if(inp)inp.value='';
+  if(clr)clr.style.display='none';
+  if(dd)dd.style.display='none';
+}
+
+function showProf(idx){
+  state.prof=idx;state.view='prof';
+  const t=TOWNS[idx];
+  showView('prof-view');
+  document.getElementById('pnav-town').textContent=`${t.name}, ${t.state}`;
+  document.getElementById('pnav-score').innerHTML=`<span style="color:${scoreColor(t.score)}">${t.score}</span> / 100`;
+  document.getElementById('nav-map-btn').classList.add('visible');
+  renderProf(idx);
+}
+
+function toggleSec(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+function setFilter(f,btn){state.filter=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderGrid();renderMapMarkers();}
+function setSort(v){state.sort=v;renderGrid();}
+function toggleFav(e,idx){e.stopPropagation();if(state.favs.has(idx))state.favs.delete(idx);else state.favs.add(idx);saveFavs();renderGrid();}
+
+/* ═══════════════════════════════
+   EMAIL MODAL
+═══════════════════════════════ */
+function initModal(){
+  if(localStorage.getItem('civica_modal_seen'))return;
+  setTimeout(()=>document.getElementById('modal-overlay').classList.add('open'),800);
+}
+function dismissModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  localStorage.setItem('civica_modal_seen','1');
+}
+function closeModalBg(e){if(e.target===e.currentTarget)dismissModal();}
+async function submitModal(e){
+  e.preventDefault();
+  const email=document.getElementById('modal-email').value;
+  const btn=document.getElementById('modal-btn');
+  btn.textContent='Submitting…';btn.disabled=true;
+  if(FORMSPREE_ID==='YOUR_FORM_ID'){
+    document.getElementById('modal-form').style.display='none';
+    document.getElementById('modal-ok').style.display='block';
+    localStorage.setItem('civica_modal_seen','1');
+    setTimeout(dismissModal,2200);
+    return;
+  }
+  try{
+    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Waitlist — Modal'})});
+    if(res.ok){
+      document.getElementById('modal-form').style.display='none';
+      document.getElementById('modal-ok').style.display='block';
+      localStorage.setItem('civica_modal_seen','1');
+      setTimeout(dismissModal,2200);
+    }else throw new Error();
+  }catch{btn.textContent='Notify Me When My Town Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
+}
+initModal();
+function animateHeroBars(){
+  document.querySelectorAll('.hc-bar-anim').forEach((el,i)=>{
+    const w=el.dataset.w||'100%';
+    setTimeout(()=>{el.style.width=w;},300+i*200);
+  });
+}
+window.addEventListener('load',animateHeroBars);
+
+/* ═══════════════════════════════
+   SHARED INFOGRAPH HELPERS
+═══════════════════════════════ */
+function profKstat(label,val){
+  return`<div style="background:#f8f8f9;border-radius:10px;padding:13px 15px;border:1px solid #efefef">
+    <div style="font-size:10px;color:#98989d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${label}</div>
+    <div style="font-size:15px;font-weight:700;color:#1d1d1f">${val}</div>
+  </div>`;
+}
+function profHbar(label,pct,color,val){
+  const p=Math.max(0,Math.min(100,pct));
+  return`<div style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <span style="font-size:12px;color:#374151;font-weight:500">${label}</span>
+      <span style="font-size:12px;color:${color};font-weight:700">${val}</span>
+    </div>
+    <div style="height:8px;background:#eeeeee;border-radius:4px;overflow:hidden">
+      <div style="height:100%;width:${p}%;background:${color};border-radius:4px"></div>
+    </div>
+  </div>`;
+}
+function profMrow(label,val,g){
+  const bg=g==='green'?'#e4faea':g==='yellow'?'#fff4e0':g==='red'?'#fff0ee':'#f5f5f7';
+  const tc=g==='green'?'#1a8a3c':g==='yellow'?'#b25a00':g==='red'?'#c0392b':'#6e6e73';
+  const dot=g==='green'?'#30d158':g==='yellow'?'#ff9f0a':g==='red'?'#ff3b30':'#d1d1d6';
+  if(val==null)return`<div style="display:flex;align-items:center;gap:8px;padding:7px 11px;background:#f5f5f7;border-radius:8px">
+    <div style="width:7px;height:7px;border-radius:50%;background:#d1d1d6;flex-shrink:0"></div>
+    <span style="font-size:12px;color:#6e6e73;flex:1">${label}</span>
+    <span style="font-size:11px;color:#c7c7cc;font-style:italic">Pending</span>
+  </div>`;
+  return`<div style="display:flex;align-items:center;gap:8px;padding:7px 11px;background:${bg};border-radius:8px">
+    <div style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0"></div>
+    <span style="font-size:12px;color:#374151;flex:1">${label}</span>
+    <span style="font-size:12px;font-weight:600;color:${tc}">${val}</span>
+  </div>`;
+}
+function profPillarScore(t,pairs){
+  const gs=pairs.map(([k,v])=>grade(k,v,t)).filter(g=>g!=='na');
+  if(!gs.length)return 50;
+  return Math.round(gs.map(g=>g==='green'?100:g==='yellow'?55:15).reduce((a,b)=>a+b,0)/gs.length);
+}
+const profBarColor=s=>s>=70?'#30d158':s>=45?'#ff9f0a':'#ff3b30';
+
+function buildPDFHTML(t){
+  const date=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const G=(key,val)=>grade(key,val,t);
+
+  function gauge(score,size){
+    const r=size*0.38,cx=size/2,cy=size/2,circ=2*Math.PI*r,filled=(score/100)*circ,c=scoreColor(score);
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eeeeee" stroke-width="${size*0.1}"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${size*0.1}"
+        stroke-dasharray="${filled.toFixed(2)} ${(circ-filled).toFixed(2)}" stroke-linecap="round"
+        transform="rotate(-90 ${cx} ${cy})"/>
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle"
+        fill="${c}" font-size="${Math.round(size*.22)}px" font-weight="900"
+        font-family="-apple-system,Helvetica Neue,Arial,sans-serif">${score}</text>
+      <text x="${cx}" y="${cy+size*.18}" text-anchor="middle" fill="#98989d"
+        font-size="${Math.round(size*.09)}px"
+        font-family="-apple-system,Helvetica Neue,Arial,sans-serif">/ 100</text>
+    </svg>`;
+  }
+
+  function kstat(label,val){
+    return `<div style="background:#f8f8f9;border-radius:10px;padding:13px 15px;border:1px solid #efefef">
+      <div style="font-size:10px;color:#98989d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${label}</div>
+      <div style="font-size:15px;font-weight:700;color:#1d1d1f">${val}</div>
+    </div>`;
+  }
+
+  function hbar(label,pct,color,val){
+    const p=Math.max(0,Math.min(100,pct));
+    return `<div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:11px;color:#374151;font-weight:500">${label}</span>
+        <span style="font-size:11px;color:${color};font-weight:700">${val}</span>
+      </div>
+      <div style="height:8px;background:#eeeeee;border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${p}%;background:${color};border-radius:4px"></div>
+      </div>
+    </div>`;
+  }
+
+  function mrow(label,val,g){
+    const bg=g==='green'?'#e4faea':g==='yellow'?'#fff4e0':g==='red'?'#fff0ee':'#f5f5f7';
+    const tc=g==='green'?'#1a8a3c':g==='yellow'?'#b25a00':g==='red'?'#c0392b':'#6e6e73';
+    const dot=g==='green'?'#30d158':g==='yellow'?'#ff9f0a':g==='red'?'#ff3b30':'#d1d1d6';
+    if(val==null) return `<div style="display:flex;align-items:center;gap:8px;padding:7px 11px;background:#f5f5f7;border-radius:8px">
+      <div style="width:7px;height:7px;border-radius:50%;background:#d1d1d6;flex-shrink:0"></div>
+      <span style="font-size:11px;color:#6e6e73;flex:1">${label}</span>
+      <span style="font-size:10px;color:#c7c7cc;font-style:italic">Pending</span>
+    </div>`;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 11px;background:${bg};border-radius:8px">
+      <div style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0"></div>
+      <span style="font-size:11px;color:#374151;flex:1">${label}</span>
+      <span style="font-size:11px;font-weight:600;color:${tc}">${val}</span>
+    </div>`;
+  }
+
+  function pillarScore(pairs){
+    const gs=pairs.map(([k,v])=>G(k,v)).filter(g=>g!=='na');
+    if(!gs.length)return 50;
+    return Math.round(gs.map(g=>g==='green'?100:g==='yellow'?55:15).reduce((a,b)=>a+b,0)/gs.length);
+  }
+
+  const bc=s=>s>=70?'#30d158':s>=45?'#ff9f0a':'#ff3b30';
+  const fiscal=pillarScore([['bond',t.bond],['free_cash',t.free_cash],['debt_pc',t.debt_pc]]);
+  const tax=pillarScore([['eff_rate',t.eff_rate],['ter_r',t.ter_r]]);
+  const school=pillarScore([['d_rank',t.d_rank],['math',t.math],['grad',t.grad]]);
+  const safety=pillarScore([['violent',t.violent],['prop_crime',t.prop_crime]]);
+  const infra=pillarScore([['elec_save',t.elec_save],['water_viol',t.water_viol]]);
+  const climate=pillarScore([['flood',t.flood],['flood50',t.flood50]]);
+
+  return `<div style="width:794px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1d1d1f">
+
+  <div style="background:linear-gradient(135deg,#0057b5 0%,#0071e3 100%);padding:36px 48px 32px;color:#fff">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <svg width="34" height="34" viewBox="0 0 30 30" fill="none">
+          <rect width="30" height="30" rx="7" fill="rgba(255,255,255,0.2)"/>
+          <rect x="6" y="16" width="4" height="9" rx="1.5" fill="white" opacity="0.65"/>
+          <rect x="13" y="8" width="4" height="17" rx="1.5" fill="white"/>
+          <rect x="20" y="12" width="4" height="13" rx="1.5" fill="white" opacity="0.8"/>
+        </svg>
+        <span style="font-size:20px;font-weight:800;letter-spacing:-.4px">civica</span>
+      </div>
+      <div style="text-align:right;opacity:.7;font-size:11px;line-height:1.6">Civic Intelligence Report<br>${date}</div>
+    </div>
+    <div style="font-size:34px;font-weight:800;letter-spacing:-1.2px;line-height:1.1">${t.name}, MA</div>
+    <div style="opacity:.75;margin-top:6px;font-size:13px">${t.county} County &middot; ZIP ${t.zip} &middot; Pop. ${t.pop.toLocaleString()}</div>
+  </div>
+
+  <div style="padding:32px 48px;display:flex;gap:36px;align-items:flex-start;border-bottom:1px solid #f0f0f0">
+    <div style="text-align:center;flex-shrink:0">
+      ${gauge(t.score,148)}
+      <div style="font-size:10px;color:#6e6e73;margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px">Civica Score</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0071e3;margin-bottom:13px">Key Metrics</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${kstat('Bond Rating',t.bond||'—')}
+        ${kstat('Median Tax Bill',t.med_tax?'$'+t.med_tax.toLocaleString():'—')}
+        ${kstat('School Rank',t.d_rank?'#'+t.d_rank+' of 351':'—')}
+        ${kstat('Tax Efficiency (TER)',t.ter+' — '+t.ter_r)}
+        ${kstat('Electric Savings/yr',t.elec_save&&t.elec_save>0?'+$'+t.elec_save.toLocaleString()+'/yr':'Standard grid')}
+        ${kstat('Violent Crime /100k',t.violent!=null?String(t.violent):'—')}
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:18px 48px;background:#f0f6ff;border-left:5px solid #0071e3">
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0071e3;margin-bottom:5px">Key Insight</div>
+    <div style="font-size:12px;line-height:1.65;color:#1d1d1f">${t.standout||''}</div>
+  </div>
+
+  <div style="padding:28px 48px 22px;border-bottom:1px solid #f0f0f0">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6e6e73;margin-bottom:18px">Score Breakdown by Pillar</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 40px">
+      ${hbar('&#127970; Fiscal Health (30%)',fiscal,bc(fiscal),fiscal+'/100')}
+      ${hbar('&#128176; Tax Efficiency (15%)',tax,bc(tax),tax+'/100')}
+      ${hbar('&#127891; Schools (15%)',school,bc(school),school+'/100')}
+      ${hbar('&#128737; Safety (5%)',safety,bc(safety),safety+'/100')}
+      ${hbar('&#9889; Infrastructure (10%)',infra,bc(infra),infra+'/100')}
+      ${hbar('&#127807; Climate Resilience (5%)',climate,bc(climate),climate+'/100')}
+    </div>
+  </div>
+
+  <div style="padding:22px 48px 26px;background:#fafafa">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6e6e73;margin-bottom:12px">All Metrics</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+      ${mrow('Bond Rating',t.bond,G('bond',t.bond))}
+      ${mrow('Free Cash % of Budget',t.free_cash!=null?t.free_cash+'%':null,G('free_cash',t.free_cash))}
+      ${mrow('Debt Per Capita',t.debt_pc!=null?'$'+t.debt_pc.toLocaleString():null,G('debt_pc',t.debt_pc))}
+      ${mrow('Effective Tax Rate',t.eff_rate!=null?t.eff_rate+'%':null,G('eff_rate',t.eff_rate))}
+      ${mrow('Median Tax Bill',t.med_tax!=null?'$'+t.med_tax.toLocaleString():null,'na')}
+      ${mrow('Median Household Income',t.med_inc!=null?'$'+t.med_inc.toLocaleString():null,'na')}
+      ${mrow('School District Rank',t.d_rank!=null?'#'+t.d_rank+'/351':null,G('d_rank',t.d_rank))}
+      ${mrow('10-Year Rank Change',t.d_10yr||null,t.d_10yr&&!t.d_10yr.includes('decl')?'green':'yellow')}
+      ${mrow('Math Proficiency',t.math!=null?t.math+'%':null,G('math',t.math))}
+      ${mrow('Graduation Rate',t.grad!=null?t.grad+'%':null,G('grad',t.grad))}
+      ${mrow('AP Enrollment',t.ap!=null?t.ap+'%':null,'na')}
+      ${mrow('Per-Pupil Spending',t.per_pupil!=null?'$'+t.per_pupil.toLocaleString():null,'na')}
+      ${mrow('Violent Crime /100k',t.violent!=null?String(t.violent):null,G('violent',t.violent))}
+      ${mrow('Property Crime /100k',t.prop_crime!=null?String(t.prop_crime):null,G('prop_crime',t.prop_crime))}
+      ${mrow('Electric Savings/yr',t.elec_save!=null?(t.elec_save>0?'+$'+t.elec_save.toLocaleString()+'/yr':String(t.elec_save)):null,G('elec_save',t.elec_save))}
+      ${mrow('Water Violations',t.water_viol!=null?String(t.water_viol):null,G('water_viol',t.water_viol))}
+      ${mrow('Flood Risk — Current',t.flood!=null?t.flood+'%':null,G('flood',t.flood))}
+      ${mrow('Flood Risk — 2050 proj.',t.flood50!=null?t.flood50+'%':null,G('flood50',t.flood50))}
+      ${mrow('Poverty Rate',t.pov!=null?t.pov+'%':null,G('pov',t.pov))}
+      ${mrow('Income Growth (10yr)',t.inc10yr!=null?'+'+t.inc10yr+'%':null,'na')}
+    </div>
+  </div>
+
+  ${t.notes?`<div style="padding:16px 48px;border-top:1px solid #f0f0f0">
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6e6e73;margin-bottom:5px">Analyst Notes</div>
+    <div style="font-size:11px;line-height:1.65;color:#6e6e73">${t.notes}</div>
+  </div>`:''}
+
+  <div style="background:#1d1d1f;padding:18px 48px;display:flex;align-items:center;justify-content:space-between">
+    <div style="color:#fff;font-size:11px;font-weight:600">Civica &mdash; Civic Intelligence for Home Buyers</div>
+    <div style="color:#6e6e73;font-size:10px">2025 &middot; civica.com &middot; Public records data</div>
+  </div>
+
+</div>`;
+}
+
+async function exportTownPDF(idx){
+  const btn=document.getElementById('export-btn');
+  const orig=btn?btn.innerHTML:'';
+  if(btn){btn.textContent='Generating PDF…';btn.disabled=true;}
+  const tpl=document.getElementById('pdf-tpl');
+  tpl.innerHTML=buildPDFHTML(TOWNS[idx]);
+  await new Promise(r=>setTimeout(r,200));
+  try{
+    const canvas=await html2canvas(tpl,{scale:2,useCORS:true,logging:false,backgroundColor:'#ffffff',width:794});
+    const {jsPDF}=window.jspdf;
+    const pxW=794,pxH=canvas.height/(canvas.width/pxW);
+    const mmW=pxW*0.264583,mmH=pxH*0.264583;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[mmW,mmH]});
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.93),'JPEG',0,0,mmW,mmH);
+    pdf.save(`Civica_${TOWNS[idx].name.replace(/\s+/g,'_')}_Report.pdf`);
+  }catch(err){
+    console.error('PDF error:',err);
+    alert('PDF generation failed — please try again.');
+  }finally{
+    tpl.innerHTML='';
+    if(btn){btn.innerHTML=orig;btn.disabled=false;}
+  }
+}
+
+async function submitHero(e){
+  e.preventDefault();
+  const email=document.getElementById('hero-email').value;
+  const btn=document.getElementById('hero-btn');
+  btn.textContent='Submitting…';btn.disabled=true;
+  if(FORMSPREE_ID==='YOUR_FORM_ID'){
+    document.getElementById('hero-form').style.display='none';
+    document.getElementById('hero-success').style.display='flex';
+    return;
+  }
+  try{
+    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Hero Signup'})});
+    if(res.ok){document.getElementById('hero-form').style.display='none';document.getElementById('hero-success').style.display='flex';}
+    else throw new Error();
+  }catch{btn.textContent='Notify Me When My Town Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
+}
+
+async function submitCta(e){
+  e.preventDefault();
+  const email=document.getElementById('cta-email').value;
+  const btn=document.getElementById('cta-btn');
+  btn.textContent='Submitting…';btn.disabled=true;
+  if(FORMSPREE_ID==='YOUR_FORM_ID'){
+    document.getElementById('cta-form').style.display='none';
+    document.getElementById('cta-success').style.display='block';
+    return;
+  }
+  try{
+    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Waitlist Signup'})});
+    if(res.ok){document.getElementById('cta-form').style.display='none';document.getElementById('cta-success').style.display='block';}
+    else throw new Error();
+  }catch{btn.textContent='Join Waitlist';btn.disabled=false;alert('Something went wrong. Please try again.');}
+}
+
+async function submitEmail(e){
+  e.preventDefault();
+  const email=document.getElementById('landing-email').value;
+  const btn=document.getElementById('landing-btn');
+  btn.textContent='Submitting…';btn.disabled=true;
+  if(FORMSPREE_ID==='YOUR_FORM_ID'){
+    document.getElementById('landing-form').style.display='none';
+    document.getElementById('landing-success').style.display='block';
+    return;
+  }
+  try{
+    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Waitlist'})});
+    if(res.ok){document.getElementById('landing-form').style.display='none';document.getElementById('landing-success').style.display='block';}
+    else throw new Error();
+  }catch{btn.textContent='Notify Me';btn.disabled=false;alert('Something went wrong. Please try again.');}
+}
+</script>
+</body>
+</html>
