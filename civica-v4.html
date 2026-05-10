@@ -125,18 +125,26 @@ a{text-decoration:none;color:inherit}
 .map-search-empty{padding:14px 16px;font-size:.83rem;color:var(--ter);text-align:center}
 
 /* ── MAP VIEW ── */
-#map-view{background:var(--bg)}
-.map-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px}
-.map-header h2{font-size:1rem;font-weight:700;margin-bottom:10px}
-.filter-bar{display:flex;align-items:center;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.filter-bar::-webkit-scrollbar{display:none}
-.chip{height:30px;padding:0 13px;border-radius:15px;font-size:.76rem;font-weight:500;white-space:nowrap;border:1.5px solid var(--border-mid);background:#fff;color:var(--text);transition:all .15s;flex-shrink:0}
-.chip:hover{border-color:var(--blue);color:var(--blue)}
-.chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+#map-view{background:var(--bg);display:flex;flex-direction:column}
+.map-header{background:#fff;border-bottom:1px solid var(--border);padding:24px 24px 20px}
+.map-header-inner{max-width:700px;margin:0 auto}
+.map-title{font-size:1.5rem;font-weight:800;letter-spacing:-.6px;margin-bottom:5px;color:var(--text)}
+.map-subtitle{font-size:.83rem;color:var(--sec);margin-bottom:18px;line-height:1.55}
+.map-search-wrap{max-width:100%;margin:0;position:relative}
+/* Quick-access chips below map */
+.map-below{background:#fff;border-top:1px solid var(--border);padding:22px 24px 32px}
+.map-below-inner{max-width:700px;margin:0 auto}
+.map-quick-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ter);margin-bottom:12px}
+.map-town-chips{display:flex;flex-wrap:wrap;gap:9px}
+.map-town-chip{display:flex;align-items:center;gap:9px;padding:10px 15px;background:var(--bg);border:1.5px solid var(--border-mid);border-radius:12px;cursor:pointer;transition:all .15s}
+.map-town-chip:hover{border-color:var(--blue);background:#f0f6ff;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,113,227,.1)}
+.mtc-name{font-size:.84rem;font-weight:600;color:var(--text)}
+.mtc-score{font-size:.84rem;font-weight:800}
+.mtc-div{width:1px;height:13px;background:var(--border-mid)}
 
 /* Leaflet map container */
 .map-wrap{position:relative}
-#leaflet-map{height:320px;width:100%;z-index:1}
+#leaflet-map{height:480px;width:100%;z-index:1}
 .map-legend{position:absolute;bottom:16px;left:16px;z-index:400;background:rgba(255,255,255,.95);border-radius:var(--r-sm);padding:10px 14px;box-shadow:var(--shadow);font-size:.72rem}
 .map-legend .leg-title{font-weight:700;margin-bottom:7px;color:var(--text)}
 .leg-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
@@ -448,7 +456,7 @@ a{text-decoration:none;color:inherit}
   .pain-grid{grid-template-columns:1fr}
   .pillar-grid{grid-template-columns:repeat(2,1fr)}
   .l-ctas{flex-direction:column;align-items:center}
-  #leaflet-map{height:220px}
+  #leaflet-map{height:320px}
   .listings-grid{grid-template-columns:1fr}
   .vendors-grid{grid-template-columns:1fr}
   .mortgage-inputs{grid-template-columns:1fr}
@@ -747,21 +755,26 @@ a{text-decoration:none;color:inherit}
      MAP VIEW
 ══════════════════════════════════════ -->
 <div id="map-view" class="view">
+
+  <!-- Header -->
   <div class="map-header">
-    <h2 style="margin-bottom:12px">Essex County, MA</h2>
-    <div class="map-search-wrap">
-      <div class="map-search-bar">
-        <span class="map-search-ico">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><line x1="14.5" y1="14.5" x2="19" y2="19"/></svg>
-        </span>
-        <input class="map-search-inp" id="map-search-inp" type="text" placeholder="Search by city, town, or zip code…" autocomplete="off" spellcheck="false">
-        <button class="map-search-clear" id="map-search-clear" aria-label="Clear">✕</button>
+    <div class="map-header-inner">
+      <h2 class="map-title">Essex County, MA</h2>
+      <p class="map-subtitle">Civica scores 7 cities and towns across 8 civic pillars — fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
+      <div class="map-search-wrap">
+        <div class="map-search-bar">
+          <span class="map-search-ico">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><line x1="14.5" y1="14.5" x2="19" y2="19"/></svg>
+          </span>
+          <input class="map-search-inp" id="map-search-inp" type="text" placeholder="Search by city, town, or zip code…" autocomplete="off" spellcheck="false">
+          <button class="map-search-clear" id="map-search-clear" aria-label="Clear">✕</button>
+        </div>
+        <div class="map-search-dd" id="map-search-dd"></div>
       </div>
-      <div class="map-search-dd" id="map-search-dd"></div>
     </div>
   </div>
 
-  <!-- Leaflet Map -->
+  <!-- Map -->
   <div class="map-wrap">
     <div id="leaflet-map"></div>
     <div class="map-legend">
@@ -773,7 +786,14 @@ a{text-decoration:none;color:inherit}
     </div>
   </div>
 
-  <!-- Cards grid -->
+  <!-- Quick access -->
+  <div class="map-below">
+    <div class="map-below-inner">
+      <div class="map-quick-label">Browse all cities &amp; towns</div>
+      <div class="map-town-chips" id="map-town-chips"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ══════════════════════════════════════
@@ -1165,6 +1185,18 @@ function showMap(){
   document.getElementById('nav-map-btn').classList.remove('visible');
   setTimeout(initLeafletMap,50);
   if(!searchReady){initMapSearch();searchReady=true;}
+  renderMapChips();
+}
+function renderMapChips(){
+  const el=document.getElementById('map-town-chips');
+  if(!el)return;
+  const sorted=[...TOWNS].map((t,i)=>({...t,idx:i})).sort((a,b)=>b.score-a.score);
+  el.innerHTML=sorted.map(t=>`
+    <div class="map-town-chip" onclick="showProf(${t.idx})">
+      <span class="mtc-name">${t.name}</span>
+      <span class="mtc-div"></span>
+      <span class="mtc-score" style="color:${scoreColor(t.score)}">${t.score}</span>
+    </div>`).join('');
 }
 
 function initMapSearch(){
