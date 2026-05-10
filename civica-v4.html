@@ -556,7 +556,7 @@ a{text-decoration:none;color:inherit}
     <p class="modal-p">Civica is expanding city by city and town by town. Drop your email to get early access when new coverage launches — and a heads-up on new civic data features.</p>
     <form class="modal-form" id="modal-form" onsubmit="submitModal(event)">
       <input class="modal-inp" type="email" id="modal-email" placeholder="Your email address" required autocomplete="email">
-      <button class="modal-cta" type="submit" id="modal-btn">Get Early Access →</button>
+      <button class="modal-cta" type="submit" id="modal-btn">Notify Me When My Town Is Live</button>
     </form>
     <div class="modal-ok" id="modal-ok">✓ &nbsp;You're on the list. We'll be in touch soon.</div>
     <div class="modal-skip" onclick="dismissModal()">No thanks, maybe later</div>
@@ -595,13 +595,16 @@ a{text-decoration:none;color:inherit}
         <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the civic intelligence layer missing from every home search.</p>
         <form class="hero-form" id="hero-form" onsubmit="submitHero(event)">
           <input type="email" id="hero-email" placeholder="Enter your email" required autocomplete="email">
-          <button type="submit" id="hero-btn">Get Early Access →</button>
+          <button type="submit" id="hero-btn">Notify Me When My Town Is Live</button>
         </form>
         <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new cities and towns launch.</div>
         <div class="hero-trust">
           <span>✓ Free forever</span>
           <span>✓ No spam</span>
           <span>✓ Cancel anytime</span>
+        </div>
+        <div style="margin-top:14px">
+          <a href="#" onclick="showMap();return false" style="font-size:.83rem;color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1.5px solid rgba(0,113,227,.3);padding-bottom:1px;transition:border-color .15s" onmouseover="this.style.borderColor='#0071e3'" onmouseout="this.style.borderColor='rgba(0,113,227,.3)'">See all towns →</a>
         </div>
       </div>
       <!-- Right: live score card preview -->
@@ -1549,7 +1552,7 @@ async function submitModal(e){
       localStorage.setItem('civica_modal_seen','1');
       setTimeout(dismissModal,2200);
     }else throw new Error();
-  }catch{btn.textContent='Get Early Access →';btn.disabled=false;alert('Something went wrong. Please try again.');}
+  }catch{btn.textContent='Notify Me When My Town Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
 }
 initModal();
 function animateHeroBars(){
@@ -1804,7 +1807,7 @@ async function submitHero(e){
     const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Hero Signup'})});
     if(res.ok){document.getElementById('hero-form').style.display='none';document.getElementById('hero-success').style.display='flex';}
     else throw new Error();
-  }catch{btn.textContent='Get Early Access →';btn.disabled=false;alert('Something went wrong. Please try again.');}
+  }catch{btn.textContent='Notify Me When My Town Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
 }
 
 async function submitCta(e){
