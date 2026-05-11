@@ -400,6 +400,10 @@ a{text-decoration:none;color:inherit}
 .mp-kstat{background:#f8f8f9;border-radius:9px;padding:10px 12px;border:1px solid #efefef}
 .mp-kstat-key{font-size:.6rem;color:#98989d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
 .mp-kstat-val{font-size:.88rem;font-weight:700;color:#1d1d1f}
+.civica-tip-wrap{position:relative;display:inline-flex;align-items:center}
+.civica-tip-icon{font-size:.7rem;color:#b0b0b8;cursor:default;line-height:1;flex-shrink:0}
+.civica-tip-box{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1d1d1f;color:#fff;font-size:.72rem;font-weight:400;line-height:1.5;padding:8px 11px;border-radius:8px;width:200px;text-align:left;white-space:normal;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;letter-spacing:0;text-transform:none;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+.civica-tip-wrap:hover .civica-tip-box{opacity:1}
 .mp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
 .mp-tag{font-size:.65rem;font-weight:600;padding:4px 10px;border-radius:20px;background:#f5f5f7;color:var(--sec)}
 .mp-view-btn{display:block;width:100%;height:42px;border-radius:11px;background:var(--blue);color:#fff;font-size:.88rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:background .15s}
@@ -1221,12 +1225,12 @@ function renderProf(idx){
     <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:12px">Key Stats</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-        ${profKstat('Bond Rating',t.bond||'—')}
-        ${profKstat('Median Tax',t.med_tax?'$'+t.med_tax.toLocaleString():'—')}
-        ${profKstat('School Rank',t.d_rank?'#'+t.d_rank+' / '+t.d_total:'—')}
-        ${profKstat('Tax Eff. Ratio',t.ter+' — '+t.ter_r)}
-        ${profKstat('Free Cash',t.free_cash!=null?t.free_cash+'%':'—')}
-        ${profKstat('Elec. Savings/yr',t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():'—')}
+        ${profKstat('Bond Rating',t.bond||'—','Municipal credit rating from S&P or Moody\'s. AAA is the highest — it signals the town manages finances well and can borrow at low cost.')}
+        ${profKstat('Median Tax',t.med_tax?'$'+t.med_tax.toLocaleString():'—','The median annual property tax bill for a single-family home in this town, based on MA DOR data.')}
+        ${profKstat('School Rank',t.d_rank?'#'+t.d_rank+' / '+t.d_total:'—','Statewide school district rank out of 351 MA districts, based on MCAS scores, graduation rates, and AP participation.')}
+        ${profKstat('Tax Eff. Ratio',t.ter+' — '+t.ter_r,'Tax Efficiency Ratio — measures how much civic value (schools, safety, services) you receive per dollar of taxes paid. Higher is better.')}
+        ${profKstat('Free Cash',t.free_cash!=null?t.free_cash+'%':'—','Certified unspent funds from the prior fiscal year — the town\'s financial cushion. MA recommends maintaining 5% or more.')}
+        ${profKstat('Elec. Savings/yr',t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():'—','Estimated annual household savings vs. Eversource for towns served by a municipal light plant (MLP), which typically charges less than the investor-owned grid.')}
       </div>
     </div>
 
@@ -1542,9 +1546,10 @@ window.addEventListener('load',animateHeroBars);
 /* ═══════════════════════════════
    SHARED INFOGRAPH HELPERS
 ═══════════════════════════════ */
-function profKstat(label,val){
+function profKstat(label,val,tip){
+  const tipHtml=tip?`<span class="civica-tip-wrap"><span class="civica-tip-icon">ⓘ</span><span class="civica-tip-box">${tip}</span></span>`:'';
   return`<div style="background:#f8f8f9;border-radius:10px;padding:13px 15px;border:1px solid #efefef">
-    <div style="font-size:10px;color:#98989d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${label}</div>
+    <div style="font-size:10px;color:#98989d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:5px">${label}${tipHtml}</div>
     <div style="font-size:15px;font-weight:700;color:#1d1d1f">${val}</div>
   </div>`;
 }
