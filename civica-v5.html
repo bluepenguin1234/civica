@@ -347,11 +347,15 @@ a{text-decoration:none;color:inherit}
 .hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-1.5px;line-height:1.08;color:var(--text);margin:0}
 .hero h1 em{font-style:normal;color:var(--blue)}
 .hero-sub{font-size:clamp(.95rem,2vw,1.1rem);color:var(--sec);max-width:480px;margin:18px 0 0;line-height:1.6;font-weight:400}
-.hero-form{max-width:440px;margin:30px 0 0;display:flex;gap:10px}
-.hero-form input{flex:1;height:50px;padding:0 18px;border-radius:12px;border:1.5px solid var(--border-mid);background:#fff;font-size:.95rem;color:var(--text);outline:none;box-shadow:var(--shadow-sm);transition:border-color .2s,box-shadow .2s;font-family:inherit}
-.hero-form input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,.12)}
+.hero-form{max-width:440px;margin:30px 0 0;display:flex;flex-direction:column;gap:10px}
+.hero-form input,.hero-form select{width:100%;height:50px;padding:0 18px;border-radius:12px;border:1.5px solid var(--border-mid);background:#fff;font-size:.95rem;color:var(--text);outline:none;box-shadow:var(--shadow-sm);transition:border-color .2s,box-shadow .2s;font-family:inherit}
+.hero-form input:focus,.hero-form select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,.12)}
 .hero-form input::placeholder{color:var(--ter)}
-.hero-form button{height:50px;padding:0 22px;border-radius:12px;background:var(--blue);color:#fff;font-size:.9rem;font-weight:600;white-space:nowrap;transition:background .15s,transform .1s;flex-shrink:0}
+.hero-form select{padding:0 12px;cursor:pointer;color:var(--text)}
+.hero-form-row{display:flex;gap:10px}
+.hero-form-row input{flex:1}
+.hero-form-row select{flex:0 0 110px;width:110px}
+.hero-form button{height:50px;padding:0 22px;border-radius:12px;background:var(--blue);color:#fff;font-size:.9rem;font-weight:600;white-space:nowrap;transition:background .15s,transform .1s;width:100%}
 .hero-form button:hover{background:var(--blue-dk);transform:translateY(-1px)}
 .hero-trust{font-size:.78rem;color:var(--ter);margin-top:14px;display:flex;align-items:center;gap:16px}
 .hero-trust span{display:flex;align-items:center;gap:5px}
@@ -557,6 +561,10 @@ a{text-decoration:none;color:inherit}
     <p class="modal-p">Civica is expanding city by city and town by town. Drop your email to get early access when new coverage launches — and a heads-up on new civic data features.</p>
     <form class="modal-form" id="modal-form" onsubmit="submitModal(event)">
       <input class="modal-inp" type="email" id="modal-email" placeholder="Your email address" required autocomplete="email">
+      <div style="display:flex;gap:8px">
+        <input class="modal-inp" type="text" id="modal-town" placeholder="Your city or town" style="flex:1">
+        <select class="modal-inp" id="modal-state" style="flex:0 0 90px;padding:0 8px"><option value="">State</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select>
+      </div>
       <button class="modal-cta" type="submit" id="modal-btn">Notify Me When My Town Is Live</button>
     </form>
     <div class="modal-ok" id="modal-ok">✓ &nbsp;You're on the list. We'll be in touch soon.</div>
@@ -596,6 +604,10 @@ a{text-decoration:none;color:inherit}
         <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the Civica intelligence layer missing from every home search.</p>
         <form class="hero-form" id="hero-form" onsubmit="submitHero(event)">
           <input type="email" id="hero-email" placeholder="Enter your email" required autocomplete="email">
+          <div class="hero-form-row">
+            <input type="text" id="hero-town" placeholder="Your city or town">
+            <select id="hero-state"><option value="">State</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select>
+          </div>
           <button type="submit" id="hero-btn">Notify Me When My Town Is Live</button>
         </form>
         <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new cities and towns launch.</div>
@@ -821,6 +833,10 @@ a{text-decoration:none;color:inherit}
     <p>We're expanding city by city and town by town. Get notified when we add new coverage — and get early access to the full data layer.</p>
     <form class="lp-cta-form" id="cta-form" onsubmit="submitCta(event)">
       <input type="email" id="cta-email" placeholder="Enter your email" required autocomplete="email">
+      <div style="display:flex;gap:10px">
+        <input type="text" id="cta-town" placeholder="Your city or town" style="flex:1;height:50px;padding:0 18px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-size:.95rem;outline:none;border:1.5px solid rgba(255,255,255,.3);font-family:inherit">
+        <select id="cta-state" style="flex:0 0 100px;height:50px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-size:.9rem;outline:none;border:1.5px solid rgba(255,255,255,.3);font-family:inherit;cursor:pointer"><option value="" style="color:#1d1d1f">State</option><option style="color:#1d1d1f">AL</option><option style="color:#1d1d1f">AK</option><option style="color:#1d1d1f">AZ</option><option style="color:#1d1d1f">AR</option><option style="color:#1d1d1f">CA</option><option style="color:#1d1d1f">CO</option><option style="color:#1d1d1f">CT</option><option style="color:#1d1d1f">DE</option><option style="color:#1d1d1f">FL</option><option style="color:#1d1d1f">GA</option><option style="color:#1d1d1f">HI</option><option style="color:#1d1d1f">ID</option><option style="color:#1d1d1f">IL</option><option style="color:#1d1d1f">IN</option><option style="color:#1d1d1f">IA</option><option style="color:#1d1d1f">KS</option><option style="color:#1d1d1f">KY</option><option style="color:#1d1d1f">LA</option><option style="color:#1d1d1f">ME</option><option style="color:#1d1d1f">MD</option><option style="color:#1d1d1f" selected>MA</option><option style="color:#1d1d1f">MI</option><option style="color:#1d1d1f">MN</option><option style="color:#1d1d1f">MS</option><option style="color:#1d1d1f">MO</option><option style="color:#1d1d1f">MT</option><option style="color:#1d1d1f">NE</option><option style="color:#1d1d1f">NV</option><option style="color:#1d1d1f">NH</option><option style="color:#1d1d1f">NJ</option><option style="color:#1d1d1f">NM</option><option style="color:#1d1d1f">NY</option><option style="color:#1d1d1f">NC</option><option style="color:#1d1d1f">ND</option><option style="color:#1d1d1f">OH</option><option style="color:#1d1d1f">OK</option><option style="color:#1d1d1f">OR</option><option style="color:#1d1d1f">PA</option><option style="color:#1d1d1f">RI</option><option style="color:#1d1d1f">SC</option><option style="color:#1d1d1f">SD</option><option style="color:#1d1d1f">TN</option><option style="color:#1d1d1f">TX</option><option style="color:#1d1d1f">UT</option><option style="color:#1d1d1f">VT</option><option style="color:#1d1d1f">VA</option><option style="color:#1d1d1f">WA</option><option style="color:#1d1d1f">WV</option><option style="color:#1d1d1f">WI</option><option style="color:#1d1d1f">WY</option></select>
+      </div>
       <button type="submit" id="cta-btn">Join Waitlist</button>
     </form>
     <div class="lp-cta-success" id="cta-success">✓ &nbsp;You're on the list. Talk soon.</div>
@@ -1493,6 +1509,8 @@ function closeModalBg(e){if(e.target===e.currentTarget)dismissModal();}
 async function submitModal(e){
   e.preventDefault();
   const email=document.getElementById('modal-email').value;
+  const town=document.getElementById('modal-town').value;
+  const state=document.getElementById('modal-state').value;
   const btn=document.getElementById('modal-btn');
   btn.textContent='Submitting…';btn.disabled=true;
   if(FORMSPREE_ID==='YOUR_FORM_ID'){
@@ -1503,7 +1521,7 @@ async function submitModal(e){
     return;
   }
   try{
-    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Waitlist — Modal'})});
+    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,town,state,_subject:'Civica Waitlist — Modal'})});
     if(res.ok){
       document.getElementById('modal-form').style.display='none';
       document.getElementById('modal-ok').style.display='block';
@@ -1754,6 +1772,8 @@ async function exportTownPDF(idx){
 async function submitHero(e){
   e.preventDefault();
   const email=document.getElementById('hero-email').value;
+  const town=document.getElementById('hero-town').value;
+  const state=document.getElementById('hero-state').value;
   const btn=document.getElementById('hero-btn');
   btn.textContent='Submitting…';btn.disabled=true;
   if(FORMSPREE_ID==='YOUR_FORM_ID'){
@@ -1762,7 +1782,7 @@ async function submitHero(e){
     return;
   }
   try{
-    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Hero Signup'})});
+    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,town,state,_subject:'Civica Hero Signup'})});
     if(res.ok){document.getElementById('hero-form').style.display='none';document.getElementById('hero-success').style.display='flex';}
     else throw new Error();
   }catch{btn.textContent='Notify Me When My Town Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
@@ -1771,6 +1791,8 @@ async function submitHero(e){
 async function submitCta(e){
   e.preventDefault();
   const email=document.getElementById('cta-email').value;
+  const town=document.getElementById('cta-town').value;
+  const state=document.getElementById('cta-state').value;
   const btn=document.getElementById('cta-btn');
   btn.textContent='Submitting…';btn.disabled=true;
   if(FORMSPREE_ID==='YOUR_FORM_ID'){
@@ -1779,7 +1801,7 @@ async function submitCta(e){
     return;
   }
   try{
-    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,_subject:'Civica Waitlist Signup'})});
+    const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,town,state,_subject:'Civica Waitlist Signup'})});
     if(res.ok){document.getElementById('cta-form').style.display='none';document.getElementById('cta-success').style.display='block';}
     else throw new Error();
   }catch{btn.textContent='Join Waitlist';btn.disabled=false;alert('Something went wrong. Please try again.');}
