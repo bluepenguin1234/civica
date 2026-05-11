@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Civica — Know Your City or Town Before You Buy</title>
-<meta name="description" content="Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure. Explore Essex County on the map.">
+<title>Civica — Know Your Town or City Before You Buy</title>
+<meta name="description" content="Civica scores every town and city on fiscal health, schools, taxes, safety, and infrastructure. Explore Essex County on the map.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -561,12 +561,12 @@ a{text-decoration:none;color:inherit}
   <div class="modal-box">
     <button class="modal-x" onclick="dismissModal()">✕</button>
     <div class="modal-badge"><span class="dot"></span>Essex County, MA · Free forever</div>
-    <h2 class="modal-h">Get notified when<br>we add your city or town.</h2>
-    <p class="modal-p">Civica is expanding city by city and town by town. Drop your email to get early access when new coverage launches — and a heads-up on new civic data features.</p>
+    <h2 class="modal-h">Get notified when<br>we add your town or city.</h2>
+    <p class="modal-p">Civica is expanding town by town and city by city. Drop your email to get early access when new coverage launches — and a heads-up on new civic data features.</p>
     <form class="modal-form" id="modal-form" onsubmit="submitModal(event)">
       <input class="modal-inp" type="email" id="modal-email" placeholder="Your email address" required autocomplete="email">
       <div style="display:flex;gap:8px">
-        <input class="modal-inp" type="text" id="modal-town" placeholder="Your city or town" style="flex:1">
+        <input class="modal-inp" type="text" id="modal-town" placeholder="Your town or city" style="flex:1">
         <select class="modal-inp" id="modal-state" style="flex:0 0 90px;padding:0 8px"><option value="">State</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select>
       </div>
       <button class="modal-cta" type="submit" id="modal-btn">Notify Me When My Town Is Live</button>
@@ -603,25 +603,25 @@ a{text-decoration:none;color:inherit}
     <div class="hero-inner">
       <!-- Left: copy + form -->
       <div class="hero-left">
-        <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 12 cities and towns</div>
+        <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 12 towns and cities</div>
         <h1>Know before<br>you <em>buy.</em></h1>
-        <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the Civica intelligence layer missing from every home search.</p>
+        <p class="hero-sub">Civica scores every town and city on fiscal health, schools, taxes, safety, and infrastructure — the Civica intelligence layer missing from every home search.</p>
         <form class="hero-form" id="hero-form" onsubmit="submitHero(event)">
           <input type="email" id="hero-email" placeholder="Enter your email" required autocomplete="email">
           <div class="hero-form-row">
-            <input type="text" id="hero-town" placeholder="Your city or town">
+            <input type="text" id="hero-town" placeholder="Your town or city">
             <select id="hero-state"><option value="">State</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select>
           </div>
           <button type="submit" id="hero-btn">Notify Me When My Town Is Live</button>
         </form>
-        <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new cities and towns launch.</div>
+        <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new towns and cities launch.</div>
         <div class="hero-trust">
           <span>✓ Free forever</span>
           <span>✓ No spam</span>
           <span>✓ Cancel anytime</span>
         </div>
         <div style="margin-top:14px">
-          <a href="#" onclick="showMap();return false" style="font-size:.83rem;color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1.5px solid rgba(0,113,227,.3);padding-bottom:1px;transition:border-color .15s" onmouseover="this.style.borderColor='#0071e3'" onmouseout="this.style.borderColor='rgba(0,113,227,.3)'">See all towns →</a>
+          <a href="#" onclick="showMap();return false" style="font-size:.83rem;color:var(--blue);font-weight:600;text-decoration:none;border-bottom:1.5px solid rgba(0,113,227,.3);padding-bottom:1px;transition:border-color .15s" onmouseover="this.style.borderColor='#0071e3'" onmouseout="this.style.borderColor='rgba(0,113,227,.3)'">See all towns and cities →</a>
         </div>
       </div>
       <!-- Right: live score card preview -->
@@ -664,13 +664,13 @@ a{text-decoration:none;color:inherit}
 
   <!-- Social proof strip -->
   <div class="proof-strip">
-    Covering Massachusetts · Andover · Beverly · Burlington · Danvers · Gloucester · Marblehead · Newburyport · North Andover · Peabody · Salem · Swampscott · Uxbridge · More cities and towns coming
+    Covering Massachusetts · Andover · Beverly · Burlington · Danvers · Gloucester · Marblehead · Newburyport · North Andover · Peabody · Salem · Swampscott · Uxbridge · More towns and cities coming
   </div>
 
   <!-- Stats numbers -->
   <div class="stats-numbers">
     <div class="stats-numbers-inner">
-      <div class="sn-item"><span class="sn-num">12</span><span class="sn-label">Cities &amp; Towns</span></div>
+      <div class="sn-item"><span class="sn-num">12</span><span class="sn-label">Towns &amp; Cities</span></div>
       <div class="sn-item"><span class="sn-num">54</span><span class="sn-label">Data Points Each</span></div>
       <div class="sn-item"><span class="sn-num">8</span><span class="sn-label">Civic Pillars</span></div>
       <div class="sn-item"><span class="sn-num">100%</span><span class="sn-label">Free to Use</span></div>
@@ -683,15 +683,15 @@ a{text-decoration:none;color:inherit}
       <div class="section-eyebrow">The problem</div>
       <h2 style="font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-1px;line-height:1.15">
         Zillow tells you the price.<br>
-        <span style="color:var(--blue)">Nobody tells you if the city or town works.</span>
+        <span style="color:var(--blue)">Nobody tells you if the town or city works.</span>
       </h2>
       <p style="font-size:1rem;color:var(--sec);max-width:560px;margin:16px auto 0;line-height:1.7">
-        You're about to make one of the most important financial decisions of your life. Your agent doesn't know if the city or town is fiscally solvent. School ranking sites don't show the 10-year trend. And you won't know the real tax burden until after you close.
+        You're about to make one of the most important financial decisions of your life. Your agent doesn't know if the town or city is fiscally solvent. School ranking sites don't show the 10-year trend. And you won't know the real tax burden until after you close.
       </p>
       <div class="pain-cards">
         <div class="pain-card">
           <span class="pain-icon">🏦</span>
-          <h3>Is the city or town fiscally healthy?</h3>
+          <h3>Is the town or city fiscally healthy?</h3>
           <p>Free cash, bond rating, pension liability, debt per capita — none of this appears on a listing. Civica puts it front and center.</p>
         </div>
         <div class="pain-card">
@@ -702,7 +702,7 @@ a{text-decoration:none;color:inherit}
         <div class="pain-card">
           <span class="pain-icon">💰</span>
           <h3>What's the real cost to own?</h3>
-          <p>Median tax bill, effective rate, municipal electric savings — the total cost of ownership can swing $3,000/year between neighboring cities and towns.</p>
+          <p>Median tax bill, effective rate, municipal electric savings — the total cost of ownership can swing $3,000/year between neighboring towns and cities.</p>
         </div>
       </div>
     </div>
@@ -717,12 +717,12 @@ a{text-decoration:none;color:inherit}
         <div class="step">
           <div class="step-num">1</div>
           <h3>Browse the map</h3>
-          <p>Filter cities and towns by school quality, commuter rail access, municipal electric, or tax burden. See every city and town's Civica Score on the map at a glance.</p>
+          <p>Filter towns and cities by school quality, commuter rail access, municipal electric, or tax burden. See every city and town's Civica Score on the map at a glance.</p>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <h3>Dig into the profile</h3>
-          <p>Open any city or town to see all 8 civic pillars — fiscal health, schools, safety, infrastructure, and more — with real data and source citations.</p>
+          <p>Open any town or city to see all 8 civic pillars — fiscal health, schools, safety, infrastructure, and more — with real data and source citations.</p>
         </div>
         <div class="step">
           <div class="step-num">3</div>
@@ -745,13 +745,13 @@ a{text-decoration:none;color:inherit}
         <div class="feat-card">
           <div class="feat-icon" style="background:#e8f2ff">🏦</div>
           <h3>Civica Score</h3>
-          <p>A single composite score (0–100) derived from 8 weighted pillars of civic data — from bond ratings to school trends to flood risk. Instantly comparable across cities and towns.</p>
+          <p>A single composite score (0–100) derived from 8 weighted pillars of civic data — from bond ratings to school trends to flood risk. Instantly comparable across towns and cities.</p>
           <span class="feat-tag" style="background:#e8f2ff;color:#0071e3">Core feature</span>
         </div>
         <div class="feat-card">
           <div class="feat-icon" style="background:#e4faea">💰</div>
           <h3>Tax Efficiency Ratio (TER)</h3>
-          <p>Not just "how much do I pay" — but "what do I get for what I pay." A city or town with a $9k tax bill and AAA schools may be better value than one charging $6k for average outcomes.</p>
+          <p>Not just "how much do I pay" — but "what do I get for what I pay." A town or city with a $9k tax bill and AAA schools may be better value than one charging $6k for average outcomes.</p>
           <span class="feat-tag" style="background:#e4faea;color:#1a8a3c">Proprietary metric</span>
         </div>
         <div class="feat-card">
@@ -763,7 +763,7 @@ a{text-decoration:none;color:inherit}
         <div class="feat-card">
           <div class="feat-icon" style="background:#f5f5f7">🏡</div>
           <h3>Honest Buyer Take</h3>
-          <p>A straight-talk pros/cons analysis for each city or town — not marketing copy. We flag the red flags. We highlight the hidden advantages. We tell you who should reconsider.</p>
+          <p>A straight-talk pros/cons analysis for each town or city — not marketing copy. We flag the red flags. We highlight the hidden advantages. We tell you who should reconsider.</p>
           <span class="feat-tag" style="background:#f5f5f7;color:#6e6e73">No spin</span>
         </div>
       </div>
@@ -834,11 +834,11 @@ a{text-decoration:none;color:inherit}
   <section class="lp-cta">
     <div class="section-eyebrow" style="color:rgba(255,255,255,.7)">Join the waitlist</div>
     <h2>Be first when we add<br>your county.</h2>
-    <p>We're expanding city by city and town by town. Get notified when we add new coverage — and get early access to the full data layer.</p>
+    <p>We're expanding town by town and city by city. Get notified when we add new coverage — and get early access to the full data layer.</p>
     <form class="lp-cta-form" id="cta-form" onsubmit="submitCta(event)">
       <input type="email" id="cta-email" placeholder="Enter your email" required autocomplete="email">
       <div style="display:flex;gap:10px">
-        <input type="text" id="cta-town" placeholder="Your city or town" style="flex:1;height:50px;padding:0 18px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-size:.95rem;outline:none;border:1.5px solid rgba(255,255,255,.3);font-family:inherit">
+        <input type="text" id="cta-town" placeholder="Your town or city" style="flex:1;height:50px;padding:0 18px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-size:.95rem;outline:none;border:1.5px solid rgba(255,255,255,.3);font-family:inherit">
         <select id="cta-state" style="flex:0 0 100px;height:50px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-size:.9rem;outline:none;border:1.5px solid rgba(255,255,255,.3);font-family:inherit;cursor:pointer"><option value="" style="color:#1d1d1f">State</option><option style="color:#1d1d1f">AL</option><option style="color:#1d1d1f">AK</option><option style="color:#1d1d1f">AZ</option><option style="color:#1d1d1f">AR</option><option style="color:#1d1d1f">CA</option><option style="color:#1d1d1f">CO</option><option style="color:#1d1d1f">CT</option><option style="color:#1d1d1f">DE</option><option style="color:#1d1d1f">FL</option><option style="color:#1d1d1f">GA</option><option style="color:#1d1d1f">HI</option><option style="color:#1d1d1f">ID</option><option style="color:#1d1d1f">IL</option><option style="color:#1d1d1f">IN</option><option style="color:#1d1d1f">IA</option><option style="color:#1d1d1f">KS</option><option style="color:#1d1d1f">KY</option><option style="color:#1d1d1f">LA</option><option style="color:#1d1d1f">ME</option><option style="color:#1d1d1f">MD</option><option style="color:#1d1d1f" selected>MA</option><option style="color:#1d1d1f">MI</option><option style="color:#1d1d1f">MN</option><option style="color:#1d1d1f">MS</option><option style="color:#1d1d1f">MO</option><option style="color:#1d1d1f">MT</option><option style="color:#1d1d1f">NE</option><option style="color:#1d1d1f">NV</option><option style="color:#1d1d1f">NH</option><option style="color:#1d1d1f">NJ</option><option style="color:#1d1d1f">NM</option><option style="color:#1d1d1f">NY</option><option style="color:#1d1d1f">NC</option><option style="color:#1d1d1f">ND</option><option style="color:#1d1d1f">OH</option><option style="color:#1d1d1f">OK</option><option style="color:#1d1d1f">OR</option><option style="color:#1d1d1f">PA</option><option style="color:#1d1d1f">RI</option><option style="color:#1d1d1f">SC</option><option style="color:#1d1d1f">SD</option><option style="color:#1d1d1f">TN</option><option style="color:#1d1d1f">TX</option><option style="color:#1d1d1f">UT</option><option style="color:#1d1d1f">VT</option><option style="color:#1d1d1f">VA</option><option style="color:#1d1d1f">WA</option><option style="color:#1d1d1f">WV</option><option style="color:#1d1d1f">WI</option><option style="color:#1d1d1f">WY</option></select>
       </div>
       <button type="submit" id="cta-btn">Join Waitlist</button>
@@ -880,7 +880,7 @@ a{text-decoration:none;color:inherit}
   <div class="map-header">
     <div class="map-header-inner">
       <h2 class="map-title">Massachusetts</h2>
-      <p class="map-subtitle">Civica scores 12 cities and towns across Essex, Middlesex & Worcester counties — 8 civic pillars including fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
+      <p class="map-subtitle">Civica scores 12 towns and cities across Essex, Middlesex & Worcester counties — 8 civic pillars including fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
       <div class="map-search-wrap">
         <div class="map-search-bar">
           <span class="map-search-ico">
@@ -942,7 +942,7 @@ a{text-decoration:none;color:inherit}
 ══════════════════════════════════════ -->
 <div id="prof-view" class="view">
   <div class="prof-nav">
-    <button class="back-btn" onclick="showMap()">← All Cities & Towns</button>
+    <button class="back-btn" onclick="showMap()">← All Towns & Cities</button>
     <span class="prof-nav-town" id="pnav-town"></span>
     <span class="prof-nav-score" id="pnav-score"></span>
     <button class="export-btn" id="export-btn" onclick="exportTownPDF(state.prof)" title="Download town profile as PDF">
@@ -1349,7 +1349,7 @@ function renderProf(idx){
         <div class="psec-hdr" onclick="toggleSec('ps${idx}-peer')">
           <div class="psec-icon-wrap" style="background:#f5f5f7">🗺️</div>
           <div class="psec-title-wrap"><span class="psec-title">Essex County Rankings</span></div>
-          <span class="psec-wt">All Cities & Towns</span><span class="psec-chev">▼</span>
+          <span class="psec-wt">All Towns & Cities</span><span class="psec-chev">▼</span>
         </div>
         <div class="psec-body"><table class="peer-table"><thead><tr><th>City/Town</th><th>Score</th><th>TER</th><th>School Rank</th><th>Bond</th></tr></thead><tbody>${peers}</tbody></table></div>
       </div>
@@ -1447,7 +1447,7 @@ function initMapSearch(){
       return name.includes(q)||zip.includes(q);
     });
     if(!hits.length){
-      dd.innerHTML='<div class="map-search-empty">No cities or towns found — try "Beverly" or "01915"</div>';
+      dd.innerHTML='<div class="map-search-empty">No towns or cities found — try "Beverly" or "01915"</div>';
     } else {
       dd.innerHTML=hits.map(({t,i})=>`
         <div class="map-search-item" onclick="showProf(${i});clearMapSearch()">
