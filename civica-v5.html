@@ -568,7 +568,7 @@ a{text-decoration:none;color:inherit}
         <input class="modal-inp" type="text" id="modal-town" placeholder="Your town or city" style="flex:1">
         <select class="modal-inp" id="modal-state" style="flex:0 0 90px;padding:0 8px"><option value="">State</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select>
       </div>
-      <button class="modal-cta" type="submit" id="modal-btn">Notify Me When My Town Is Live</button>
+      <button class="modal-cta" type="submit" id="modal-btn">Notify Me When My Town or City Is Live</button>
     </form>
     <div class="modal-ok" id="modal-ok">✓ &nbsp;You're on the list. We'll be in touch soon.</div>
     <div class="modal-skip" onclick="dismissModal()">No thanks, maybe later</div>
@@ -611,7 +611,7 @@ a{text-decoration:none;color:inherit}
             <input type="text" id="hero-town" placeholder="Your town or city">
             <select id="hero-state"><option value="">State</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select>
           </div>
-          <button type="submit" id="hero-btn">Notify Me When My Town Is Live</button>
+          <button type="submit" id="hero-btn">Notify Me When My Town or City Is Live</button>
         </form>
         <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new towns and cities launch.</div>
         <div class="hero-trust">
@@ -1531,7 +1531,7 @@ async function submitModal(e){
       localStorage.setItem('civica_modal_seen','1');
       setTimeout(dismissModal,2200);
     }else throw new Error();
-  }catch{btn.textContent='Notify Me When My Town Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
+  }catch{btn.textContent='Notify Me When My Town or City Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
 }
 initModal();
 function animateHeroBars(){
@@ -1789,7 +1789,7 @@ async function submitHero(e){
     const res=await fetch(`https://formspree.io/f/${FORMSPREE_ID}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email,town,state,_subject:'Civica Hero Signup'})});
     if(res.ok){document.getElementById('hero-form').style.display='none';document.getElementById('hero-success').style.display='flex';}
     else throw new Error();
-  }catch{btn.textContent='Notify Me When My Town Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
+  }catch{btn.textContent='Notify Me When My Town or City Is Live';btn.disabled=false;alert('Something went wrong. Please try again.');}
 }
 
 async function submitCta(e){
