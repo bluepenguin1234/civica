@@ -38,10 +38,22 @@ a{text-decoration:none;color:inherit}
 .logo{display:flex;align-items:center;gap:9px;cursor:pointer}
 .logo-word{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:-0.4px}
 .logo-word span{color:var(--blue)}
-.nav-right{display:flex;align-items:center;gap:10px}
+.nav-right{display:flex;align-items:center;gap:10px;position:relative}
 .nav-map-btn{height:34px;padding:0 16px;border-radius:8px;background:var(--blue);color:#fff;font-size:.82rem;font-weight:600;transition:background .15s;display:none}
 .nav-map-btn:hover{background:var(--blue-dk)}
 .nav-map-btn.visible{display:block}
+.hamburger{display:flex;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;padding:7px;border-radius:8px;cursor:pointer;transition:background .15s;flex-shrink:0}
+.hamburger:hover{background:rgba(0,0,0,.07)}
+.hamburger span{display:block;width:100%;height:2px;background:#1d1d1f;border-radius:2px;transition:transform .22s ease,opacity .22s ease}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.ham-menu{position:absolute;top:calc(100% + 10px);right:0;min-width:200px;background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.07);border:1px solid var(--border);overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-6px) scale(.98);transition:opacity .18s ease,transform .18s ease;z-index:1001}
+.ham-menu.open{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+.ham-menu a{display:flex;align-items:center;gap:12px;padding:13px 18px;font-size:.88rem;font-weight:500;color:#1d1d1f;transition:background .12s;cursor:pointer}
+.ham-menu a:hover{background:#f5f5f7}
+.ham-menu a .hm-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+.ham-divider{height:1px;background:var(--border);margin:3px 0}
 
 /* ── VIEWS ── */
 .view{display:none;padding-top:56px}
@@ -618,6 +630,16 @@ a{text-decoration:none;color:inherit}
   </div>
   <div class="nav-right">
     <button class="nav-map-btn" id="nav-map-btn" onclick="showMap()">🗺 Explore Map</button>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleHamburger()" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="ham-menu" id="ham-menu">
+      <a onclick="showLanding();closeHamburger()"><span class="hm-icon">🏠</span>Home</a>
+      <a onclick="showMap();closeHamburger()"><span class="hm-icon">🗺</span>Explore Map</a>
+      <a onclick="showMethod();closeHamburger()"><span class="hm-icon">📋</span>Methodology</a>
+      <div class="ham-divider"></div>
+      <a href="mailto:hello@civica.com"><span class="hm-icon">✉️</span>Contact</a>
+    </div>
   </div>
 </nav>
 
@@ -1506,6 +1528,22 @@ function showView(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo({top:0,behavior:'instant'});
 }
+
+function toggleHamburger(){
+  const btn=document.getElementById('hamburger-btn');
+  const menu=document.getElementById('ham-menu');
+  const isOpen=menu.classList.contains('open');
+  if(isOpen){closeHamburger();}
+  else{btn.classList.add('open');menu.classList.add('open');btn.setAttribute('aria-expanded','true');}
+}
+function closeHamburger(){
+  const btn=document.getElementById('hamburger-btn');
+  const menu=document.getElementById('ham-menu');
+  btn.classList.remove('open');menu.classList.remove('open');btn.setAttribute('aria-expanded','false');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#hamburger-btn')&&!e.target.closest('#ham-menu'))closeHamburger();
+});
 
 function showLanding(pushHistory=true){
   if(pushHistory) history.pushState({view:'landing'},'',location.pathname);
