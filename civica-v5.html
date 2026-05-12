@@ -1430,6 +1430,46 @@ const G_BG={green:'#e4faea',yellow:'#fff4e0',red:'#fff0ee',na:'#f5f5f7'};
 const G_TEXT={green:'#1a8a3c',yellow:'#b25a00',red:'#c0392b',na:'#98989d'};
 const G_DOT={green:'#30d158',yellow:'#ff9f0a',red:'#ff3b30',na:'#e5e5ea'};
 
+/* ═══════════════════════════════
+   DYNAMIC SCORE COMPUTATION
+   Weights: Fiscal 30% · Tax 15% · Schools 15% · Ops 10%
+            Infra 10% · Momentum 10% · Safety 5% · Climate 5%
+═══════════════════════════════ */
+function computeScore(t){
+  const gv=s=>s==='green'?100:s==='yellow'?55:15;
+  function pillar(pairs){
+    const gs=pairs.map(([k,v])=>grade(k,v,t)).filter(g=>g!=='na');
+    if(!gs.length)return null;
+    return Math.round(gs.map(gv).reduce((a,b)=>a+b,0)/gs.length);
+  }
+  function gPension(v){return v==null?'na':v>=80?'green':v>=60?'yellow':'red';}
+  function gGfoa(v){return v==null?'na':v>=16?'green':v>=10?'yellow':'red';}
+  function gTransp(v){return v==null?'na':v==='Yes'?'green':v==='Partial'?'yellow':'red';}
+
+  // Fiscal Health — bond, free cash, debt, pension
+  const fiscalBase=pillar([['bond',t.bond],['free_cash',t.free_cash],['debt_pc',t.debt_pc]]);
+  const pg=gPension(t.pension);
+  const fiscal=fiscalBase!=null?(pg!=='na'?Math.round((fiscalBase*3+gv(pg))/4):fiscalBase):50;
+
+  const tax=pillar([['eff_rate',t.eff_rate],['ter_r',t.ter_r]])??50;
+  const schools=pillar([['d_rank',t.d_rank],['math',t.math],['grad',t.grad]])??50;
+
+  // Operational Quality — ACFR published + GFOA award
+  const opsGs=[gTransp(t.transp),gGfoa(t.gfoa)].filter(g=>g!=='na');
+  const ops=opsGs.length?Math.round(opsGs.map(gv).reduce((a,b)=>a+b,0)/opsGs.length):50;
+
+  const infra=pillar([['elec_save',t.elec_save],['water_viol',t.water_viol]])??50;
+  const momentum=pillar([['unemp',t.unemp],['pov',t.pov]])??50;
+  const safety=pillar([['violent',t.violent],['prop_crime',t.prop_crime]])??50;
+  const climate=pillar([['flood',t.flood],['flood50',t.flood50]])??50;
+
+  return Math.round(
+    fiscal*0.30 + tax*0.15 + schools*0.15 + ops*0.10 +
+    infra*0.10 + momentum*0.10 + safety*0.05 + climate*0.05
+  );
+}
+TOWNS.forEach(t=>{t.score=computeScore(t);});
+
 function metricRow(key,label,display,g){
   if(display==null)return`<div class="metric-row"><div class="metric-dot" style="background:#e5e5ea"></div><span class="metric-key">${label}</span><span class="metric-na">Pending</span></div>`;
   return`<div class="metric-row"><div class="metric-dot" style="background:${G_DOT[g]}"></div><span class="metric-key">${label}</span><span class="metric-val" style="background:${G_BG[g]};color:${G_TEXT[g]}">${display}</span></div>`;
