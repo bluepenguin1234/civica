@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fiscal Accountability Monitor — Civica</title>
-<meta name="description" content="Civica's Fiscal Accountability Monitor flags pension underfunding, spending efficiency gaps, cash reserve stress, and debt loads across Essex County municipalities.">
+<meta name="description" content="Civica screens all 36 Essex County municipalities for pension underfunding, cash reserve stress, spending efficiency gaps, and debt loads.">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -15,133 +15,173 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 :root{
   --blue:#0d2d52;--blue-dk:#091f3a;--blue-lt:#e8eef6;
   --green:#30d158;--orange:#ff9f0a;--red:#ff3b30;
-  --surface:#fff;--bg:#f5f5f7;
+  --bg:#f5f5f7;--surface:#fff;
   --text:#1d1d1f;--sec:#6e6e73;--ter:#98989d;
   --border:rgba(0,0,0,0.08);--border-mid:rgba(0,0,0,0.12);
   --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
-  --shadow:0 4px 16px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04);
-  --r:16px;--r-sm:10px;--r-xs:6px;
+  --shadow:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.1),0 4px 12px rgba(0,0,0,0.06);
+  --r:16px;--r-sm:12px;--r-xs:8px;
+  --red-bg:#fff0f0;--red-border:rgba(185,28,28,0.18);--red-text:#b91c1c;
+  --orange-bg:#fff8f0;--orange-border:rgba(154,52,18,0.18);--orange-text:#9a3412;
+  --green-bg:#f0fdf4;--green-border:rgba(22,163,74,0.18);--green-text:#16a34a;
 }
 
-/* nav */
-.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:56px;background:rgba(255,255,255,0.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;justify-content:space-between}
+/* ── NAV ── */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:56px;background:rgba(255,255,255,0.9);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;justify-content:space-between}
 .logo{display:flex;align-items:center;gap:9px}
 .logo-word{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:-0.4px}
 .logo-word span{color:var(--blue)}
-.nav-back{height:34px;padding:0 16px;border-radius:8px;background:var(--blue);color:#fff;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:background .15s}
+.nav-back{height:34px;padding:0 16px;border-radius:8px;background:var(--blue);color:#fff;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:background .15s}
 .nav-back:hover{background:var(--blue-dk)}
 
-/* hero */
-.hero{padding:100px 24px 64px;text-align:center;background:linear-gradient(175deg,#fff 0%,#fff4f4 60%,#fff 100%);border-bottom:1px solid var(--border)}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:#fff0f0;color:#b91c1c;font-size:.73rem;font-weight:700;margin-bottom:22px;border:1px solid rgba(185,28,28,0.15)}
-.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-1.2px;line-height:1.1;max-width:660px;margin:0 auto}
-.hero p{font-size:.97rem;color:var(--sec);max-width:540px;margin:16px auto 0;line-height:1.7}
-.hero-note{font-size:.78rem;color:var(--ter);margin-top:10px;font-style:italic}
+/* ── HERO ── */
+.hero{padding:88px 24px 0;text-align:center;background:linear-gradient(180deg,#0d2d52 0%,#1a3d6b 100%);color:#fff;overflow:hidden;position:relative}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:60px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%)}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:rgba(255,60,48,0.2);border:1px solid rgba(255,60,48,0.35);color:#ff8080;font-size:.72rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:20px}
+.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-1.2px;line-height:1.1;max-width:640px;margin:0 auto 14px}
+.hero p{font-size:.97rem;color:rgba(255,255,255,.72);max-width:520px;margin:0 auto;line-height:1.7}
 
-/* summary bar */
-.summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:900px;margin:0 auto;padding:0 24px;transform:translateY(-28px)}
-.sum-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:20px 16px;text-align:center;box-shadow:var(--shadow)}
-.sum-num{font-size:2.2rem;font-weight:800;letter-spacing:-1px;line-height:1}
-.sum-label{font-size:.73rem;color:var(--sec);margin-top:5px;line-height:1.4}
-.sum-num.red{color:var(--red)}
-.sum-num.orange{color:#c05621}
-.sum-num.green{color:#16a34a}
+/* hero stat strip */
+.hero-stats{display:flex;justify-content:center;gap:0;margin:36px auto 0;max-width:680px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r);overflow:hidden}
+.hs-item{flex:1;padding:18px 12px;text-align:center;border-right:1px solid rgba(255,255,255,0.1)}
+.hs-item:last-child{border-right:none}
+.hs-num{font-size:1.8rem;font-weight:800;letter-spacing:-1px;line-height:1}
+.hs-num.red{color:#ff6b6b}
+.hs-num.orange{color:#ffb347}
+.hs-num.green{color:#4ade80}
+.hs-label{font-size:.68rem;color:rgba(255,255,255,.55);margin-top:4px;line-height:1.4}
+.hero-spacer{height:60px}
 
-/* content */
+/* ── FILTER TABS ── */
+.filter-wrap{max-width:980px;margin:0 auto;padding:32px 24px 16px}
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.ftab{height:36px;padding:0 18px;border-radius:20px;font-size:.82rem;font-weight:600;border:1.5px solid var(--border);background:#fff;color:var(--sec);transition:all .15s;display:flex;align-items:center;gap:7px}
+.ftab:hover{border-color:var(--blue);color:var(--blue)}
+.ftab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.ftab .cnt{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:10px;font-size:.72rem;font-weight:700;padding:0 5px}
+.ftab.active .cnt{background:rgba(255,255,255,0.2)}
+.ftab:not(.active) .cnt{background:var(--bg)}
+
+/* sort bar */
+.sort-bar{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.sort-label{font-size:.76rem;color:var(--sec);font-weight:600}
+.sort-opt{height:30px;padding:0 12px;border-radius:20px;font-size:.76rem;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--sec);transition:all .15s}
+.sort-opt:hover{border-color:var(--blue);color:var(--blue)}
+.sort-opt.active{background:var(--blue-lt);border-color:var(--blue);color:var(--blue)}
+
+/* ── TOWN CARDS GRID ── */
 .content{max-width:980px;margin:0 auto;padding:0 24px 64px}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:56px}
+@media(max-width:800px){.cards-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.cards-grid{grid-template-columns:1fr}}
 
-/* section */
-.sec-eyebrow{font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:8px;display:block}
-.sec-title{font-size:1.4rem;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
-.sec-desc{font-size:.87rem;color:var(--sec);line-height:1.65;margin-bottom:24px;max-width:600px}
+/* town card */
+.tc{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:box-shadow .15s,transform .15s;cursor:default}
+.tc:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.tc.risk-critical{border-top:3px solid var(--red)}
+.tc.risk-warning{border-top:3px solid var(--orange)}
+.tc.risk-clean{border-top:3px solid var(--green)}
 
-/* table */
-.table-section{margin-bottom:48px}
-.flag-table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
-table{width:100%;border-collapse:collapse;background:#fff}
-thead th{padding:11px 14px;font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sec);text-align:left;border-bottom:1px solid var(--border);background:#fafafa;white-space:nowrap}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:#fafafa}
-td{padding:11px 14px;font-size:.84rem;vertical-align:middle}
-.town-name{font-weight:700}
-.town-county{font-size:.72rem;color:var(--ter);margin-top:1px}
-.sort-btn{background:none;border:none;cursor:pointer;padding:0;font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sec);display:inline-flex;align-items:center;gap:4px}
-.sort-btn:hover{color:var(--blue)}
-.sort-btn.active{color:var(--blue)}
-.flag-pills{display:flex;flex-wrap:wrap;gap:4px;max-width:340px}
-.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:.69rem;font-weight:600;white-space:nowrap;line-height:1.4}
-.pill.red{background:#fff0f0;color:#b91c1c;border:1px solid rgba(185,28,28,0.2)}
-.pill.orange{background:#fff8f0;color:#9a3412;border:1px solid rgba(154,52,18,0.2)}
-.pill.gray{background:#f5f5f7;color:var(--sec);border:1px solid var(--border)}
-.no-flags{color:var(--ter);font-size:.79rem;font-style:italic}
-.risk-score{display:inline-block;min-width:28px;padding:3px 7px;border-radius:6px;font-size:.8rem;font-weight:800;text-align:center}
-.risk-score.high{background:#fff0f0;color:#b91c1c}
-.risk-score.med{background:#fff8f0;color:#9a3412}
-.risk-score.low{background:#f0fdf4;color:#16a34a}
-.risk-score.zero{background:#f5f5f7;color:var(--ter)}
+.tc-head{padding:16px 16px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.tc-name{font-size:.95rem;font-weight:800;letter-spacing:-.2px}
+.tc-county{font-size:.7rem;color:var(--ter);margin-top:1px}
+.tc-score-circle{flex-shrink:0}
 
-/* detail cards */
-.detail-section{margin-bottom:48px}
-.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.detail-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:20px;box-shadow:var(--shadow-sm)}
-.detail-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px}
-.detail-town{font-size:1rem;font-weight:800;margin-bottom:2px}
-.detail-meta{font-size:.74rem;color:var(--sec)}
-.detail-badge{padding:4px 9px;border-radius:6px;font-size:.74rem;font-weight:700;flex-shrink:0}
-.detail-badge.high{background:#fff0f0;color:#b91c1c}
-.detail-badge.med{background:#fff8f0;color:#9a3412}
-.flag-list{display:flex;flex-direction:column;gap:8px}
-.flag-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r-xs);border:1px solid var(--border)}
-.flag-item.red{background:#fffafa;border-color:rgba(185,28,28,0.12)}
-.flag-item.orange{background:#fffcf9;border-color:rgba(154,52,18,0.12)}
-.flag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.flag-dot.red{background:var(--red)}
-.flag-dot.orange{background:var(--orange)}
-.flag-text strong{display:block;font-size:.81rem;font-weight:700;margin-bottom:2px}
-.flag-text span{font-size:.78rem;color:var(--sec);line-height:1.55}
+/* ring gauge */
+.ring{display:block}
 
-/* methodology */
-.meth-section{padding-top:48px;border-top:1px solid var(--border);margin-bottom:40px}
-.meth-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:24px}
-.meth-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:20px}
-.meth-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:.73rem;font-weight:800;margin-bottom:10px}
-.meth-title{font-size:.9rem;font-weight:700;margin-bottom:6px}
+.tc-bars{padding:0 16px 10px;display:flex;flex-direction:column;gap:7px}
+.bar-row{display:flex;flex-direction:column;gap:3px}
+.bar-label-row{display:flex;justify-content:space-between;align-items:center}
+.bar-label{font-size:.68rem;color:var(--sec)}
+.bar-val{font-size:.72rem;font-weight:700}
+.bar-track{height:5px;background:#efefef;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+
+.tc-flags{padding:10px 16px 14px;display:flex;flex-wrap:wrap;gap:5px;border-top:1px solid var(--border)}
+.flag-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:.67rem;font-weight:600;line-height:1.4}
+.flag-chip.red{background:var(--red-bg);color:var(--red-text);border:1px solid var(--red-border)}
+.flag-chip.orange{background:var(--orange-bg);color:var(--orange-text);border:1px solid var(--orange-border)}
+.flag-chip.gray{background:var(--bg);color:var(--sec);border:1px solid var(--border)}
+.no-flag-msg{font-size:.73rem;color:var(--green-text);font-weight:600;display:flex;align-items:center;gap:5px}
+
+/* ── HIGH RISK DETAIL ── */
+.section-head{margin-bottom:20px}
+.eyebrow{font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:6px;display:block}
+.section-title{font-size:1.4rem;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+.section-desc{font-size:.86rem;color:var(--sec);line-height:1.65;max-width:580px}
+
+.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:56px}
+@media(max-width:640px){.detail-grid{grid-template-columns:1fr}}
+
+.dc{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden}
+.dc-head{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border)}
+.dc-head.critical{background:linear-gradient(135deg,#fff5f5,#fff)}
+.dc-head.warning{background:linear-gradient(135deg,#fffaf5,#fff)}
+.dc-town{font-size:1rem;font-weight:800}
+.dc-meta{font-size:.74rem;color:var(--sec);margin-top:2px}
+.dc-badge{padding:5px 11px;border-radius:20px;font-size:.73rem;font-weight:700;flex-shrink:0}
+.dc-badge.critical{background:var(--red-bg);color:var(--red-text);border:1px solid var(--red-border)}
+.dc-badge.warning{background:var(--orange-bg);color:var(--orange-text);border:1px solid var(--orange-border)}
+
+.dc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--border)}
+.dc-metric{padding:12px 16px;text-align:center;border-right:1px solid var(--border)}
+.dc-metric:last-child{border-right:none}
+.dc-metric-val{font-size:1.1rem;font-weight:800;letter-spacing:-.4px}
+.dc-metric-val.red{color:var(--red-text)}
+.dc-metric-val.orange{color:var(--orange-text)}
+.dc-metric-val.green{color:var(--green-text)}
+.dc-metric-val.na{color:var(--ter);font-size:.85rem;font-weight:600}
+.dc-metric-label{font-size:.65rem;color:var(--ter);margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+
+.dc-flags{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.dc-flag{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-xs);border:1px solid}
+.dc-flag.red{background:var(--red-bg);border-color:var(--red-border)}
+.dc-flag.orange{background:var(--orange-bg);border-color:var(--orange-border)}
+.dc-flag-icon{font-size:1.1rem;flex-shrink:0;line-height:1;margin-top:1px}
+.dc-flag-body strong{display:block;font-size:.82rem;font-weight:700;margin-bottom:3px}
+.dc-flag-body span{font-size:.78rem;color:var(--sec);line-height:1.55}
+
+/* ── METHODOLOGY ── */
+.meth-section{padding-top:48px;border-top:1px solid var(--border);margin-bottom:48px}
+.meth-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+@media(max-width:640px){.meth-grid{grid-template-columns:1fr}}
+.meth-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:22px;display:flex;gap:16px;align-items:flex-start}
+.meth-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.meth-body-wrap{}
+.meth-title{font-size:.9rem;font-weight:800;margin-bottom:5px}
 .meth-body{font-size:.79rem;color:var(--sec);line-height:1.65}
+.meth-body strong{color:var(--text)}
 .meth-body code{background:#f0f0f5;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:.75rem}
-.meth-coverage{display:inline-block;margin-top:10px;padding:2px 8px;border-radius:4px;background:var(--blue-lt);color:var(--blue);font-size:.71rem;font-weight:600}
+.meth-coverage{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:3px 9px;border-radius:20px;background:var(--blue-lt);color:var(--blue);font-size:.69rem;font-weight:700}
 
-/* disclaimer */
-.disclaimer{padding:18px 20px;background:#fffbeb;border:1px solid rgba(154,52,18,0.18);border-radius:var(--r-sm);font-size:.79rem;color:var(--sec);line-height:1.65;margin-bottom:48px}
+/* ── SOURCES ── */
+.sources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 48px}
+@media(max-width:640px){.sources-grid{grid-template-columns:1fr}}
+.src{background:#fff;border:1px solid var(--border);border-radius:var(--r-xs);padding:14px 16px;display:flex;gap:10px;align-items:flex-start}
+.src-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:4px}
+.src-name{font-size:.8rem;font-weight:700;margin-bottom:2px}
+.src-desc{font-size:.73rem;color:var(--sec);line-height:1.5}
+
+/* ── DISCLAIMER ── */
+.disclaimer{padding:16px 20px;background:#fffbeb;border:1px solid rgba(154,52,18,0.15);border-radius:var(--r-sm);font-size:.79rem;color:var(--sec);line-height:1.65;margin-bottom:48px}
 .disclaimer strong{color:var(--text)}
 
-/* data sources */
-.sources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;margin-bottom:48px}
-.source-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-xs);padding:14px}
-.source-name{font-size:.8rem;font-weight:700;margin-bottom:4px}
-.source-desc{font-size:.74rem;color:var(--sec);line-height:1.55}
-
-/* loading */
-.loading{text-align:center;padding:64px 24px;color:var(--sec)}
-.spinner{display:inline-block;width:30px;height:30px;border:3px solid var(--border-mid);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px}
+/* ── LOADING ── */
+.loading{text-align:center;padding:80px 24px;color:var(--sec)}
+.spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border-mid);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading p{font-size:.88rem}
 
-/* footer */
-footer{margin-top:0;padding:28px 24px;border-top:1px solid var(--border);text-align:center;font-size:.77rem;color:var(--ter);max-width:980px;margin:0 auto}
+/* ── FOOTER ── */
+footer{padding:28px 24px;border-top:1px solid var(--border);text-align:center;font-size:.77rem;color:var(--ter);max-width:980px;margin:0 auto}
 footer a{color:var(--blue)}
 footer a:hover{text-decoration:underline}
-
-@media(max-width:680px){
-  .summary-bar{grid-template-columns:repeat(2,1fr);transform:translateY(-20px)}
-  .detail-grid,.meth-grid,.sources-grid{grid-template-columns:1fr}
-  .flag-pills{max-width:100%}
-  table th:nth-child(4),table td:nth-child(4){display:none}
-}
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav class="navbar">
   <a href="civica-v5.html" class="logo">
     <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
@@ -155,139 +195,135 @@ footer a:hover{text-decoration:underline}
   <a href="civica-v5.html" class="nav-back">← Back to Civica</a>
 </nav>
 
+<!-- HERO -->
 <header class="hero">
-  <div class="hero-badge">⚠ Fiscal Accountability Monitor</div>
-  <h1>Municipal Risk &amp;<br>Accountability Dashboard</h1>
-  <p>Civica applies a rules-based statistical model to flag pension underfunding, spending efficiency gaps, cash reserve stress, and debt loads across all 36 Essex County municipalities.</p>
-  <p class="hero-note">Flags are data signals, not accusations. A flag means a number deviates from peer averages or established thresholds — not that wrongdoing occurred.</p>
+  <div class="hero-eyebrow">⚠ Fiscal Accountability Monitor</div>
+  <h1>Where is your<br>tax dollar going?</h1>
+  <p>Civica screens all 36 Essex County municipalities using public data — flagging pension shortfalls, cash stress, spending inefficiency, and debt overload.</p>
+  <div class="hero-stats" id="heroStats">
+    <div class="hs-item"><div class="hs-num red" id="hs-critical">—</div><div class="hs-label">Critical Risk<br>Towns</div></div>
+    <div class="hs-item"><div class="hs-num orange" id="hs-warning">—</div><div class="hs-label">Warning<br>Towns</div></div>
+    <div class="hs-item"><div class="hs-num" style="color:#60a5fa" id="hs-flags">—</div><div class="hs-label">Total Flags<br>Triggered</div></div>
+    <div class="hs-item"><div class="hs-num green" id="hs-clean">—</div><div class="hs-label">No Significant<br>Flags</div></div>
+  </div>
+  <div class="hero-spacer"></div>
 </header>
 
-<div class="summary-bar" id="summaryBar">
-  <div class="sum-card"><div class="spinner"></div></div>
-  <div class="sum-card"></div>
-  <div class="sum-card"></div>
-  <div class="sum-card"></div>
+<!-- FILTER + SORT BAR -->
+<div class="filter-wrap" id="filterWrap" style="display:none">
+  <div class="filter-tabs" id="filterTabs">
+    <button class="ftab active" data-filter="all" onclick="setFilter('all')">All Towns <span class="cnt" id="cnt-all">36</span></button>
+    <button class="ftab" data-filter="critical" onclick="setFilter('critical')">🔴 Critical <span class="cnt" id="cnt-critical">—</span></button>
+    <button class="ftab" data-filter="warning" onclick="setFilter('warning')">🟠 Warning <span class="cnt" id="cnt-warning">—</span></button>
+    <button class="ftab" data-filter="clean" onclick="setFilter('clean')">✅ No Flags <span class="cnt" id="cnt-clean">—</span></button>
+  </div>
+  <div class="sort-bar">
+    <span class="sort-label">Sort by:</span>
+    <button class="sort-opt active" data-sort="flagScore" onclick="setSort('flagScore')">Risk Score</button>
+    <button class="sort-opt" data-sort="name" onclick="setSort('name')">Name</button>
+    <button class="sort-opt" data-sort="pension" onclick="setSort('pension')">Pension %</button>
+    <button class="sort-opt" data-sort="free_cash" onclick="setSort('free_cash')">Free Cash %</button>
+    <button class="sort-opt" data-sort="score" onclick="setSort('score')">Civica Score</button>
+  </div>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="content">
   <div class="loading" id="loadingState">
     <div class="spinner"></div>
-    <p>Loading municipal data…</p>
+    <div style="font-size:.88rem">Loading municipal data…</div>
   </div>
 
   <div id="mainContent" style="display:none">
 
-    <!-- all towns table -->
-    <div class="table-section">
-      <span class="sec-eyebrow">All 36 Municipalities</span>
-      <div class="sec-title">Risk Flag Summary</div>
-      <div class="sec-desc">Every town and city in the dataset, sorted by risk score. Click any column header to re-sort.</div>
-      <div class="flag-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th><button class="sort-btn" data-key="name" onclick="sortTable('name')">Municipality</button></th>
-              <th><button class="sort-btn" data-key="pension" onclick="sortTable('pension')">Pension %</button></th>
-              <th><button class="sort-btn" data-key="free_cash" onclick="sortTable('free_cash')">Free Cash %</button></th>
-              <th><button class="sort-btn" data-key="roiGap" onclick="sortTable('roiGap')">Edu ROI Gap</button></th>
-              <th><button class="sort-btn" data-key="debt_pc" onclick="sortTable('debt_pc')">Debt/Cap</button></th>
-              <th><button class="sort-btn active" data-key="flagScore" onclick="sortTable('flagScore')">Risk Score ↓</button></th>
-              <th>Flags Triggered</th>
-            </tr>
-          </thead>
-          <tbody id="flagTableBody"></tbody>
-        </table>
-      </div>
-    </div>
+    <!-- TOWN CARDS -->
+    <div class="cards-grid" id="cardsGrid"></div>
 
-    <!-- high-risk detail -->
-    <div class="detail-section" id="detailSection">
-      <span class="sec-eyebrow">Flagged for Closer Review</span>
-      <div class="sec-title">High-Risk Municipalities</div>
-      <div class="sec-desc">Towns with a risk score of 3 or higher, with flag details. Each flag cites the specific data point that triggered it.</div>
+    <!-- HIGH-RISK DETAIL -->
+    <div id="detailSection" style="margin-bottom:56px">
+      <div class="section-head">
+        <span class="eyebrow">Flagged for Closer Review</span>
+        <div class="section-title">High-Risk Municipalities</div>
+        <div class="section-desc">Towns with a risk score of 3 or higher. Each flag cites the exact data point that triggered it and what it means for taxpayers.</div>
+      </div>
       <div class="detail-grid" id="detailGrid"></div>
     </div>
 
-    <!-- methodology -->
+    <!-- METHODOLOGY -->
     <section class="meth-section">
-      <span class="sec-eyebrow">Methodology</span>
-      <div class="sec-title">How Flags Are Calculated</div>
-      <div class="sec-desc">Each flag uses public data and objective thresholds. No editorial judgment is applied to individual municipalities. Thresholds are based on MA state guidance, actuarial standards, and peer comparisons within the 36-town dataset.</div>
+      <div class="section-head">
+        <span class="eyebrow">Methodology</span>
+        <div class="section-title">How Flags Are Calculated</div>
+        <div class="section-desc">Every flag uses public data and objective thresholds. No editorial judgment is applied to individual municipalities. Thresholds are based on MA state guidance, actuarial standards, and peer analysis within the 36-town dataset.</div>
+      </div>
       <div class="meth-grid">
         <div class="meth-card">
-          <div class="meth-num">1</div>
-          <div class="meth-title">Pension Funding Level</div>
-          <div class="meth-body">
-            Source: MA PERAC annual actuarial valuations. Most Essex County towns participate in the Essex Regional Retirement System (~53.8% funded). Cities with independent systems (Lynn, Lawrence, Haverhill, Methuen) are valued separately.<br><br>
-            Thresholds: <strong>Critical</strong> &lt;55% funded · <strong>Warning</strong> 55–70%<br><br>
-            The 70% floor reflects common actuarial guidance. Below 55%, unfunded liabilities typically require significant future tax increases to resolve.
-            <div class="meth-coverage">Coverage: 36/36 towns (100%)</div>
+          <div class="meth-icon" style="background:#fff0f0">🏦</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">Pension Funding Level</div>
+            <div class="meth-body">Source: MA PERAC actuarial valuations. Most Essex County towns are in the Essex Regional Retirement System (~53.8% funded). Cities with independent systems (Lynn, Lawrence, Haverhill, Methuen) are separately valued.<br><br><strong>Critical</strong> below 55% · <strong>Warning</strong> 55–70%<br><br>Below 55%, unfunded liabilities typically require significant future tax increases to resolve.</div>
+            <div class="meth-coverage">Coverage: 36 / 36 towns</div>
           </div>
         </div>
         <div class="meth-card">
-          <div class="meth-num">2</div>
-          <div class="meth-title">Free Cash Reserves</div>
-          <div class="meth-body">
-            Source: MA Division of Local Services (DLS) certified free cash — the prior year's operating surplus after all liabilities are settled, certified by the state each fall.<br><br>
-            Thresholds: <strong>Critical</strong> &lt;2% · <strong>Warning</strong> 2–3%<br><br>
-            MA DLS recommends municipalities maintain at least 5% free cash as a fiscal buffer. Below 3% signals limited capacity to absorb unexpected expenses or revenue shortfalls without borrowing.
-            <div class="meth-coverage">Coverage: ~22/36 towns (61%)</div>
+          <div class="meth-icon" style="background:#fff8f0">💵</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">Free Cash Reserves</div>
+            <div class="meth-body">Source: MA Division of Local Services (DLS) certified free cash — the prior year's operating surplus, certified by the state each fall.<br><br><strong>Critical</strong> below 2% · <strong>Warning</strong> 2–3%<br><br>MA DLS recommends at least 5% as a fiscal buffer. Below 3% means almost no cushion for unexpected costs or revenue shortfalls.</div>
+            <div class="meth-coverage">Coverage: ~22 / 36 towns</div>
           </div>
         </div>
         <div class="meth-card">
-          <div class="meth-num">3</div>
-          <div class="meth-title">Academic Return on Investment</div>
-          <div class="meth-body">
-            Compares each town's per-pupil spending percentile rank (among 36 peers) against its academic outcome percentile (DESE district ranking, 351 districts). Formula: <code>gap = spend_pct − outcome_pct</code>.<br><br>
-            Thresholds: <strong>Critical</strong> gap &gt;30 · <strong>Warning</strong> gap 15–30<br><br>
-            A positive gap means a town spends more than peers yet achieves lower outcomes. This is a signal — not proof of mismanagement — as district size, demographics, and special education ratios all affect per-pupil spending.
-            <div class="meth-coverage">Coverage: 34/36 towns</div>
+          <div class="meth-icon" style="background:#f0fdf4">🎓</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">Academic Return on Investment</div>
+            <div class="meth-body">Compares per-pupil spending rank vs. academic outcome rank (DESE, 351 districts) within the 36-town peer group. Formula: <code>gap = spend_pct − outcome_pct</code>.<br><br><strong>Critical</strong> gap &gt;30 pts · <strong>Warning</strong> gap 15–30 pts<br><br>A large gap means a town spends more than peers yet achieves lower outcomes. Note: district size and demographics affect per-pupil costs.</div>
+            <div class="meth-coverage">Coverage: 34 / 36 towns</div>
           </div>
         </div>
         <div class="meth-card">
-          <div class="meth-num">4</div>
-          <div class="meth-title">Per-Capita Debt Load</div>
-          <div class="meth-body">
-            Source: Town ACFRs (Annual Comprehensive Financial Reports) and MA DLS gateway. Includes general obligation bonds; excludes revenue bonds and BANs unless noted.<br><br>
-            Thresholds: <strong>Critical</strong> &gt;$7,000/resident · <strong>Warning</strong> $4,500–$7,000<br><br>
-            The Massachusetts median is approximately $2,400 per capita. High debt/capita is not inherently negative — it can reflect deliberate capital investment — but it constrains future budget flexibility and raises debt service costs.
-            <div class="meth-coverage">Coverage: ~12/36 towns (33%)</div>
+          <div class="meth-icon" style="background:#e8eef6">📊</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">Per-Capita Debt Load</div>
+            <div class="meth-body">Source: Town ACFRs and MA DLS gateway. Includes general obligation bonds. High debt/capita is not inherently negative — it can reflect capital investment — but it constrains future budgets and raises debt service costs.<br><br><strong>Critical</strong> above $7,000/resident · <strong>Warning</strong> $4,500–$7,000<br><br>MA median is approximately $2,400 per capita.</div>
+            <div class="meth-coverage">Coverage: ~12 / 36 towns</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- data sources -->
-    <span class="sec-eyebrow">Data Sources</span>
-    <div class="sec-title" style="margin-bottom:6px">Where the Numbers Come From</div>
-    <div class="sec-desc">All data is derived from public records. Confidence levels for each municipality are shown in the main Civica scorecard.</div>
+    <!-- DATA SOURCES -->
+    <span class="eyebrow">Data Sources</span>
+    <div class="section-title" style="margin-bottom:6px">Where the Numbers Come From</div>
+    <div class="section-desc" style="margin-bottom:0">All data sourced from public records. Confidence levels for each municipality are shown in the main Civica scorecard.</div>
     <div class="sources-grid">
-      <div class="source-card"><div class="source-name">MA PERAC</div><div class="source-desc">Pension funding ratios — annual actuarial valuations for all public pension systems</div></div>
-      <div class="source-card"><div class="source-name">MA DLS Gateway</div><div class="source-desc">Certified free cash, debt schedules, and municipal finance data</div></div>
-      <div class="source-card"><div class="source-name">MA DESE</div><div class="source-desc">District rankings, per-pupil spending, graduation rates, MCAS math scores</div></div>
-      <div class="source-card"><div class="source-name">EMMA / MSRB</div><div class="source-desc">Bond ratings and official municipal disclosure filings</div></div>
-      <div class="source-card"><div class="source-name">FBI UCR / MA EOPSS</div><div class="source-desc">Violent and property crime rates per 100,000 residents</div></div>
-      <div class="source-card"><div class="source-name">Census ACS 2023</div><div class="source-desc">Population, income, poverty, education attainment, demographics</div></div>
+      <div class="src"><div class="src-dot"></div><div><div class="src-name">MA PERAC</div><div class="src-desc">Annual actuarial valuations for all public pension systems</div></div></div>
+      <div class="src"><div class="src-dot"></div><div><div class="src-name">MA DLS Gateway</div><div class="src-desc">Certified free cash, debt schedules, municipal finance</div></div></div>
+      <div class="src"><div class="src-dot"></div><div><div class="src-name">MA DESE</div><div class="src-desc">District rankings, per-pupil spending, MCAS, grad rates</div></div></div>
+      <div class="src"><div class="src-dot"></div><div><div class="src-name">EMMA / MSRB</div><div class="src-desc">Bond ratings and official municipal disclosures</div></div></div>
+      <div class="src"><div class="src-dot"></div><div><div class="src-name">FBI UCR / MA EOPSS</div><div class="src-desc">Violent and property crime rates per 100k residents</div></div></div>
+      <div class="src"><div class="src-dot"></div><div><div class="src-name">Census ACS 2023</div><div class="src-desc">Population, income, poverty, education attainment</div></div></div>
     </div>
 
-    <!-- disclaimer -->
+    <!-- DISCLAIMER -->
     <div class="disclaimer">
-      <strong>Limitation Notice:</strong> Civica flags are statistical screening tools, not audit findings. A flag does not indicate fraud, waste, or abuse — it identifies a data point that deviates from peer averages or established thresholds and warrants public attention. Many flags reflect structural factors (regional pension systems, small-district scale effects, capital investment cycles) rather than management failures. Some data is estimated or incomplete where primary sources were inaccessible; confidence levels are documented in the main Civica scorecard. This tool is for informational purposes only. Civica is not affiliated with any government entity.
+      <strong>Important:</strong> Civica flags are statistical screening tools, not audit findings. A flag does not indicate fraud, waste, or abuse — it identifies a data point that deviates from peer averages or established thresholds and warrants public attention. Many flags reflect structural factors (regional pension systems, small-district scale effects, capital investment cycles) rather than management failures. Some data is estimated where primary sources were inaccessible. This tool is for informational purposes only. Civica is not affiliated with any government entity.
     </div>
 
   </div><!-- /mainContent -->
 </div><!-- /content -->
 
 <footer>
-  <div>Civica Fiscal Accountability Monitor · Essex County, Massachusetts · Data from MA PERAC, MA DLS, DESE, FBI UCR, Census ACS 2023</div>
+  <div>Civica Fiscal Accountability Monitor · Essex County, Massachusetts</div>
   <div style="margin-top:8px"><a href="civica-v5.html">← Back to Civica Scorecard</a> &nbsp;·&nbsp; <a href="mailto:hello@civica.com">hello@civica.com</a></div>
 </footer>
 
 <script>
 let ALL_TOWNS = [];
-let sortKey = 'flagScore';
-let sortAsc = false;
+let currentFilter = 'all';
+let currentSort = 'flagScore';
 
+/* ── PERCENTILE RANK ── */
 function pctRankAsc(arr, val) {
   if (val === null || val === undefined) return null;
   const valid = arr.filter(v => v !== null && v !== undefined).sort((a,b) => a-b);
@@ -297,232 +333,262 @@ function pctRankAsc(arr, val) {
   return valid.length === 1 ? 50 : (idx / (valid.length - 1)) * 100;
 }
 
+/* ── FLAG COMPUTATION ── */
 function computeFlags(towns) {
   const perPupils = towns.map(t => t.per_pupil);
   const dRankPcts = towns.map(t =>
-    (t.d_rank !== null && t.d_rank !== undefined && t.d_total)
-      ? (t.d_total - t.d_rank) / t.d_total * 100
-      : null
-  );
+    (t.d_rank != null && t.d_total) ? (t.d_total - t.d_rank) / t.d_total * 100 : null);
 
   return towns.map((t, i) => {
     const flags = [];
 
-    // 1. Pension underfunding
-    if (t.pension !== null && t.pension !== undefined) {
-      if (t.pension < 55) {
+    if (t.pension != null) {
+      if (t.pension < 55)
         flags.push({sev:2, id:'pension', label:'Severely Underfunded Pension',
-          desc:`Pension funded at only ${t.pension}%. More than $45 of every $100 in pension obligations is unfunded, creating long-term fiscal risk for taxpayers.`});
-      } else if (t.pension < 70) {
+          desc:`Pension only ${t.pension}% funded. More than $45 of every $100 in obligations is unfunded — creating long-term fiscal risk for residents.`});
+      else if (t.pension < 70)
         flags.push({sev:1, id:'pension', label:'Underfunded Pension',
-          desc:`Pension funded at ${t.pension}%, below the 70% health threshold. Risk of future contribution spikes that could crowd out municipal services.`});
-      }
+          desc:`Pension funded at ${t.pension}%, below the 70% health threshold. Risk of future contribution spikes that crowd out other municipal services.`});
     }
 
-    // 2. Free cash stress
-    if (t.free_cash !== null && t.free_cash !== undefined) {
-      if (t.free_cash < 2) {
+    if (t.free_cash != null) {
+      if (t.free_cash < 2)
         flags.push({sev:2, id:'freecash', label:'Critical Cash Reserves',
-          desc:`Certified free cash at ${t.free_cash}% of budget. MA DLS recommends 5%+. At this level the municipality has almost no buffer for unexpected fiscal shocks.`});
-      } else if (t.free_cash < 3) {
+          desc:`Free cash at ${t.free_cash}% of budget. MA DLS recommends 5%+. Almost no fiscal cushion for unexpected costs or revenue shortfalls.`});
+      else if (t.free_cash < 3)
         flags.push({sev:1, id:'freecash', label:'Low Fiscal Reserves',
-          desc:`Free cash at ${t.free_cash}% — below the 3% prudent threshold. MA best practice is 5%+. Limited cushion for emergency spending or revenue shortfalls.`});
-      }
+          desc:`Free cash at ${t.free_cash}% — below the 3% prudent threshold. Limited buffer for emergency spending without borrowing.`});
     }
 
-    // 3. Academic ROI gap
     const spendPct = pctRankAsc(perPupils, t.per_pupil);
     const outcomePct = dRankPcts[i];
     let roiGap = null;
-    if (spendPct !== null && outcomePct !== null) {
+    if (spendPct != null && outcomePct != null) {
       roiGap = spendPct - outcomePct;
-      if (roiGap > 30) {
+      if (roiGap > 30)
         flags.push({sev:2, id:'roi', label:'High Spend / Low Outcome',
-          desc:`Per-pupil spending at the ${Math.round(spendPct)}th percentile among peers, but academic rank at the ${Math.round(outcomePct)}th percentile — a ${Math.round(roiGap)}-point gap. Warrants transparency about how district funds are allocated.`});
-      } else if (roiGap > 15) {
+          desc:`Spending at ${Math.round(spendPct)}th percentile among peers, but academic outcomes at ${Math.round(outcomePct)}th percentile — a ${Math.round(roiGap)}-point gap.`});
+      else if (roiGap > 15)
         flags.push({sev:1, id:'roi', label:'Below-Average Academic ROI',
-          desc:`Spending-to-outcome gap of ${Math.round(roiGap)} percentile points. Above-peer spending relative to academic outcomes. Note: district size and demographics significantly affect per-pupil costs.`});
-      }
+          desc:`${Math.round(roiGap)}-point gap between spending percentile and outcome percentile. Above-peer spending relative to academic results.`});
     }
 
-    // 4. Debt burden
-    if (t.debt_pc !== null && t.debt_pc !== undefined) {
-      if (t.debt_pc > 7000) {
+    if (t.debt_pc != null) {
+      if (t.debt_pc > 7000)
         flags.push({sev:2, id:'debt', label:'Excessive Per-Capita Debt',
-          desc:`$${t.debt_pc.toLocaleString()} in municipal debt per resident — ${(t.debt_pc/2400).toFixed(1)}× the MA median of ~$2,400. High debt constrains future budget flexibility and raises annual debt service costs.`});
-      } else if (t.debt_pc > 4500) {
+          desc:`$${t.debt_pc.toLocaleString()} debt per resident — ${(t.debt_pc/2400).toFixed(1)}× the MA median of ~$2,400.`});
+      else if (t.debt_pc > 4500)
         flags.push({sev:1, id:'debt', label:'Elevated Debt Load',
-          desc:`$${t.debt_pc.toLocaleString()} debt per capita — above the MA median of ~$2,400. Monitor for debt service cost growth in future municipal budgets.`});
-      }
+          desc:`$${t.debt_pc.toLocaleString()} debt per capita — above the MA median of ~$2,400.`});
     }
 
-    // 5. Data transparency flag
-    if (t.gaps !== null && t.gaps !== undefined && t.gaps >= 20) {
-      flags.push({sev:0, id:'gaps', label:'Limited Data Transparency',
-        desc:`${t.gaps} data fields are unavailable or unverified. Full accountability screening cannot be completed. Citizens can request ACFR and budget documents directly from the municipality.`});
-    }
+    if (t.gaps != null && t.gaps >= 20)
+      flags.push({sev:0, id:'gaps', label:'Limited Public Data',
+        desc:`${t.gaps} data fields unavailable. Full screening incomplete — residents can request ACFR documents directly from the town.`});
 
-    const flagScore = flags.reduce((s, f) => s + (f.sev === 2 ? 3 : f.sev === 1 ? 1 : 0), 0);
-    return {...t, flags, flagScore, roiGap, spendPct, outcomePct};
+    const flagScore = flags.reduce((s,f) => s + (f.sev===2?3:f.sev===1?1:0), 0);
+    const riskLevel = flagScore >= 6 ? 'critical' : flagScore >= 3 ? 'critical' : flagScore >= 1 ? 'warning' : 'clean';
+    return {...t, flags, flagScore, roiGap, spendPct, outcomePct, riskLevel};
   });
 }
 
-function renderSummary(towns) {
-  const criticalCount = towns.filter(t => t.flags.some(f => f.sev === 2)).length;
-  const warnOnly = towns.filter(t => t.flags.some(f => f.sev === 1) && !t.flags.some(f => f.sev === 2)).length;
-  const totalFlags = towns.reduce((s, t) => s + t.flags.filter(f => f.sev > 0).length, 0);
-  const cleanCount = towns.filter(t => t.flags.filter(f => f.sev > 0).length === 0).length;
-
-  document.getElementById('summaryBar').innerHTML = `
-    <div class="sum-card">
-      <div class="sum-num red">${criticalCount}</div>
-      <div class="sum-label">Critical-Risk<br>Municipalities</div>
-    </div>
-    <div class="sum-card">
-      <div class="sum-num orange">${warnOnly}</div>
-      <div class="sum-label">Warning-Level<br>Municipalities</div>
-    </div>
-    <div class="sum-card">
-      <div class="sum-num" style="color:var(--blue)">${totalFlags}</div>
-      <div class="sum-label">Total Flags<br>Triggered</div>
-    </div>
-    <div class="sum-card">
-      <div class="sum-num green">${cleanCount}</div>
-      <div class="sum-label">No Significant<br>Flags</div>
-    </div>
-  `;
+/* ── RING SVG ── */
+function ringGauge(score, color, size=52) {
+  if (score == null) return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${size/2}" cy="${size/2}" r="${size/2-4}" fill="none" stroke="#efefef" stroke-width="4"/><text x="50%" y="50%" text-anchor="middle" dy=".35em" font-size="11" fill="#ccc" font-family="-apple-system,sans-serif">—</text></svg>`;
+  const r = size/2 - 4, circ = 2 * Math.PI * r;
+  const dash = (score/100) * circ;
+  return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#efefef" stroke-width="4"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="4"
+      stroke-linecap="round" stroke-dasharray="${dash} ${circ}" transform="rotate(-90 ${size/2} ${size/2})"/>
+    <text x="50%" y="50%" text-anchor="middle" dy=".35em" font-size="${size<50?10:12}" font-weight="700"
+      fill="${color}" font-family="-apple-system,sans-serif">${score}</text>
+  </svg>`;
 }
 
-function renderTable(towns) {
-  const sorted = [...towns].sort((a, b) => {
-    let av = a[sortKey], bv = b[sortKey];
-    if (av === null || av === undefined) av = sortAsc ? Infinity : -Infinity;
-    if (bv === null || bv === undefined) bv = sortAsc ? Infinity : -Infinity;
-    if (typeof av === 'string') return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-    return sortAsc ? av - bv : bv - av;
+/* ── MINI BAR ── */
+function miniBar(val, max, color, prefix='', suffix='') {
+  if (val == null) return `<div class="bar-label-row"><span class="bar-label">No data</span><span class="bar-val" style="color:var(--ter)">—</span></div><div class="bar-track"><div class="bar-fill" style="width:0%;background:#efefef"></div></div>`;
+  const pct = Math.min((val/max)*100, 100);
+  return `<div class="bar-label-row"><span class="bar-label">${prefix}${typeof val==='number'?val.toFixed(val<10?1:0):val}${suffix}</span><span class="bar-val" style="color:${color}">${prefix}${typeof val==='number'?val.toFixed(val<10?1:0):val}${suffix}</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>`;
+}
+
+/* ── SCORE COLOR ── */
+function scoreColor(s) {
+  if (s==null) return '#ccc';
+  if (s>=80) return '#30d158';
+  if (s>=65) return '#0d2d52';
+  if (s>=50) return '#ff9f0a';
+  return '#ff3b30';
+}
+
+/* ── RENDER HERO STATS ── */
+function renderHeroStats(towns) {
+  const critical = towns.filter(t => t.flagScore >= 3).length;
+  const warning = towns.filter(t => t.flagScore >= 1 && t.flagScore < 3).length;
+  const totalFlags = towns.reduce((s,t) => s + t.flags.filter(f=>f.sev>0).length, 0);
+  const clean = towns.filter(t => t.flags.filter(f=>f.sev>0).length===0).length;
+  document.getElementById('hs-critical').textContent = critical;
+  document.getElementById('hs-warning').textContent = warning;
+  document.getElementById('hs-flags').textContent = totalFlags;
+  document.getElementById('hs-clean').textContent = clean;
+  document.getElementById('cnt-critical').textContent = critical;
+  document.getElementById('cnt-warning').textContent = warning;
+  document.getElementById('cnt-clean').textContent = clean;
+  document.getElementById('cnt-all').textContent = towns.length;
+}
+
+/* ── RENDER CARDS ── */
+function renderCards(towns) {
+  let filtered = towns.filter(t => {
+    if (currentFilter==='critical') return t.flagScore >= 3;
+    if (currentFilter==='warning') return t.flagScore >= 1 && t.flagScore < 3;
+    if (currentFilter==='clean') return t.flags.filter(f=>f.sev>0).length===0;
+    return true;
   });
 
-  document.querySelectorAll('.sort-btn').forEach(btn => {
-    btn.classList.remove('active');
-    btn.textContent = btn.dataset.key === 'flagScore' && !btn.classList.contains('active')
-      ? btn.textContent.replace(' ↑','').replace(' ↓','') : btn.textContent.replace(' ↑','').replace(' ↓','');
+  filtered = filtered.sort((a,b) => {
+    const av = a[currentSort], bv = b[currentSort];
+    if (currentSort === 'name') return av < bv ? -1 : av > bv ? 1 : 0;
+    if (currentSort === 'pension' || currentSort === 'free_cash') {
+      const an = av ?? Infinity, bn = bv ?? Infinity;
+      return an - bn;
+    }
+    const an = av ?? -Infinity, bn = bv ?? -Infinity;
+    return bn - an;
   });
-  const activeBtn = document.querySelector(`.sort-btn[data-key="${sortKey}"]`);
-  if (activeBtn) {
-    activeBtn.classList.add('active');
-    activeBtn.textContent = activeBtn.textContent.replace(' ↑','').replace(' ↓','') + (sortAsc ? ' ↑' : ' ↓');
-  }
 
-  document.getElementById('flagTableBody').innerHTML = sorted.map(t => {
-    const sevFlags = t.flags.filter(f => f.sev > 0);
-    const pillsHtml = sevFlags.length
-      ? sevFlags.map(f => `<span class="pill ${f.sev === 2 ? 'red' : 'orange'}">${f.label}</span>`).join('')
-      : `<span class="no-flags">None</span>`;
+  const sevFlags = t => t.flags.filter(f=>f.sev>0);
 
-    const fcDisp = t.free_cash !== null && t.free_cash !== undefined ? `${t.free_cash}%` : '—';
-    const debtDisp = t.debt_pc !== null && t.debt_pc !== undefined ? `$${t.debt_pc.toLocaleString()}` : '—';
-    const roiDisp = t.roiGap !== null ? `${t.roiGap > 0 ? '+' : ''}${Math.round(t.roiGap)}` : '—';
-    const pensionDisp = t.pension !== null && t.pension !== undefined ? `${t.pension}%` : '—';
+  document.getElementById('cardsGrid').innerHTML = filtered.map(t => {
+    const flags = sevFlags(t);
+    const riskClass = t.riskLevel;
+    const sc = scoreColor(t.score);
 
-    let scoreClass = 'zero';
-    if (t.flagScore >= 6) scoreClass = 'high';
-    else if (t.flagScore >= 3) scoreClass = 'med';
-    else if (t.flagScore > 0) scoreClass = 'low';
+    const pensionColor = t.pension == null ? '#ccc' : t.pension < 55 ? 'var(--red)' : t.pension < 70 ? 'var(--orange)' : 'var(--green)';
+    const cashColor = t.free_cash == null ? '#ccc' : t.free_cash < 2 ? 'var(--red)' : t.free_cash < 3 ? 'var(--orange)' : 'var(--green)';
 
-    return `<tr>
-      <td><div class="town-name">${t.name}</div><div class="town-county">${t.county} Co.</div></td>
-      <td>${pensionDisp}</td>
-      <td>${fcDisp}</td>
-      <td>${roiDisp}</td>
-      <td>${debtDisp}</td>
-      <td><span class="risk-score ${scoreClass}">${t.flagScore}</span></td>
-      <td><div class="flag-pills">${pillsHtml}</div></td>
-    </tr>`;
+    const flagsHtml = flags.length
+      ? flags.map(f=>`<span class="flag-chip ${f.sev===2?'red':'orange'}">${f.sev===2?'●':'○'} ${f.label}</span>`).join('')
+      : `<span class="no-flag-msg">✓ No significant flags</span>`;
+
+    return `<div class="tc risk-${riskClass}">
+      <div class="tc-head">
+        <div>
+          <div class="tc-name">${t.name}</div>
+          <div class="tc-county">${t.county} County · Pop. ${t.pop?t.pop.toLocaleString():'—'}</div>
+        </div>
+        <div class="tc-score-circle">${ringGauge(t.score, sc, 52)}</div>
+      </div>
+      <div class="tc-bars">
+        <div class="bar-row">
+          <div class="bar-label-row"><span class="bar-label">Pension Funded</span><span class="bar-val" style="color:${pensionColor}">${t.pension!=null?t.pension+'%':'—'}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${t.pension??0}%;background:${pensionColor}"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span class="bar-label">Free Cash Reserve</span><span class="bar-val" style="color:${cashColor}">${t.free_cash!=null?t.free_cash+'%':'No data'}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${t.free_cash!=null?Math.min(t.free_cash/15*100,100):0}%;background:${cashColor}"></div></div>
+        </div>
+      </div>
+      <div class="tc-flags">${flagsHtml}</div>
+    </div>`;
   }).join('');
+
+  if (!filtered.length) {
+    document.getElementById('cardsGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ter);font-size:.88rem">No municipalities match this filter.</div>`;
+  }
 }
 
+/* ── RENDER DETAIL CARDS ── */
 function renderDetailCards(towns) {
-  const highRisk = towns.filter(t => t.flagScore >= 3).sort((a, b) => b.flagScore - a.flagScore);
-
-  if (!highRisk.length) {
-    document.getElementById('detailSection').style.display = 'none';
-    return;
-  }
+  const highRisk = towns.filter(t => t.flagScore >= 3).sort((a,b) => b.flagScore - a.flagScore);
+  const section = document.getElementById('detailSection');
+  if (!highRisk.length) { section.style.display='none'; return; }
 
   document.getElementById('detailGrid').innerHTML = highRisk.map(t => {
-    const sevFlags = t.flags.filter(f => f.sev > 0);
-    const flagsHtml = sevFlags.map(f => `
-      <div class="flag-item ${f.sev === 2 ? 'red' : 'orange'}">
-        <div class="flag-dot ${f.sev === 2 ? 'red' : 'orange'}"></div>
-        <div class="flag-text">
-          <strong>${f.label}</strong>
-          <span>${f.desc}</span>
-        </div>
+    const isCritical = t.flagScore >= 6;
+    const sevFlags = t.flags.filter(f=>f.sev>0);
+
+    const pensionDisp = t.pension!=null ? `${t.pension}%` : '—';
+    const cashDisp = t.free_cash!=null ? `${t.free_cash}%` : '—';
+    const debtDisp = t.debt_pc!=null ? `$${t.debt_pc.toLocaleString()}` : '—';
+
+    const pensionClass = t.pension==null?'na':t.pension<55?'red':t.pension<70?'orange':'green';
+    const cashClass = t.free_cash==null?'na':t.free_cash<2?'red':t.free_cash<3?'orange':'green';
+    const debtClass = t.debt_pc==null?'na':t.debt_pc>7000?'red':t.debt_pc>4500?'orange':'green';
+
+    const flagsHtml = sevFlags.map(f=>`
+      <div class="dc-flag ${f.sev===2?'red':'orange'}">
+        <div class="dc-flag-icon">${f.sev===2?'🔴':'🟠'}</div>
+        <div class="dc-flag-body"><strong>${f.label}</strong><span>${f.desc}</span></div>
       </div>`).join('');
 
-    const scoreClass = t.flagScore >= 6 ? 'high' : 'med';
-    const popDisp = t.pop ? t.pop.toLocaleString() : '—';
-
-    return `
-      <div class="detail-card">
-        <div class="detail-head">
-          <div>
-            <div class="detail-town">${t.name}</div>
-            <div class="detail-meta">${t.county} County · Pop. ${popDisp} · Civica Score: ${t.score ?? '—'}</div>
-          </div>
-          <div class="detail-badge ${scoreClass}">Risk ${t.flagScore}</div>
+    return `<div class="dc">
+      <div class="dc-head ${isCritical?'critical':'warning'}">
+        <div>
+          <div class="dc-town">${t.name}</div>
+          <div class="dc-meta">${t.county} County · Pop. ${t.pop?t.pop.toLocaleString():'—'} · Civica Score: ${t.score??'—'}</div>
         </div>
-        <div class="flag-list">${flagsHtml}</div>
-      </div>`;
+        <div class="dc-badge ${isCritical?'critical':'warning'}">Risk Score: ${t.flagScore}</div>
+      </div>
+      <div class="dc-metrics">
+        <div class="dc-metric"><div class="dc-metric-val ${pensionClass}">${pensionDisp}</div><div class="dc-metric-label">Pension Funded</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${cashClass}">${cashDisp}</div><div class="dc-metric-label">Free Cash</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${debtClass}">${debtDisp}</div><div class="dc-metric-label">Debt / Capita</div></div>
+      </div>
+      <div class="dc-flags">${flagsHtml}</div>
+    </div>`;
   }).join('');
 }
 
-function sortTable(key) {
-  if (sortKey === key) sortAsc = !sortAsc;
-  else { sortKey = key; sortAsc = false; }
-  renderTable(ALL_TOWNS);
+/* ── FILTER / SORT CONTROLS ── */
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.toggle('active', b.dataset.filter===f));
+  renderCards(ALL_TOWNS);
 }
 
+function setSort(s) {
+  currentSort = s;
+  document.querySelectorAll('.sort-opt').forEach(b => b.classList.toggle('active', b.dataset.sort===s));
+  renderCards(ALL_TOWNS);
+}
+
+/* ── PARSE TOWNS FROM CIVICA-V5 ── */
 function parseTowns(html) {
   const marker = 'const TOWNS = [';
   const startIdx = html.indexOf(marker);
   if (startIdx < 0) throw new Error('TOWNS array not found');
-
   const arrStart = html.indexOf('[', startIdx);
   let depth = 0, i = arrStart;
-
   for (; i < html.length; i++) {
-    if (html[i] === '[') depth++;
-    else if (html[i] === ']') { depth--; if (!depth) break; }
+    if (html[i]==='[') depth++;
+    else if (html[i]===']') { depth--; if (!depth) break; }
   }
-
-  const arrStr = html.slice(arrStart, i + 1);
-  return (new Function('return ' + arrStr))();
+  return (new Function('return ' + html.slice(arrStart, i+1)))();
 }
 
+/* ── BUILD PAGE ── */
 function buildPage(towns) {
   ALL_TOWNS = computeFlags(towns);
-  renderSummary(ALL_TOWNS);
-  renderTable(ALL_TOWNS);
+  renderHeroStats(ALL_TOWNS);
+  renderCards(ALL_TOWNS);
   renderDetailCards(ALL_TOWNS);
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('filterWrap').style.display = 'block';
 }
 
+/* ── FETCH DATA ── */
 fetch('./civica-v5.html')
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.text();
-  })
+  .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
   .then(html => buildPage(parseTowns(html)))
   .catch(err => {
     document.getElementById('loadingState').innerHTML = `
-      <div style="color:var(--red);font-weight:700;margin-bottom:8px">Failed to load municipal data</div>
-      <div style="font-size:.84rem;color:var(--sec);max-width:400px;margin:0 auto;line-height:1.65">
-        ${err.message.includes('fetch') || err.message.includes('CORS')
-          ? 'This page must be served from a web server. Open it from GitHub Pages or a local server — not directly from a file.'
-          : err.message}
-      </div>`;
+      <div style="color:var(--red);font-weight:700;margin-bottom:8px">Failed to load data</div>
+      <div style="font-size:.83rem;color:var(--sec);max-width:380px;margin:0 auto;line-height:1.65">${err.message.includes('fetch')||err.message.includes('CORS')
+        ? 'This page must be served from a web server (e.g. GitHub Pages). Opening directly as a local file will not work.'
+        : err.message}</div>`;
   });
 </script>
 </body>
