@@ -660,6 +660,57 @@ a{text-decoration:none;color:inherit}
   .adv-stats{gap:24px}
   .adv-body{padding:36px 20px}
 }
+
+/* ── COMPARE BAR ── */
+.compare-bar{position:fixed;bottom:0;left:0;right:0;z-index:2000;background:#0d2d52;color:#fff;padding:12px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 -4px 24px rgba(0,0,0,.18);transform:translateY(100%);transition:transform .25s ease;flex-wrap:wrap}
+.compare-bar.visible{transform:translateY(0)}
+.compare-bar-label{font-size:.78rem;font-weight:600;opacity:.7;white-space:nowrap}
+.compare-bar-towns{display:flex;gap:8px;flex:1;flex-wrap:wrap}
+.cbt{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:20px;padding:4px 10px 4px 12px;font-size:.8rem;font-weight:600}
+.cbt-x{background:none;border:none;color:#fff;cursor:pointer;opacity:.7;font-size:.9rem;padding:0;line-height:1;font-family:inherit}
+.cbt-x:hover{opacity:1}
+.compare-bar-btn{height:36px;padding:0 18px;border-radius:10px;background:#fff;color:#0d2d52;font-size:.85rem;font-weight:700;border:none;cursor:pointer;white-space:nowrap;font-family:inherit;transition:opacity .15s;flex-shrink:0}
+.compare-bar-btn:hover{opacity:.9}
+.compare-bar-hint{font-size:.72rem;opacity:.55;white-space:nowrap}
+
+/* ── COMPARE TOGGLE BUTTON (chips + profile) ── */
+.mtc-cmp{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border-mid);background:#fff;color:var(--ter);font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;line-height:1;font-family:inherit}
+.mtc-cmp:hover{border-color:var(--blue);color:var(--blue)}
+.mtc-cmp.in-compare{background:var(--blue);border-color:var(--blue);color:#fff}
+.prof-cmp-btn{height:30px;padding:0 12px;border-radius:7px;font-size:.8rem;font-weight:600;color:var(--blue);background:#e8eef6;border:none;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.prof-cmp-btn:hover{background:#d0e0f5}
+.prof-cmp-btn.in-compare{background:var(--blue);color:#fff}
+
+/* ── COMPARE VIEW ── */
+.comp-view-inner{max-width:960px;margin:0 auto;padding:32px 24px 60px}
+.comp-back{padding:16px 24px 0}
+.comp-title{font-size:1.4rem;font-weight:800;color:#1d1d1f;margin-bottom:24px}
+.comp-add-row{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.comp-add-hint{font-size:.82rem;color:var(--ter)}
+.comp-table-wrap{overflow-x:auto}
+.comp-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.comp-table th,.comp-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.comp-table th:first-child,.comp-table td:first-child{font-size:.75rem;font-weight:600;color:var(--ter);text-transform:uppercase;letter-spacing:.4px;width:160px;background:#fafafa}
+.comp-th-town{text-align:center!important;font-size:.92rem!important;font-weight:700!important;color:#1d1d1f!important;text-transform:none!important;letter-spacing:0!important;background:#fff!important}
+.comp-score-cell{text-align:center;font-size:1.5rem;font-weight:900;padding:16px 14px}
+.comp-section-hdr{background:#f5f5f7!important;font-size:.7rem!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:.8px!important;color:var(--sec)!important}
+.comp-section-hdr td{padding:8px 14px!important;color:var(--sec)!important}
+.comp-val{text-align:center;font-weight:600;color:#1d1d1f}
+.comp-val.green{color:#1a8a3c;background:#f0faf4}
+.comp-val.yellow{color:#b25a00;background:#fff8ed}
+.comp-val.red{color:#c0392b;background:#fff0ee}
+.comp-val.na{color:#c7c7cc;font-weight:400;font-style:italic}
+.comp-gauge-row td{text-align:center;padding:20px 14px}
+.comp-empty{text-align:center;padding:60px 24px;color:var(--ter);font-size:.9rem}
+
+/* ── SIMILAR TOWNS ── */
+.similar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+.similar-card{background:var(--bg);border:1.5px solid var(--border-mid);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;text-align:center}
+.similar-card:hover{border-color:var(--blue);background:#f0f6ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(13,45,82,.1)}
+.sim-score{font-size:1.6rem;font-weight:900;letter-spacing:-1px}
+.sim-name{font-size:.85rem;font-weight:700;color:#1d1d1f;margin:4px 0 2px}
+.sim-meta{font-size:.72rem;color:var(--ter)}
+@media(max-width:600px){.similar-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -689,6 +740,7 @@ a{text-decoration:none;color:inherit}
       <a onclick="showMap();closeHamburger()"><span class="hm-icon">🗺</span>Explore Map</a>
       <a onclick="showMethod();closeHamburger()"><span class="hm-icon">📋</span>Methodology</a>
       <a onclick="showAdvertise();closeHamburger()"><span class="hm-icon">📣</span>Advertise</a>
+      <a onclick="if(state.compare.size>=2){showCompare();closeHamburger();}else{alert('Add towns to compare using the + button on each town chip.');}"><span class="hm-icon">⚖️</span>Compare</a>
       <div class="ham-divider"></div>
       <a href="mailto:hello@civica.com"><span class="hm-icon">✉️</span>Contact</a>
     </div>
@@ -1038,6 +1090,7 @@ a{text-decoration:none;color:inherit}
     <button class="back-btn" onclick="showMap()">← All Cities & Towns</button>
     <span class="prof-nav-town" id="pnav-town"></span>
     <span class="prof-nav-score" id="pnav-score"></span>
+    <button class="prof-cmp-btn" id="prof-cmp-btn" onclick="toggleCompare(state.prof)">+ Compare</button>
     <button class="export-btn" id="export-btn" onclick="exportTownPDF(state.prof)" title="Download town profile as PDF">
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M4 17h12"/></svg>
       Export Data
@@ -1199,6 +1252,27 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
+<!-- ── COMPARE BAR ── -->
+<div class="compare-bar" id="compare-bar">
+  <span class="compare-bar-label">Comparing</span>
+  <div class="compare-bar-towns" id="compare-bar-towns"></div>
+  <span class="compare-bar-hint" id="compare-bar-hint"></span>
+  <button class="compare-bar-btn" onclick="showCompare()">Compare &#8594;</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     COMPARE VIEW
+══════════════════════════════════════ -->
+<div id="compare-view" class="view">
+  <div class="comp-back">
+    <button class="back-btn" onclick="history.back()">&#8592; Back</button>
+  </div>
+  <div class="comp-view-inner">
+    <div class="comp-title">Town Comparison</div>
+    <div id="comp-table-container"></div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════
    DATA
@@ -1253,7 +1327,7 @@ const AD_VENDORS=[{icon:"🚚",name:"North Shore Moving Co.",type:"Full-service 
 /* ═══════════════════════════════
    STATE
 ═══════════════════════════════ */
-let state={view:'landing',filter:'all',sort:'score',mapFilters:new Set(),favs:new Set(JSON.parse(localStorage.getItem('civica_favs')||'[]')),prof:null};
+let state={view:'landing',filter:'all',sort:'score',mapFilters:new Set(),compare:new Set(),favs:new Set(JSON.parse(localStorage.getItem('civica_favs')||'[]')),prof:null};
 let leafletMap=null;
 const FORMSPREE_ID='YOUR_FORM_ID';
 
@@ -1679,6 +1753,11 @@ function renderProf(idx){
         <button class="mc-btn">Get Pre-Approved with North Shore Lending →</button>
       </div>
 
+      <!-- Similar Towns -->
+      <div class="sec-label">Similar Towns</div>
+      <div class="similar-grid">${similarTowns(idx).map(u=>'<div class="similar-card" onclick="showProf('+u.idx+')"><div class="sim-score" style="color:'+scoreColor(u.score)+'">'+u.score+'</div><div class="sim-name">'+u.name+'</div><div class="sim-meta">'+(u.d_rank?'#'+u.d_rank+' schools · ':'')+u.ter_r+' TER</div></div>').join('')}
+      </div>
+
       <!-- Notes -->
       <div class="sec-label">Data & Methodology</div>
       <div class="notes-card"><span class="nl">⚠ Compiler Notes</span><p>${t.notes}</p></div>
@@ -1724,6 +1803,118 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#hamburger-btn')&&!e.target.closest('#ham-menu'))closeHamburger();
 });
 
+function similarTowns(idx,n=3){
+  const t=TOWNS[idx];
+  return TOWNS.map((u,i)=>{
+    let d=Math.abs(u.score-t.score)*3;
+    if(u.d_rank&&t.d_rank) d+=Math.abs(u.d_rank-t.d_rank)*0.05;
+    if(u.med_tax&&t.med_tax) d+=Math.abs(u.med_tax-t.med_tax)*0.0002;
+    if(u.ter&&t.ter) d+=Math.abs(u.ter-t.ter)*0.5;
+    return{...u,idx:i,dist:d};
+  }).filter((_,i)=>i!==idx).sort((a,b)=>a.dist-b.dist).slice(0,n);
+}
+
+function toggleCompare(idx){
+  if(state.compare.has(idx)){state.compare.delete(idx);}
+  else if(state.compare.size<3){state.compare.add(idx);}
+  else{alert('You can compare up to 3 towns at a time.');return;}
+  updateCompareBar();
+  renderMapChips();
+  const btn=document.getElementById('prof-cmp-btn');
+  if(btn&&state.prof===idx){
+    btn.textContent=state.compare.has(idx)?'✓ Comparing':'+ Compare';
+    btn.classList.toggle('in-compare',state.compare.has(idx));
+  }
+}
+
+function clearCompare(){
+  state.compare.clear();
+  updateCompareBar();
+  renderMapChips();
+  const btn=document.getElementById('prof-cmp-btn');
+  if(btn){btn.textContent='+ Compare';btn.classList.remove('in-compare');}
+}
+
+function updateCompareBar(){
+  const bar=document.getElementById('compare-bar');
+  const townsEl=document.getElementById('compare-bar-towns');
+  const hint=document.getElementById('compare-bar-hint');
+  if(!bar)return;
+  if(state.compare.size===0){bar.classList.remove('visible');return;}
+  bar.classList.add('visible');
+  townsEl.innerHTML=[...state.compare].map(i=>`<div class="cbt"><span>${TOWNS[i].name}</span><button class="cbt-x" onclick="toggleCompare(${i})">✕</button></div>`).join('');
+  hint.textContent=state.compare.size<2?'Select '+(2-state.compare.size)+' more to compare':'';
+  document.getElementById('compare-bar').querySelector('.compare-bar-btn').style.display=state.compare.size>=2?'block':'none';
+}
+
+function showCompare(pushHistory=true){
+  if(state.compare.size<2){alert('Select at least 2 towns to compare.');return;}
+  if(pushHistory) history.pushState({view:'compare'},'','#compare');
+  state.view='compare';
+  showView('compare-view');
+  document.getElementById('nav-map-btn').classList.remove('visible');
+  renderCompareView();
+}
+
+function renderCompareView(){
+  const towns=[...state.compare].map(i=>TOWNS[i]);
+  const cols=towns.length;
+  const G=(k,v,t)=>grade(k,v,t);
+  const cell=(v,g)=>{
+    if(v==null||v===undefined) return `<td class="comp-val na">—</td>`;
+    const cls=g==='green'?'green':g==='yellow'?'yellow':g==='red'?'red':'';
+    return `<td class="comp-val ${cls}">${v}</td>`;
+  };
+  const secRow=(label)=>`<tr class="comp-section-hdr"><td>${label}</td>${'<td></td>'.repeat(cols)}</tr>`;
+
+  let html=`<table class="comp-table">
+  <thead><tr>
+    <th></th>
+    ${towns.map(t=>`<th class="comp-th-town">${t.name}</th>`).join('')}
+  </tr></thead>
+  <tbody>
+  <tr><td style="font-size:.72rem;font-weight:600;color:var(--ter);text-transform:uppercase;letter-spacing:.4px;background:#fafafa">Civica Score</td>
+    ${towns.map(t=>`<td class="comp-score-cell" style="color:${scoreColor(t.score)}">${t.score}</td>`).join('')}
+  </tr>
+  <tr><td style="background:#fafafa"></td>${towns.map(t=>`<td class="comp-gauge-row">${scoreGauge(t.score,80)}</td>`).join('')}</tr>
+  ${secRow('Fiscal Health')}
+  <tr><td style="background:#fafafa">Bond Rating</td>${towns.map(t=>cell(t.bond,G('bond',t.bond,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Free Cash %</td>${towns.map(t=>cell(t.free_cash!=null?t.free_cash+'%':null,G('free_cash',t.free_cash,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Debt Per Capita</td>${towns.map(t=>cell(t.debt_pc!=null?'$'+t.debt_pc.toLocaleString():null,G('debt_pc',t.debt_pc,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Pension Funded</td>${towns.map(t=>cell(t.pension!=null?t.pension+'%':null,'na')).join('')}</tr>
+  ${secRow('Taxes')}
+  <tr><td style="background:#fafafa">Effective Rate</td>${towns.map(t=>cell(t.eff_rate!=null?t.eff_rate+'%':null,G('eff_rate',t.eff_rate,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Median Tax Bill</td>${towns.map(t=>cell(t.med_tax!=null?'$'+t.med_tax.toLocaleString():null,'na')).join('')}</tr>
+  <tr><td style="background:#fafafa">Tax Efficiency</td>${towns.map(t=>cell(t.ter?t.ter+' ('+t.ter_r+')':null,'na')).join('')}</tr>
+  <tr><td style="background:#fafafa">Median Home Value</td>${towns.map(t=>cell(t.med_home_val!=null?'$'+t.med_home_val.toLocaleString():null,'na')).join('')}</tr>
+  ${secRow('Schools')}
+  <tr><td style="background:#fafafa">District Rank</td>${towns.map(t=>cell(t.d_rank!=null?'#'+t.d_rank+' / 351':null,G('d_rank',t.d_rank,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">10-Yr Trend</td>${towns.map(t=>cell(t.d_10yr!=null?(t.d_10yr>0?'+':'')+t.d_10yr+' ranks':null,'na')).join('')}</tr>
+  <tr><td style="background:#fafafa">Math Proficiency</td>${towns.map(t=>cell(t.math!=null?t.math+'%':null,G('math',t.math,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Graduation Rate</td>${towns.map(t=>cell(t.grad!=null?t.grad+'%':null,G('grad',t.grad,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Per-Pupil Spending</td>${towns.map(t=>cell(t.per_pupil!=null?'$'+t.per_pupil.toLocaleString():null,'na')).join('')}</tr>
+  ${secRow('Safety')}
+  <tr><td style="background:#fafafa">Violent Crime /100k</td>${towns.map(t=>cell(t.violent!=null?String(t.violent):null,G('violent',t.violent,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Property Crime /100k</td>${towns.map(t=>cell(t.prop_crime!=null?String(t.prop_crime):null,G('prop_crime',t.prop_crime,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Sex Offenders /1k</td>${towns.map(t=>cell(t.sex_off!=null?t.sex_off.toFixed(1):null,'na')).join('')}</tr>
+  ${secRow('Infrastructure')}
+  <tr><td style="background:#fafafa">Electric Savings/yr</td>${towns.map(t=>cell(t.elec_save!=null?(t.elec_save>0?'+$'+t.elec_save.toLocaleString()+'/yr':'Standard grid'):null,G('elec_save',t.elec_save,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Water Violations</td>${towns.map(t=>cell(t.water_viol!=null?String(t.water_viol):null,G('water_viol',t.water_viol,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Avg Commute</td>${towns.map(t=>cell(t.commute!=null?t.commute+' min':null,'na')).join('')}</tr>
+  <tr><td style="background:#fafafa">Transit</td>${towns.map(t=>cell(t.transit,t.transit&&t.transit.includes('Rail')?'green':'na')).join('')}</tr>
+  ${secRow('Climate')}
+  <tr><td style="background:#fafafa">Flood Risk (now)</td>${towns.map(t=>cell(t.flood!=null?t.flood+'%':null,G('flood',t.flood,t))).join('')}</tr>
+  <tr><td style="background:#fafafa">Flood Risk (2050)</td>${towns.map(t=>cell(t.flood50!=null?t.flood50+'%':null,G('flood50',t.flood50,t))).join('')}</tr>
+  ${secRow('Demographics')}
+  <tr><td style="background:#fafafa">Population</td>${towns.map(t=>cell(t.pop.toLocaleString(),'na')).join('')}</tr>
+  <tr><td style="background:#fafafa">Median Income</td>${towns.map(t=>cell(t.med_inc!=null?'$'+t.med_inc.toLocaleString():null,'na')).join('')}</tr>
+  <tr><td style="background:#fafafa">Bachelor&rsquo;s Degree</td>${towns.map(t=>cell(t.bach!=null?t.bach+'%':null,'na')).join('')}</tr>
+  <tr><td style="background:#fafafa">Median Age</td>${towns.map(t=>cell(t.med_age!=null?t.med_age+' yrs':null,'na')).join('')}</tr>
+  </tbody></table>`;
+
+  document.getElementById('comp-table-container').innerHTML=html;
+}
+
 function showLanding(pushHistory=true){
   if(pushHistory) history.pushState({view:'landing'},'',location.pathname);
   state.view='landing';
@@ -1752,6 +1943,7 @@ function renderMapChips(){
       <span class="mtc-name">${t.name}</span>
       <span class="mtc-div"></span>
       <span class="mtc-score" style="color:${scoreColor(t.score)}">${t.score}</span>
+      <button class="mtc-cmp ${state.compare.has(t.idx)?'in-compare':''}" onclick="event.stopPropagation();toggleCompare(${t.idx})" title="Add to comparison">${state.compare.has(t.idx)?'✓':'+'}</button>
     </div>`).join('') || `<div style="font-size:.85rem;color:var(--ter);padding:8px 0">No towns match this filter.</div>`;
 }
 
@@ -1875,6 +2067,7 @@ window.addEventListener('popstate',e=>{
   else if(s.view==='map') showMap(false);
   else if(s.view==='method') showMethod(false);
   else if(s.view==='advertise') showAdvertise(false);
+  else if(s.view==='compare') showCompare(false);
   else if(s.view==='prof') showProf(s.idx,false);
 });
 
@@ -1884,6 +2077,7 @@ history.replaceState({view:'landing'},'',location.pathname);
   if(hash==='map'){showMap(false);history.replaceState({view:'map'},'','#map');}
   else if(hash==='methodology'){showMethod(false);history.replaceState({view:'method'},'','#methodology');}
   else if(hash==='advertise'){showAdvertise(false);history.replaceState({view:'advertise'},'','#advertise');}
+  else if(hash==='compare'){showCompare(false);history.replaceState({view:'compare'},'','#compare');}
   else if(hash){
     const idx=TOWNS.findIndex(t=>t.name.toLowerCase().replace(/\s+/g,'-')===hash);
     if(idx>=0){showProf(idx,false);history.replaceState({view:'prof',idx},'','#'+hash);}
