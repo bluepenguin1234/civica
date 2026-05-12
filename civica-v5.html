@@ -1647,7 +1647,7 @@ function renderProf(idx){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 32px">
         ${profHbar('Fiscal Health',fiscScore,profBarColor(fiscScore),fiscScore)}
         ${profHbar('Tax Efficiency',taxScore,profBarColor(taxScore),taxScore)}
-        ${profHbar('Schools',schScore,profBarColor(schScore),schScore)}
+        ${profHbar('Schools'+schoolTrend(t.d_10yr),schScore,profBarColor(schScore),schScore)}
         ${profHbar('Safety',safScore,profBarColor(safScore),safScore)}
         ${profHbar('Infrastructure',infScore,profBarColor(infScore),infScore)}
         ${profHbar('Climate',climScore,profBarColor(climScore),climScore)}
@@ -1667,7 +1667,7 @@ function renderProf(idx){
         ${profMrow('Median Tax Bill',t.med_tax!=null?'$'+t.med_tax.toLocaleString():null,'na')}
         ${profMrow('Tax Eff. Ratio (TER)',t.ter+' — '+t.ter_r,grade('ter_r',t.ter_r,t))}
         ${profMrow('School Rank',t.d_rank?'#'+t.d_rank+'/'+t.d_total:null,grade('d_rank',t.d_rank,t))}
-        ${profMrow('10-Yr Rank Change',t.d_10yr,'na')}
+        ${profMrow('10-Yr Rank Change',t.d_10yr!=null?String(t.d_10yr)+' '+schoolTrend(t.d_10yr):null,'na')}
         ${profMrow('MCAS Math Proficiency',t.math!=null?t.math+'%':null,grade('math',t.math,t))}
         ${profMrow('Graduation Rate',t.grad!=null?t.grad+'%':null,grade('grad',t.grad,t))}
         ${profMrow('Elec. Savings/yr',t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():null,grade('elec_save',t.elec_save,t))}
@@ -2134,6 +2134,14 @@ history.replaceState({view:'landing'},'',location.pathname);
 /* ═══════════════════════════════
    SHARED INFOGRAPH HELPERS
 ═══════════════════════════════ */
+function schoolTrend(d){
+  if(d==null)return'';
+  const v=typeof d==='string'?parseInt(d):d;
+  if(isNaN(v))return'';
+  if(v>5)return'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#e4faea;color:#1a8a3c;margin-left:6px">↑ Improving</span>';
+  if(v<-5)return'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#fff0ee;color:#c0392b;margin-left:6px">↓ Declining</span>';
+  return'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#f5f5f7;color:#6e6e73;margin-left:6px">→ Stable</span>';
+}
 function profKstat(label,val){
   return`<div style="background:#f8f8f9;border-radius:10px;padding:13px 15px;border:1px solid #efefef">
     <div style="font-size:10px;color:#98989d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${label}</div>
