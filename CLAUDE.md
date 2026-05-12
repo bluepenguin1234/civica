@@ -5,11 +5,8 @@ Civica is a single-page web app that scores towns and cities on fiscal health, s
 
 ## File rules — read this first
 
-**There are two copies of the active file and both must always be kept in sync:**
-- `C:\Users\Brian\Desktop\Civica\civica-v5.html` — GitHub repo source (authoritative)
-- `C:\Users\Brian\Desktop\civica-v5.html` — local desktop preview copy
-
-**Always edit both files.** Never edit just one. Copy commands fail silently on this system — use the Edit tool directly on each file.
+**The one active file is:**
+- `C:\Users\Brian\Desktop\Civica\civica-v5.html` — GitHub repo source (authoritative). Edit only this file.
 
 **Version history — never touch these:**
 - `civica.html` = v1, locked forever, do not edit
@@ -37,7 +34,7 @@ Civica is a single-page web app that scores towns and cities on fiscal health, s
 - The Edit tool sometimes fails with "file modified since read" — if this happens, use a Python script to do the replacement atomically (read + write in one operation). `py script.py` works; `python3` does not.
 
 ## Town count branding
-When adding new towns, update all three of these in both HTML files:
+When adding new towns, update all three of these in civica-v5.html:
 1. Hero badge: `Now live · Massachusetts · X towns and cities`
 2. Stats counter: `<span class="sn-num">X</span>`
 3. Map subtitle: `Civica scores X towns and cities across...`
