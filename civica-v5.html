@@ -8,7 +8,63 @@
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()">
 <title>Civica — Know Your City or Town Before You Buy</title>
-<meta name="description" content="Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure. Explore Massachusetts on the map.">
+<meta name="description" content="Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure. Explore 37 Essex County municipalities on the map.">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><rect width='30' height='30' rx='7' fill='%230d2d52'/><rect x='6' y='16' width='4' height='9' rx='1.5' fill='white' opacity='.65'/><rect x='13' y='8' width='4' height='17' rx='1.5' fill='white'/><rect x='20' y='12' width='4' height='13' rx='1.5' fill='white' opacity='.8'/></svg>">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Civica">
+<meta property="og:url" content="https://bluepenguin1234.github.io/civica/">
+<meta property="og:title" content="Civica — Know Your City or Town Before You Buy">
+<meta property="og:description" content="Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the intelligence layer missing from every home search. 37 Essex County municipalities, free to use.">
+<meta property="og:image" content="https://bluepenguin1234.github.io/civica/civica-og.png">
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Civica — Know Your City or Town Before You Buy">
+<meta name="twitter:description" content="Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure. Free for homebuyers.">
+<meta name="twitter:image" content="https://bluepenguin1234.github.io/civica/civica-og.png">
+
+<!-- Schema Markup -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Civica",
+  "url": "https://bluepenguin1234.github.io/civica/",
+  "description": "Civica scores every city and town in Essex County, Massachusetts on fiscal health, schools, taxes, safety, and infrastructure to help homebuyers make better decisions.",
+  "applicationCategory": "RealEstateTool",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "areaServed": {
+    "@type": "AdministrativeArea",
+    "name": "Essex County, Massachusetts"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Civica",
+    "email": "hello@civica.com",
+    "url": "https://bluepenguin1234.github.io/civica/"
+  },
+  "featureList": [
+    "Composite Civica Score across 8 pillars",
+    "Fiscal health: bond ratings, free cash, pension funding, debt per capita",
+    "School rankings and 10-year trajectory",
+    "Tax efficiency ratio",
+    "Safety and crime data",
+    "Climate resilience and flood risk",
+    "Infrastructure and transit access",
+    "Interactive map with filters"
+  ]
+}
+</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -995,6 +1051,7 @@ a{text-decoration:none;color:inherit}
       <a href="#" onclick="showAdvertise();return false">Advertise</a>
       <a href="#" onclick="showCompare();return false">Compare</a>
       <a href="mailto:hello@civica.com">Contact</a>
+      <a href="civica-privacy.html">Privacy</a>
     </nav>
     <div class="footer-copy">© 2025 Civica · Massachusetts</div>
   </footer>
