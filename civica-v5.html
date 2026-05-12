@@ -609,6 +609,49 @@ a{text-decoration:none;color:inherit}
 .conf-table td:first-child{font-weight:700;color:#78350f;width:80px}
 .conf-table td:last-child{color:#78350f;padding-left:12px}
 @media(max-width:600px){.dp-grid{grid-template-columns:1fr}}
+
+/* ── ADVERTISE VIEW ── */
+.adv-hero{background:linear-gradient(160deg,#060f1e 0%,#091f3a 45%,#0d2d52 100%);padding:72px 24px 60px;text-align:center;color:#fff}
+.adv-hero .section-eyebrow{color:rgba(255,255,255,.7);margin-bottom:16px}
+.adv-hero h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;letter-spacing:-1.2px;line-height:1.1;margin-bottom:14px}
+.adv-hero p{font-size:1rem;opacity:.8;max-width:520px;margin:0 auto 36px;line-height:1.65}
+.adv-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.adv-stat{text-align:center}
+.adv-stat-num{display:block;font-size:2rem;font-weight:800;color:#5ba3f5;letter-spacing:-1px}
+.adv-stat-label{font-size:.76rem;opacity:.65;text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+.adv-body{max-width:920px;margin:0 auto;padding:52px 24px 40px}
+.adv-sl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ter);margin-bottom:20px}
+.adv-packages{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:52px}
+.adv-pkg{background:#fff;border-radius:16px;border:1.5px solid var(--border);padding:28px 22px 24px;position:relative;display:flex;flex-direction:column;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.adv-pkg.featured{border-color:#0d2d52;box-shadow:0 0 0 3px rgba(13,45,82,.08),0 4px 20px rgba(0,0,0,.08)}
+.adv-pkg-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#0d2d52;color:#fff;font-size:.7rem;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;letter-spacing:.4px}
+.adv-pkg-icon{font-size:1.7rem;margin-bottom:12px}
+.adv-pkg-name{font-size:.95rem;font-weight:700;color:#1d1d1f;margin-bottom:6px}
+.adv-pkg-price{font-size:2.1rem;font-weight:800;color:#0d2d52;line-height:1;margin-bottom:12px}
+.adv-pkg-price span{font-size:.8rem;font-weight:500;color:var(--ter)}
+.adv-pkg-desc{font-size:.82rem;color:var(--sec);line-height:1.55;margin-bottom:14px}
+.adv-pkg-list{list-style:none;margin-bottom:20px;flex:1}
+.adv-pkg-list li{font-size:.8rem;color:#374151;padding:4px 0;display:flex;align-items:flex-start;gap:7px}
+.adv-pkg-list li::before{content:"✓";color:#30d158;font-weight:700;flex-shrink:0;margin-top:1px}
+.adv-pkg-btn{display:block;text-align:center;padding:12px;border-radius:10px;background:#0d2d52;color:#fff;font-size:.87rem;font-weight:700;transition:background .15s;margin-top:auto}
+.adv-pkg-btn:hover{background:#091f3a}
+.adv-why{background:#f5f5f7;border-radius:16px;padding:36px 32px;margin-bottom:40px}
+.adv-why h2{font-size:1.35rem;font-weight:800;margin-bottom:22px;color:#1d1d1f}
+.adv-why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.adv-why-icon{font-size:1.5rem;margin-bottom:8px}
+.adv-why-item h3{font-size:.88rem;font-weight:700;margin-bottom:5px;color:#1d1d1f}
+.adv-why-item p{font-size:.8rem;color:var(--sec);line-height:1.55}
+.adv-cta-block{text-align:center;padding:52px 24px;background:linear-gradient(135deg,#091f3a,#0d2d52);border-radius:16px;color:#fff;margin-bottom:16px}
+.adv-cta-block h2{font-size:1.6rem;font-weight:800;margin-bottom:10px}
+.adv-cta-block p{opacity:.8;margin-bottom:28px;font-size:.95rem;line-height:1.6}
+.adv-cta-block a{display:inline-block;padding:14px 30px;background:#fff;color:#0d2d52;border-radius:12px;font-weight:700;font-size:.95rem;transition:opacity .15s}
+.adv-cta-block a:hover{opacity:.9}
+@media(max-width:680px){
+  .adv-packages{grid-template-columns:1fr}
+  .adv-why-grid{grid-template-columns:1fr}
+  .adv-stats{gap:24px}
+  .adv-body{padding:36px 20px}
+}
 </style>
 </head>
 <body>
@@ -637,6 +680,7 @@ a{text-decoration:none;color:inherit}
       <a onclick="showLanding();closeHamburger()"><span class="hm-icon">🏠</span>Home</a>
       <a onclick="showMap();closeHamburger()"><span class="hm-icon">🗺</span>Explore Map</a>
       <a onclick="showMethod();closeHamburger()"><span class="hm-icon">📋</span>Methodology</a>
+      <a onclick="showAdvertise();closeHamburger()"><span class="hm-icon">📣</span>Advertise</a>
       <div class="ham-divider"></div>
       <a href="mailto:hello@civica.com"><span class="hm-icon">✉️</span>Contact</a>
     </div>
@@ -888,6 +932,7 @@ a{text-decoration:none;color:inherit}
     <nav class="footer-links">
       <a href="#" onclick="showMap();return false">Map</a>
       <a href="#" onclick="showMethod();return false">Methodology</a>
+      <a href="#" onclick="showAdvertise();return false">Advertise</a>
 <a href="mailto:hello@civica.com">Contact</a>
     </nav>
     <div class="footer-copy">© 2025 Civica · Massachusetts</div>
@@ -1037,6 +1082,94 @@ a{text-decoration:none;color:inherit}
         <tr><td>Medium</td><td>A few fields estimated or sourced from secondary data. Score is directionally reliable but may shift by ±3–5 points.</td></tr>
         <tr><td>Low</td><td>Multiple key fields are pending primary source verification. Score should be treated as preliminary.</td></tr>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ADVERTISE VIEW
+══════════════════════════════════════ -->
+<div id="advertise-view" class="view">
+  <div class="adv-hero">
+    <div class="section-eyebrow" style="color:rgba(255,255,255,.65)">Partner with Civica</div>
+    <h1>Reach homebuyers<br>at the moment of decision</h1>
+    <p>Every visitor on Civica is actively researching where to buy a home in Massachusetts. They compare towns, read school rankings, and evaluate tax burdens before they sign anything.</p>
+    <div class="adv-stats">
+      <div class="adv-stat"><span class="adv-stat-num">36</span><span class="adv-stat-label">Towns covered</span></div>
+      <div class="adv-stat"><span class="adv-stat-num">67</span><span class="adv-stat-label">Data points per town</span></div>
+      <div class="adv-stat"><span class="adv-stat-num">$600k+</span><span class="adv-stat-label">Avg. purchase price</span></div>
+      <div class="adv-stat"><span class="adv-stat-num">48hr</span><span class="adv-stat-label">Time to go live</span></div>
+    </div>
+  </div>
+  <div class="adv-body">
+    <div class="adv-sl">Ad Packages</div>
+    <div class="adv-packages">
+      <div class="adv-pkg">
+        <div class="adv-pkg-icon">&#129309;</div>
+        <div class="adv-pkg-name">Featured Agent</div>
+        <div class="adv-pkg-price">$299<span>/mo</span></div>
+        <div class="adv-pkg-desc">Your name, bio, phone, and specialties on every profile page for your chosen town. One agent per town &mdash; exclusive placement.</div>
+        <ul class="adv-pkg-list">
+          <li>Exclusive per-town placement</li>
+          <li>Name, agency &amp; bio displayed</li>
+          <li>Direct phone number CTA</li>
+          <li>Star rating &amp; review count</li>
+          <li>Specialty tags</li>
+        </ul>
+        <a href="mailto:hello@civica.com?subject=Featured Agent - Civica" class="adv-pkg-btn">Get in touch &rarr;</a>
+      </div>
+      <div class="adv-pkg featured">
+        <div class="adv-pkg-badge">Most Popular</div>
+        <div class="adv-pkg-icon">&#127969;</div>
+        <div class="adv-pkg-name">Featured Listings</div>
+        <div class="adv-pkg-price">$199<span>/mo</span></div>
+        <div class="adv-pkg-desc">Show your active listings on a town profile, in front of buyers already researching that exact market.</div>
+        <ul class="adv-pkg-list">
+          <li>Up to 3 listings per town</li>
+          <li>Price, address &amp; bed/bath</li>
+          <li>Custom card color or image</li>
+          <li>View all listings CTA link</li>
+        </ul>
+        <a href="mailto:hello@civica.com?subject=Featured Listings - Civica" class="adv-pkg-btn">Get in touch &rarr;</a>
+      </div>
+      <div class="adv-pkg">
+        <div class="adv-pkg-icon">&#127942;</div>
+        <div class="adv-pkg-name">Vendor Spotlight</div>
+        <div class="adv-pkg-price">$99<span>/mo per slot</span></div>
+        <div class="adv-pkg-desc">A spot in the Trusted Partners strip shown on every town profile across all 36 towns. One business per category.</div>
+        <ul class="adv-pkg-list">
+          <li>Moving company slot</li>
+          <li>Home inspector slot</li>
+          <li>Mortgage broker slot</li>
+          <li>Home insurance slot</li>
+        </ul>
+        <a href="mailto:hello@civica.com?subject=Vendor Spotlight - Civica" class="adv-pkg-btn">Get in touch &rarr;</a>
+      </div>
+    </div>
+    <div class="adv-why">
+      <h2>Why advertise on Civica?</h2>
+      <div class="adv-why-grid">
+        <div class="adv-why-item">
+          <div class="adv-why-icon">&#127919;</div>
+          <h3>Hyper-targeted audience</h3>
+          <p>Not random traffic &mdash; people who just looked up the tax burden and school rank for a specific town. They are weeks away from making an offer.</p>
+        </div>
+        <div class="adv-why-item">
+          <div class="adv-why-icon">&#128205;</div>
+          <h3>Town-level precision</h3>
+          <p>Your ad only shows on the towns you choose. A Beverly agent shows in Beverly, not Gloucester. A Newburyport inspector shows in Newburyport.</p>
+        </div>
+        <div class="adv-why-item">
+          <div class="adv-why-icon">&#128200;</div>
+          <h3>Lock in early rates</h3>
+          <p>We are expanding across Massachusetts. Early partners keep current pricing as traffic grows with new county coverage.</p>
+        </div>
+      </div>
+    </div>
+    <div class="adv-cta-block">
+      <h2>Ready to get started?</h2>
+      <p>Email us and we will send a media kit and have your ad live within 48 hours.</p>
+      <a href="mailto:hello@civica.com?subject=Civica advertising inquiry">hello@civica.com &rarr;</a>
     </div>
   </div>
 </div>
@@ -1632,6 +1765,13 @@ function showMethod(pushHistory=true){
   document.getElementById('nav-map-btn').classList.remove('visible');
 }
 
+function showAdvertise(pushHistory=true){
+  if(pushHistory) history.pushState({view:'advertise'},'','#advertise');
+  state.view='advertise';
+  showView('advertise-view');
+  document.getElementById('nav-map-btn').classList.remove('visible');
+}
+
 function showProf(idx,pushHistory=true){
   if(pushHistory){
     const slug=TOWNS[idx].name.toLowerCase().replace(/\s+/g,'-');
@@ -1664,6 +1804,7 @@ window.addEventListener('popstate',e=>{
   if(!s||s.view==='landing') showLanding(false);
   else if(s.view==='map') showMap(false);
   else if(s.view==='method') showMethod(false);
+  else if(s.view==='advertise') showAdvertise(false);
   else if(s.view==='prof') showProf(s.idx,false);
 });
 
@@ -1672,6 +1813,7 @@ history.replaceState({view:'landing'},'',location.pathname);
   const hash=location.hash.slice(1);
   if(hash==='map'){showMap(false);history.replaceState({view:'map'},'','#map');}
   else if(hash==='methodology'){showMethod(false);history.replaceState({view:'method'},'','#methodology');}
+  else if(hash==='advertise'){showAdvertise(false);history.replaceState({view:'advertise'},'','#advertise');}
   else if(hash){
     const idx=TOWNS.findIndex(t=>t.name.toLowerCase().replace(/\s+/g,'-')===hash);
     if(idx>=0){showProf(idx,false);history.replaceState({view:'prof',idx},'','#'+hash);}
