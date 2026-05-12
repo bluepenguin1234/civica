@@ -757,7 +757,7 @@ a{text-decoration:none;color:inherit}
     <div class="hero-inner">
       <!-- Left: copy + form -->
       <div class="hero-left">
-        <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 36 cities and towns</div>
+        <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 37 cities and towns</div>
         <h1>Know before<br>you <em>buy.</em></h1>
         <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the Civica intelligence layer missing from every home search.</p>
         <form class="hero-form" id="hero-form" onsubmit="submitHero(event)">
@@ -817,7 +817,7 @@ a{text-decoration:none;color:inherit}
   <!-- Stats numbers -->
   <div class="stats-numbers">
     <div class="stats-numbers-inner">
-      <div class="sn-item"><span class="sn-num">36</span><span class="sn-label">Cities &amp; Towns</span></div>
+      <div class="sn-item"><span class="sn-num">37</span><span class="sn-label">Cities &amp; Towns</span></div>
       <div class="sn-item"><span class="sn-num">67</span><span class="sn-label">Data Points Each</span></div>
       <div class="sn-item"><span class="sn-num">8</span><span class="sn-label">Civica Pillars</span></div>
       <div class="sn-item"><span class="sn-num">100%</span><span class="sn-label">Free to Use</span></div>
@@ -1008,7 +1008,7 @@ a{text-decoration:none;color:inherit}
   <div class="map-header">
     <div class="map-header-inner">
       <h2 class="map-title">Massachusetts</h2>
-      <p class="map-subtitle">Civica scores 36 cities and towns across 8 Civica pillars — fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
+      <p class="map-subtitle">Civica scores 37 cities and towns across 8 Civica pillars — fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
       <div class="map-search-wrap">
         <div class="map-search-bar">
           <span class="map-search-ico">
@@ -1046,6 +1046,10 @@ a{text-decoration:none;color:inherit}
           <button class="mfp" data-filter="rail" onclick="setMapFilter('rail')">Commuter Rail</button>
           <button class="mfp" data-filter="utility" onclick="setMapFilter('utility')">Muni Electric</button>
           <button class="mfp" data-filter="strong" onclick="setMapFilter('strong')">Strong TER</button>
+          <button class="mfp" data-filter="lowflood" onclick="setMapFilter('lowflood')">Low Flood Risk</button>
+          <button class="mfp" data-filter="lowcrime" onclick="setMapFilter('lowcrime')">Low Crime</button>
+          <button class="mfp" data-filter="affordable" onclick="setMapFilter('affordable')">Under $500k</button>
+          <button class="mfp" data-filter="topbond" onclick="setMapFilter('topbond')">AAA / AA+ Bond</button>
         </div>
         <select class="map-sort-sel" id="map-sort-sel" onchange="setMapSort(this.value)">
           <option value="score">Score: High → Low</option>
@@ -1181,7 +1185,7 @@ a{text-decoration:none;color:inherit}
     <h1>Reach homebuyers<br>at the moment of decision</h1>
     <p>Every visitor on Civica is actively researching where to buy a home in Massachusetts. They compare towns, read school rankings, and evaluate tax burdens before they sign anything.</p>
     <div class="adv-stats">
-      <div class="adv-stat"><span class="adv-stat-num">36</span><span class="adv-stat-label">Towns covered</span></div>
+      <div class="adv-stat"><span class="adv-stat-num">37</span><span class="adv-stat-label">Towns covered</span></div>
       <div class="adv-stat"><span class="adv-stat-num">67</span><span class="adv-stat-label">Data points per town</span></div>
       <div class="adv-stat"><span class="adv-stat-num">$658k</span><span class="adv-stat-label">Avg. home value</span></div>
       <div class="adv-stat"><span class="adv-stat-num">48hr</span><span class="adv-stat-label">Time to go live</span></div>
@@ -1321,7 +1325,8 @@ const TOWNS = [
   {name:"Rowley",lat:42.7248,lng:-70.8948,state:"MA",county:"Essex",zip:"01969",pop:6266,bond:null,free_cash:null,pension:53.8,debt_pc:null,gfoa:null,tax_non_res:8.0,eff_rate:1.18,med_tax:7060,med_inc:134245,res_rate:11.77,d_rank:129,d_total:351,d_10yr:10,math:42.0,grad:92.9,ap:42.7,per_pupil:24898,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:200,water_viol:0,broadband:null,transit:"Commuter Rail (in town)",park:null,lib:null,violent:null,prop_crime:null,crime5yr:null,inc10yr:32.0,pop10yr:3.0,bach:45.0,unemp:3.0,pov:4.0,flood:18.0,flood50:5.0,fire:"Low",heat50:null,aqi:null,canopy:null,score:67,ter:7.0,ter_r:"Strong",gaps:17,conf:"low",standout:"Rowley has direct commuter rail service on the Newburyport/Rockport line and is served by Rowley Municipal Light Department, one of the few smaller Essex County towns with both municipal electric savings and a commuter rail stop.",glance:"Rowley is a quiet, coastal-adjacent small town combining rare commuter rail access with municipal electric savings. Coastal marsh flood risk is meaningful (18%). Shares the Triton Regional School District with Newbury and Salisbury. A good value for transit-oriented buyers seeking small-town character.",notes:"Bond rating not confirmed. Pull from EMMA. Rowley MLD electric savings ~$200/yr estimated. Verify from DPU. Essex Regional Retirement applies. Triton Regional School District shared with Newbury and Salisbury. Flood risk reflects Great Marsh coastal zone.",med_home_val:633900,commute:27,owner_occ:81.8,vacancy:0.0,med_age:50.0,low_income_pct:26.2,ell_pct:2.3,enrollment_trend:null,sex_off:0.16},
   {name:"Nahant",lat:42.4248,lng:-70.9198,state:"MA",county:"Essex",zip:"01908",pop:3394,bond:null,free_cash:null,pension:53.8,debt_pc:null,gfoa:null,tax_non_res:5.0,eff_rate:0.92,med_tax:8240,med_inc:107503,res_rate:9.15,d_rank:null,d_total:351,d_10yr:null,math:66.0,grad:null,ap:null,per_pupil:22912,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:0,water_viol:0,broadband:null,transit:"Bus only",park:null,lib:null,violent:null,prop_crime:null,crime5yr:null,inc10yr:30.0,pop10yr:-3.0,bach:45.0,unemp:3.0,pov:5.0,flood:40.0,flood50:10.0,fire:"Low",heat50:null,aqi:null,canopy:null,score:56,ter:6.2,ter_r:"Average",gaps:22,conf:"low",standout:"Nahant is a tiny peninsula town entirely surrounded by ocean and is one of the most geographically unique communities on the Massachusetts coast, with ocean views from nearly every street.",glance:"Nahant is a small, charming ocean-bound peninsula with moderate income demographics and distinct character unlike any other Essex County town. The highest flood risk in the dataset (40%, growing 10 points by 2050) makes climate resilience the defining buyer consideration.",notes:"Bond rating not confirmed. Pull from EMMA. Essex Regional Retirement applies. Nahant is too small for FBI UCR reporting. Crime data not available. School district data sparse; sends students to Lynn for some grades. Flood risk is the most significant concern in the dataset.",med_home_val:686000,commute:28,owner_occ:84.2,vacancy:11.4,med_age:58.6,low_income_pct:19.4,ell_pct:0.0,enrollment_trend:null,sex_off:0.29},
   {name:"Wenham",lat:42.6048,lng:-70.8798,state:"MA",county:"Essex",zip:"01984",pop:5062,bond:null,free_cash:null,pension:53.8,debt_pc:null,gfoa:null,tax_non_res:6.0,eff_rate:1.55,med_tax:12000,med_inc:166866,res_rate:15.54,d_rank:39,d_total:351,d_10yr:5,math:76.0,grad:97.3,ap:46.9,per_pupil:24540,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:0,water_viol:0,broadband:null,transit:"Commuter Rail (in town)",park:null,lib:null,violent:null,prop_crime:null,crime5yr:null,inc10yr:35.0,pop10yr:2.0,bach:65.0,unemp:2.5,pov:3.0,flood:4.0,flood50:1.0,fire:"Low",heat50:null,aqi:null,canopy:null,score:73,ter:7.6,ter_r:"Strong",gaps:17,conf:"low",standout:"Wenham is part of the Hamilton-Wenham Regional School District, ranked in the top 40 in Massachusetts, and has a commuter rail stop on the Newburyport/Rockport line making it one of the smallest towns in Essex County with direct rail access to Boston.",glance:"Wenham is a tiny, affluent town with outstanding schools, commuter rail, and an extremely quiet estate-like character. One of the highest effective tax rates in the county (1.55%) reflects a nearly pure residential tax base. Very low crime and excellent demographics make this a premium small-town option.",notes:"Bond rating not confirmed. Pull from EMMA. Essex Regional Retirement applies. Hamilton-Wenham Regional School District shared with Hamilton. Tax rate 15.54 per $1,000 is among county's highest. Verify from DOR municipal finance. Crime data sparse for small jurisdiction.",med_home_val:841800,commute:21,owner_occ:85.6,vacancy:5.4,med_age:29.6,low_income_pct:5.9,ell_pct:0.9,enrollment_trend:null,sex_off:0.4},
-  {name:"Essex",lat:42.6298,lng:-70.7848,state:"MA",county:"Essex",zip:"01929",pop:3504,bond:null,free_cash:null,pension:53.8,debt_pc:null,gfoa:null,tax_non_res:10.0,eff_rate:1.30,med_tax:9100,med_inc:125415,res_rate:12.99,d_rank:52,d_total:351,d_10yr:13,math:72.0,grad:97.4,ap:40.8,per_pupil:27395,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:0,water_viol:0,broadband:null,transit:"None",park:null,lib:null,violent:null,prop_crime:null,crime5yr:null,inc10yr:33.0,pop10yr:0.0,bach:50.0,unemp:3.0,pov:4.0,flood:20.0,flood50:5.5,fire:"Low",heat50:null,aqi:null,canopy:null,score:68,ter:7.2,ter_r:"Strong",gaps:18,conf:"low",standout:"Essex is one of the smallest towns in Massachusetts with a centuries-old history as a shipbuilding center, having produced more wooden ships than any other town in America, and is famous for Woodman's, credited with inventing the fried clam in 1916.",glance:"Essex is a tiny historic maritime town on a tidal estuary with good school access through Manchester Essex Regional. Coastal flood risk is meaningful (20%). No transit and very limited commercial amenities mean this is a lifestyle and character buy, not a convenience-driven one.",notes:"Bond rating not confirmed. Pull from EMMA. Essex Regional Retirement applies. Manchester Essex Regional School District shared with Manchester-by-the-Sea. Crime data not available for very small jurisdiction. Flood risk reflects Essex River estuary and coastal marsh exposure.",med_home_val:826700,commute:18,owner_occ:77.0,vacancy:13.6,med_age:43.8,low_income_pct:11.9,ell_pct:0.5,enrollment_trend:null,sex_off:null}
+  {name:"Essex",lat:42.6298,lng:-70.7848,state:"MA",county:"Essex",zip:"01929",pop:3504,bond:null,free_cash:null,pension:53.8,debt_pc:null,gfoa:null,tax_non_res:10.0,eff_rate:1.30,med_tax:9100,med_inc:125415,res_rate:12.99,d_rank:52,d_total:351,d_10yr:13,math:72.0,grad:97.4,ap:40.8,per_pupil:27395,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:0,water_viol:0,broadband:null,transit:"None",park:null,lib:null,violent:null,prop_crime:null,crime5yr:null,inc10yr:33.0,pop10yr:0.0,bach:50.0,unemp:3.0,pov:4.0,flood:20.0,flood50:5.5,fire:"Low",heat50:null,aqi:null,canopy:null,score:68,ter:7.2,ter_r:"Strong",gaps:18,conf:"low",standout:"Essex is one of the smallest towns in Massachusetts with a centuries-old history as a shipbuilding center, having produced more wooden ships than any other town in America, and is famous for Woodman's, credited with inventing the fried clam in 1916.",glance:"Essex is a tiny historic maritime town on a tidal estuary with good school access through Manchester Essex Regional. Coastal flood risk is meaningful (20%). No transit and very limited commercial amenities mean this is a lifestyle and character buy, not a convenience-driven one.",notes:"Bond rating not confirmed. Pull from EMMA. Essex Regional Retirement applies. Manchester Essex Regional School District shared with Manchester-by-the-Sea. Crime data not available for very small jurisdiction. Flood risk reflects Essex River estuary and coastal marsh exposure.",med_home_val:826700,commute:18,owner_occ:77.0,vacancy:13.6,med_age:43.8,low_income_pct:11.9,ell_pct:0.5,enrollment_trend:null,sex_off:null},
+  {name:"Chelsea",lat:42.3929,lng:-71.0371,state:"MA",county:"Suffolk",zip:"02150",pop:39460,bond:null,free_cash:null,pension:null,debt_pc:null,gfoa:26,tax_non_res:null,eff_rate:1.15,med_tax:6310,med_inc:72179,res_rate:11.48,d_rank:323,d_total:351,d_10yr:null,math:19.0,grad:76.0,ap:36.0,per_pupil:24525,r311:null,ems:null,permits:null,iso:null,transp:"Yes",elec_save:0,water_viol:0,broadband:99,transit:"Commuter Rail + Silver Line (in town)",park:null,lib:null,violent:803,prop_crime:1633,crime5yr:null,inc10yr:21.0,pop10yr:1.7,bach:22.2,unemp:null,pov:20.8,flood:null,flood50:null,fire:"Low",heat50:null,aqi:null,canopy:null,score:0,ter:4.2,ter_r:"Average",gaps:21,conf:"low",standout:"Chelsea Station (opened 2021) brings direct commuter rail to North Station in under 30 minutes, plus Silver Line SL3 to South Station — the strongest multi-modal transit access in the Civica cohort. A 26-year GFOA award signals consistent financial management despite significant demographic challenges.",glance:"Chelsea is a dense, transit-rich city adjacent to Boston with one of the lowest median home values in Greater Boston ($493,500). Commuter rail and Silver Line access make it a genuine value play for Boston workers. The trade-offs are real: school rank #323 of 351, violent crime of 803/100k, a 20.8% poverty rate, and 76% low-income students. Best suited for buyers prioritizing transit and price over schools and safety.",notes:"Bond rating not confirmed — check EMMA.msrb.org. Chelsea has its own Retirement Board (not Essex Regional) — pension % needs PERAC Chelsea Board report. Violent crime varies by source (~803–979/100k) — verify from FBI CDE 2023. Flood risk significant (Chelsea Creek, Mystic River) but not quantified — pull from First Street Foundation. Free cash % via MA DLS Gateway code 057.",med_home_val:493500,commute:33,owner_occ:26.0,vacancy:null,med_age:34.4,low_income_pct:76.4,ell_pct:46.1,enrollment_trend:null,sex_off:0.54}
 ];
 
 /* ═══════════════════════════════
@@ -1348,7 +1353,7 @@ function saveFavs(){localStorage.setItem('civica_favs',JSON.stringify([...state.
 
 function grade(key,val,t){
   if(val==null)return'na';
-  const G={bond:v=>['AAA','AA+'].includes(v)?'green':['AA','AA-'].includes(v)?'yellow':'red',free_cash:v=>v>=7?'green':v>=3?'yellow':'red',eff_rate:v=>v<1.0?'green':v<1.3?'yellow':'red',d_rank:v=>{const p=v/(t.d_total||351);return p<=0.25?'green':p<=0.5?'yellow':'red';},math:v=>v>=50?'green':v>=30?'yellow':'red',grad:v=>v>=95?'green':v>=85?'yellow':'red',violent:v=>v<60?'green':v<200?'yellow':'red',prop_crime:v=>v<500?'green':v<1500?'yellow':'red',flood:v=>v<5?'green':v<12?'yellow':'red',flood50:v=>v<3?'green':v<8?'yellow':'red',elec_save:v=>v>1000?'green':v>0?'yellow':'red',ter_r:v=>v==='Strong'?'green':v==='Average'?'yellow':'red',water_viol:v=>v===0?'green':v<3?'yellow':'red',pov:v=>v<5?'green':v<12?'yellow':'red',debt_pc:v=>v<3000?'green':v<6000?'yellow':'red',commute:v=>v<=22?'green':v<=27?'yellow':'red',unemp:v=>v<3.5?'green':v<5.5?'yellow':'red'};
+  const G={bond:v=>['AAA','AA+'].includes(v)?'green':['AA','AA-'].includes(v)?'yellow':'red',free_cash:v=>v>=7?'green':v>=3?'yellow':'red',eff_rate:v=>v<1.0?'green':v<1.3?'yellow':'red',d_rank:v=>{const p=v/(t.d_total||351);return p<=0.25?'green':p<=0.5?'yellow':'red';},math:v=>v>=50?'green':v>=30?'yellow':'red',grad:v=>v>=95?'green':v>=85?'yellow':'red',violent:v=>v<60?'green':v<200?'yellow':'red',prop_crime:v=>v<500?'green':v<1500?'yellow':'red',flood:v=>v<5?'green':v<12?'yellow':'red',flood50:v=>v<3?'green':v<8?'yellow':'red',elec_save:v=>v>1000?'green':v>0?'yellow':'red',ter_r:v=>v==='Strong'?'green':v==='Average'?'yellow':'red',water_viol:v=>v===0?'green':v<3?'yellow':'red',pov:v=>v<5?'green':v<12?'yellow':'red',debt_pc:v=>v<3000?'green':v<6000?'yellow':'red',unemp:v=>v<3.5?'green':v<5.5?'yellow':'red'};
   return G[key]?G[key](val):'na';
 }
 const G_BG={green:'#e4faea',yellow:'#fff4e0',red:'#fff0ee',na:'#f5f5f7'};
@@ -1443,6 +1448,10 @@ function filteredTowns(){
   if(state.filter==='schools') list=list.filter(t=>t.d_rank&&t.d_rank<=120);
   if(state.filter==='rail') list=list.filter(t=>t.transit&&t.transit.includes('Rail'));
   if(state.filter==='utility') list=list.filter(t=>t.elec_save&&t.elec_save>500);
+  if(state.filter==='lowflood') list=list.filter(t=>t.flood!=null&&t.flood<5);
+  if(state.filter==='lowcrime') list=list.filter(t=>t.violent!=null&&t.violent<100);
+  if(state.filter==='affordable') list=list.filter(t=>t.med_home_val!=null&&t.med_home_val<500000);
+  if(state.filter==='topbond') list=list.filter(t=>t.bond==='AAA'||t.bond==='AA+');
   if(state.filter==='fav') list=list.filter(t=>state.favs.has(t.idx));
   list.sort((a,b)=>{
     if(state.sort==='score') return b.score-a.score;
@@ -1464,6 +1473,10 @@ function mapFilteredTowns(){
   if(f.has('schools')) list=list.filter(t=>t.d_rank&&t.d_rank<=120);
   if(f.has('rail')) list=list.filter(t=>t.transit&&t.transit.includes('Rail'));
   if(f.has('utility')) list=list.filter(t=>t.elec_save&&t.elec_save>500);
+  if(f.has('lowflood')) list=list.filter(t=>t.flood!=null&&t.flood<5);
+  if(f.has('lowcrime')) list=list.filter(t=>t.violent!=null&&t.violent<100);
+  if(f.has('affordable')) list=list.filter(t=>t.med_home_val!=null&&t.med_home_val<500000);
+  if(f.has('topbond')) list=list.filter(t=>t.bond==='AAA'||t.bond==='AA+');
   list.sort((a,b)=>{
     if(state.sort==='score') return b.score-a.score;
     if(state.sort==='schools') return(a.d_rank||999)-(b.d_rank||999);
@@ -1521,7 +1534,7 @@ function renderProf(idx){
     {num:2,icon:"💰",bg:"#e4faea",name:"Tax Efficiency",wt:"15%",metrics:[['eff_rate','Effective Tax Rate',t.eff_rate!=null?t.eff_rate+'%':null,grade('eff_rate',t.eff_rate,t)],['med_tax','Median Annual Tax Bill',t.med_tax!=null?'$'+t.med_tax.toLocaleString():null,'na'],['med_inc','Median Household Income',t.med_inc!=null?'$'+t.med_inc.toLocaleString():null,'na'],['res_rate','Residential Rate (per $1k AV)',t.res_rate!=null?'$'+t.res_rate:null,'na'],['tax_non_res','Non-Residential Tax Base',t.tax_non_res!=null?t.tax_non_res+'%':null,'na'],['ter','Tax Efficiency Ratio',t.ter+' — '+t.ter_r,grade('ter_r',t.ter_r,t)],['med_home_val','Median Home Value',t.med_home_val!=null?'$'+t.med_home_val.toLocaleString():null,'na']]},
     {num:3,icon:"🎓",bg:"#fff4e0",name:"Schools",wt:"15%",metrics:[['d_rank','State District Rank',t.d_rank!=null?'#'+t.d_rank+' of '+t.d_total:null,grade('d_rank',t.d_rank,t)],['d_10yr','10-Year Rank Change',t.d_10yr,'na'],['math','MCAS Math Proficiency',t.math!=null?t.math+'%':null,grade('math',t.math,t)],['grad','4-Year Graduation Rate',t.grad!=null?t.grad+'%':null,grade('grad',t.grad,t)],['ap','AP Participation Rate',t.ap!=null?t.ap+'%':null,'na'],['per_pupil','Per-Pupil Spending',t.per_pupil!=null?'$'+t.per_pupil.toLocaleString():null,'na'],['enrollment_trend','Enrollment Trend (10yr)',t.enrollment_trend,'na'],['low_income_pct','Low-Income Students',t.low_income_pct!=null?t.low_income_pct+'%':null,'na'],['ell_pct','English Language Learners',t.ell_pct!=null?t.ell_pct+'%':null,'na']]},
     {num:4,icon:"⚙️",bg:"#f5f5f7",name:"Operational Quality",wt:"10%",metrics:[['r311','311 Response Time',t.r311!=null?t.r311+' days':null,'na'],['ems','EMS Response Time',t.ems!=null?t.ems+' min':null,'na'],['permits','Building Permits per 1,000',t.permits,'na'],['iso','ISO Fire Rating',t.iso,'na'],['transp','ACFR Published',t.transp,'na']]},
-    {num:5,icon:"⚡",bg:"#e8eef6",name:"Infrastructure & Utilities",wt:"10%",metrics:[['elec_save','Electric Savings vs State Avg',t.elec_save!=null?(t.elec_save>=0?'+':'')+'$'+Math.abs(t.elec_save).toLocaleString()+'/yr':null,grade('elec_save',t.elec_save,t)],['water_viol','Water Quality Violations (5yr)',t.water_viol!=null?t.water_viol:null,grade('water_viol',t.water_viol,t)],['broadband','Broadband Coverage',t.broadband!=null?t.broadband+'%':null,'na'],['transit','Transit Access',t.transit,'na'],['commute','Avg Commute Time',t.commute!=null?t.commute+' min':null,'na']]},
+    {num:5,icon:"⚡",bg:"#e8eef6",name:"Infrastructure & Utilities",wt:"10%",metrics:[['elec_save','Electric Savings vs State Avg',t.elec_save!=null?(t.elec_save>=0?'+':'')+'$'+Math.abs(t.elec_save).toLocaleString()+'/yr':null,grade('elec_save',t.elec_save,t)],['water_viol','Water Quality Violations (5yr)',t.water_viol!=null?t.water_viol:null,grade('water_viol',t.water_viol,t)],['broadband','Broadband Coverage',t.broadband!=null?t.broadband+'%':null,'na'],['transit','Transit Access',t.transit,'na'],]},
     {num:6,icon:"🛡️",bg:"#fff0ee",name:"Safety",wt:"5%",metrics:[['violent','Violent Crime per 100k',t.violent,'na'!==grade('violent',t.violent,t)?t.violent:null,grade('violent',t.violent,t)],['prop_crime','Property Crime per 100k',t.prop_crime,grade('prop_crime',t.prop_crime,t)],['park','Park Acres per 1,000',t.park,'na'],['lib','Library Circulations/Capita',t.lib,'na'],['sex_off','Registered Sex Offenders per 1,000',t.sex_off!=null?t.sex_off.toFixed(1):null,'na']]},
     {num:7,icon:"📈",bg:"#e4faea",name:"Economic Momentum",wt:"10%",metrics:[['inc10yr','Income Growth (10yr)',t.inc10yr!=null?'+'+t.inc10yr+'%':null,'na'],['pop10yr','Population Growth (10yr)',t.pop10yr!=null?t.pop10yr+'%':null,'na'],['bach',"Bachelor's Degree+",t.bach!=null?t.bach+'%':null,'na'],['unemp','Unemployment Rate',t.unemp!=null?t.unemp+'%':null,grade('unemp',t.unemp,t)],['pov','Poverty Rate',t.pov!=null?t.pov+'%':null,grade('pov',t.pov,t)],['owner_occ','Owner-Occupied Housing',t.owner_occ!=null?t.owner_occ+'%':null,'na'],['vacancy','Vacancy Rate',t.vacancy!=null?t.vacancy+'%':null,'na'],['med_age','Median Age',t.med_age!=null?t.med_age+' yrs':null,'na']]},
     {num:8,icon:"🌿",bg:"#e4faea",name:"Climate Resilience",wt:"5%",metrics:[['flood','Flood Risk — Current',t.flood!=null?t.flood+'%':null,grade('flood',t.flood,t)],['flood50','Flood Risk Growth by 2050',t.flood50!=null?'+'+t.flood50+' pts':null,grade('flood50',t.flood50,t)],['fire','Wildfire Risk',t.fire,'na'],['heat50','Extra Heat Days by 2050',t.heat50!=null?'+'+t.heat50+' days':null,'na'],['aqi','Air Quality AQI',t.aqi,'na'],['canopy','Tree Canopy Coverage',t.canopy!=null?t.canopy+'%':null,'na']]},
@@ -1576,7 +1589,7 @@ function renderProf(idx){
   const taxScore=profPillarScore(t,[['eff_rate',t.eff_rate],['ter_r',t.ter_r]]);
   const schScore=profPillarScore(t,[['d_rank',t.d_rank],['math',t.math],['grad',t.grad]]);
   const safScore=profPillarScore(t,[['violent',t.violent],['prop_crime',t.prop_crime]]);
-  const infScore=profPillarScore(t,[['elec_save',t.elec_save],['water_viol',t.water_viol],['commute',t.commute]]);
+  const infScore=profPillarScore(t,[['elec_save',t.elec_save],['water_viol',t.water_viol]]);
   const climScore=profPillarScore(t,[['flood',t.flood],['flood50',t.flood50]]);
   const econScore=profPillarScore(t,[['unemp',t.unemp],['pov',t.pov]]);
   const opsScore=50;
@@ -1669,7 +1682,6 @@ function renderProf(idx){
         ${profMrow('Broadband Coverage',t.broadband!=null?t.broadband+'%':null,'na')}
         ${profMrow('Per-Pupil Spending',t.per_pupil!=null?'$'+t.per_pupil.toLocaleString():null,'na')}
         ${profMrow('Median Home Value',t.med_home_val!=null?'$'+t.med_home_val.toLocaleString():null,'na')}
-        ${profMrow('Avg Commute Time',t.commute!=null?t.commute+' min':null,'na')}
         ${profMrow('Owner-Occupied %',t.owner_occ!=null?t.owner_occ+'%':null,'na')}
         ${profMrow('Vacancy Rate',t.vacancy!=null?t.vacancy+'%':null,'na')}
         ${profMrow('Median Age',t.med_age!=null?t.med_age+' yrs':null,'na')}
@@ -1904,7 +1916,7 @@ function renderCompareView(){
   <tr><td style="background:#fafafa">Tax Efficiency</td>${towns.map(t=>pCell(profPillarScore(t,[['eff_rate',t.eff_rate],['ter_r',t.ter_r]]))).join('')}</tr>
   <tr><td style="background:#fafafa">Schools</td>${towns.map(t=>pCell(profPillarScore(t,[['d_rank',t.d_rank],['math',t.math],['grad',t.grad]]))).join('')}</tr>
   <tr><td style="background:#fafafa">Safety</td>${towns.map(t=>pCell(profPillarScore(t,[['violent',t.violent],['prop_crime',t.prop_crime]]))).join('')}</tr>
-  <tr><td style="background:#fafafa">Infrastructure</td>${towns.map(t=>pCell(profPillarScore(t,[['elec_save',t.elec_save],['water_viol',t.water_viol],['commute',t.commute]]))).join('')}</tr>
+  <tr><td style="background:#fafafa">Infrastructure</td>${towns.map(t=>pCell(profPillarScore(t,[['elec_save',t.elec_save],['water_viol',t.water_viol]]))).join('')}</tr>
   <tr><td style="background:#fafafa">Climate</td>${towns.map(t=>pCell(profPillarScore(t,[['flood',t.flood],['flood50',t.flood50]]))).join('')}</tr>
   <tr><td style="background:#fafafa">Economic Momentum</td>${towns.map(t=>pCell(profPillarScore(t,[['unemp',t.unemp],['pov',t.pov]]))).join('')}</tr>
   <tr><td style="background:#fafafa">Operational Quality</td>${towns.map(()=>pCell(50)).join('')}</tr>
@@ -1932,7 +1944,6 @@ function renderCompareView(){
   ${secRow('Infrastructure')}
   <tr><td style="background:#fafafa">Elec. Savings/yr</td>${towns.map(t=>cell(t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():null,G('elec_save',t.elec_save,t))).join('')}</tr>
   <tr><td style="background:#fafafa">Water Quality Viols.</td>${towns.map(t=>cell(t.water_viol!=null?t.water_viol+' (5yr)':null,G('water_viol',t.water_viol,t))).join('')}</tr>
-  <tr><td style="background:#fafafa">Avg Commute Time</td>${towns.map(t=>cell(t.commute!=null?t.commute+' min':null,'na')).join('')}</tr>
   <tr><td style="background:#fafafa">Transit Access</td>${towns.map(t=>cell(t.transit,t.transit&&t.transit.includes('Rail')?'green':'na')).join('')}</tr>
   <tr><td style="background:#fafafa">Broadband Coverage</td>${towns.map(t=>cell(t.broadband!=null?t.broadband+'%':null,'na')).join('')}</tr>
   ${secRow('Climate')}
@@ -2164,7 +2175,7 @@ function computeScore(t){
   const fisc=profPillarScore(t,[['bond',t.bond],['free_cash',t.free_cash],['debt_pc',t.debt_pc]]);
   const tax=profPillarScore(t,[['eff_rate',t.eff_rate],['ter_r',t.ter_r]]);
   const sch=profPillarScore(t,[['d_rank',t.d_rank],['math',t.math],['grad',t.grad]]);
-  const inf=profPillarScore(t,[['elec_save',t.elec_save],['water_viol',t.water_viol],['commute',t.commute]]);
+  const inf=profPillarScore(t,[['elec_save',t.elec_save],['water_viol',t.water_viol]]);
   const saf=profPillarScore(t,[['violent',t.violent],['prop_crime',t.prop_crime]]);
   const econ=profPillarScore(t,[['unemp',t.unemp],['pov',t.pov]]);
   const clim=profPillarScore(t,[['flood',t.flood],['flood50',t.flood50]]);
