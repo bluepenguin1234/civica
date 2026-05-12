@@ -91,7 +91,13 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 /* ring gauge */
 .ring{display:block}
 
-.tc-bars{padding:0 16px 10px;display:flex;flex-direction:column;gap:7px}
+.tc-metrics{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.tc-metric{padding:10px 12px;text-align:center;border-right:1px solid var(--border)}
+.tc-metric:last-child{border-right:none}
+.tc-metric-val{font-size:.85rem;font-weight:800;letter-spacing:-.3px;line-height:1.2}
+.tc-metric-label{font-size:.61rem;color:var(--ter);margin-top:2px;text-transform:uppercase;letter-spacing:.3px;line-height:1.3}
+
+.tc-bars{padding:10px 16px 10px;display:flex;flex-direction:column;gap:7px}
 .bar-row{display:flex;flex-direction:column;gap:3px}
 .bar-label-row{display:flex;justify-content:space-between;align-items:center}
 .bar-label{font-size:.68rem;color:var(--sec)}
@@ -125,15 +131,16 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .dc-badge.critical{background:var(--red-bg);color:var(--red-text);border:1px solid var(--red-border)}
 .dc-badge.warning{background:var(--orange-bg);color:var(--orange-text);border:1px solid var(--orange-border)}
 
-.dc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--border)}
-.dc-metric{padding:12px 16px;text-align:center;border-right:1px solid var(--border)}
+.dc-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)}
+.dc-metric{padding:11px 12px;text-align:center;border-right:1px solid var(--border)}
 .dc-metric:last-child{border-right:none}
-.dc-metric-val{font-size:1.1rem;font-weight:800;letter-spacing:-.4px}
+.dc-metric-val{font-size:1rem;font-weight:800;letter-spacing:-.3px;line-height:1.2}
 .dc-metric-val.red{color:var(--red-text)}
 .dc-metric-val.orange{color:var(--orange-text)}
 .dc-metric-val.green{color:var(--green-text)}
-.dc-metric-val.na{color:var(--ter);font-size:.85rem;font-weight:600}
-.dc-metric-label{font-size:.65rem;color:var(--ter);margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+.dc-metric-val.na{color:var(--ter);font-size:.82rem;font-weight:600}
+.dc-metric-label{font-size:.63rem;color:var(--ter);margin-top:2px;text-transform:uppercase;letter-spacing:.3px;line-height:1.3}
+.dc-metrics-row2{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border);background:#fafafa}
 
 .dc-flags{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .dc-flag{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-xs);border:1px solid}
@@ -260,33 +267,65 @@ footer a:hover{text-decoration:underline}
         <div class="meth-card">
           <div class="meth-icon" style="background:#fff0f0">🏦</div>
           <div class="meth-body-wrap">
-            <div class="meth-title">Pension Funding Level</div>
-            <div class="meth-body">Source: MA PERAC actuarial valuations. Most Essex County towns are in the Essex Regional Retirement System (~53.8% funded). Cities with independent systems (Lynn, Lawrence, Haverhill, Methuen) are separately valued.<br><br><strong>Critical</strong> below 55% · <strong>Warning</strong> 55–70%<br><br>Below 55%, unfunded liabilities typically require significant future tax increases to resolve.</div>
-            <div class="meth-coverage">Coverage: 36 / 36 towns</div>
+            <div class="meth-title">Pension Funding · Fiscal Health</div>
+            <div class="meth-body">Source: MA PERAC annual actuarial reports. Most Essex towns share the Essex Regional Retirement System (~53.8% funded). Cities with independent systems (Lynn, Lawrence, Haverhill, Methuen) are separately valued.<br><br><strong>Critical</strong> below 55% · <strong>Warning</strong> 55–70%<br><br>Below 55%, unfunded liabilities typically force large future tax increases to keep the system solvent.</div>
+            <div class="meth-coverage">Coverage: 36 / 36 towns (100%)</div>
           </div>
         </div>
         <div class="meth-card">
           <div class="meth-icon" style="background:#fff8f0">💵</div>
           <div class="meth-body-wrap">
-            <div class="meth-title">Free Cash Reserves</div>
-            <div class="meth-body">Source: MA Division of Local Services (DLS) certified free cash — the prior year's operating surplus, certified by the state each fall.<br><br><strong>Critical</strong> below 2% · <strong>Warning</strong> 2–3%<br><br>MA DLS recommends at least 5% as a fiscal buffer. Below 3% means almost no cushion for unexpected costs or revenue shortfalls.</div>
-            <div class="meth-coverage">Coverage: ~22 / 36 towns</div>
+            <div class="meth-title">Free Cash Reserves · Fiscal Health</div>
+            <div class="meth-body">Source: MA Division of Local Services (DLS) certified free cash — prior year's operating surplus after all liabilities, certified by the state each fall.<br><br><strong>Critical</strong> below 2% · <strong>Warning</strong> 2–3%<br><br>MA DLS recommends 5%+ as a minimum buffer. Below 3% means almost no cushion for unexpected costs or revenue shortfalls without short-term borrowing.</div>
+            <div class="meth-coverage">Coverage: ~22 / 36 towns (61%)</div>
           </div>
         </div>
         <div class="meth-card">
           <div class="meth-icon" style="background:#f0fdf4">🎓</div>
           <div class="meth-body-wrap">
-            <div class="meth-title">Academic Return on Investment</div>
-            <div class="meth-body">Compares per-pupil spending rank vs. academic outcome rank (DESE, 351 districts) within the 36-town peer group. Formula: <code>gap = spend_pct − outcome_pct</code>.<br><br><strong>Critical</strong> gap &gt;30 pts · <strong>Warning</strong> gap 15–30 pts<br><br>A large gap means a town spends more than peers yet achieves lower outcomes. Note: district size and demographics affect per-pupil costs.</div>
+            <div class="meth-title">Academic ROI Gap · Schools</div>
+            <div class="meth-body">Compares each town's per-pupil spending percentile vs. its school rank percentile (DESE, 351 districts) within the 36-town peer group. Formula: <code>gap = spend_pct − outcome_pct</code>.<br><br><strong>Critical</strong> gap &gt;30 pts · <strong>Warning</strong> gap 15–30 pts<br><br>A large gap signals above-peer spending with below-peer outcomes. District size and demographics also affect per-pupil costs — context matters.</div>
             <div class="meth-coverage">Coverage: 34 / 36 towns</div>
           </div>
         </div>
         <div class="meth-card">
           <div class="meth-icon" style="background:#e8eef6">📊</div>
           <div class="meth-body-wrap">
-            <div class="meth-title">Per-Capita Debt Load</div>
-            <div class="meth-body">Source: Town ACFRs and MA DLS gateway. Includes general obligation bonds. High debt/capita is not inherently negative — it can reflect capital investment — but it constrains future budgets and raises debt service costs.<br><br><strong>Critical</strong> above $7,000/resident · <strong>Warning</strong> $4,500–$7,000<br><br>MA median is approximately $2,400 per capita.</div>
-            <div class="meth-coverage">Coverage: ~12 / 36 towns</div>
+            <div class="meth-title">Per-Capita Debt Load · Fiscal Health</div>
+            <div class="meth-body">Source: Town ACFRs and MA DLS gateway. Includes general obligation bonds. High debt/capita can reflect capital investment (schools, roads) — not inherently negative — but raises annual debt service costs and limits future budget flexibility.<br><br><strong>Critical</strong> above $7,000 · <strong>Warning</strong> $4,500–$7,000<br><br>MA median ≈ $2,400/capita.</div>
+            <div class="meth-coverage">Coverage: ~12 / 36 towns (33%)</div>
+          </div>
+        </div>
+        <div class="meth-card">
+          <div class="meth-icon" style="background:#fff0f5">🚨</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">Violent Crime Rate · Safety</div>
+            <div class="meth-body">Source: FBI UCR / MA EOPSS. Violent crimes (murder, rape, robbery, aggravated assault) per 100,000 residents. Essex County average ≈ 108/100k.<br><br><strong>Critical</strong> above 450/100k · <strong>Warning</strong> above 250/100k<br><br>High crime rates directly affect quality of life and property values, and may indicate under-investment in public safety resources relative to population.</div>
+            <div class="meth-coverage">Coverage: 31 / 36 towns</div>
+          </div>
+        </div>
+        <div class="meth-card">
+          <div class="meth-icon" style="background:#fffbeb">📉</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">School District Rank · Schools</div>
+            <div class="meth-body">Source: DESE district profiles / SchoolDigger. Rank among all 351 Massachusetts school districts based on MCAS performance, graduation rate, and academic growth.<br><br><strong>Critical</strong> bottom 10% (rank &gt;315) · <strong>Warning</strong> bottom 20% (rank &gt;280)<br><br>Low rank does not always reflect mismanagement — high poverty and ELL populations drive outcomes — but it does affect property values and buyer decisions.</div>
+            <div class="meth-coverage">Coverage: 34 / 36 towns</div>
+          </div>
+        </div>
+        <div class="meth-card">
+          <div class="meth-icon" style="background:#f0f9ff">💧</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">Drinking Water Violations · Infrastructure</div>
+            <div class="meth-body">Source: EPA ECHO (Enforcement and Compliance History Online) / Safe Drinking Water Information System. Counts health-based violations reported within a 5-year window.<br><br><strong>Warning</strong> any violation in 5-year window<br><br>Even one health-based violation warrants resident attention and direct follow-up with the municipal water department.</div>
+            <div class="meth-coverage">Coverage: 36 / 36 towns</div>
+          </div>
+        </div>
+        <div class="meth-card">
+          <div class="meth-icon" style="background:#f5f5f7">📋</div>
+          <div class="meth-body-wrap">
+            <div class="meth-title">Data Transparency · All Pillars</div>
+            <div class="meth-body">Counts how many of Civica's 67 tracked data fields are unavailable or unverified for a given municipality. Towns with 20+ gaps cannot be fully screened by any of the above flags.<br><br><strong>Info flag</strong> when gaps ≥ 20<br><br>Limited data often reflects small staff capacity or deliberate non-disclosure. Residents can file a public records request for ACFR and budget documents.</div>
+            <div class="meth-coverage">Coverage: 36 / 36 towns</div>
           </div>
         </div>
       </div>
@@ -342,52 +381,83 @@ function computeFlags(towns) {
   return towns.map((t, i) => {
     const flags = [];
 
+    // 1. Pension underfunding
     if (t.pension != null) {
       if (t.pension < 55)
-        flags.push({sev:2, id:'pension', label:'Severely Underfunded Pension',
-          desc:`Pension only ${t.pension}% funded. More than $45 of every $100 in obligations is unfunded — creating long-term fiscal risk for residents.`});
+        flags.push({sev:2, id:'pension', pillar:'Fiscal Health', label:'Severely Underfunded Pension',
+          desc:`Pension only ${t.pension}% funded. More than $45 of every $100 in obligations is unfunded — creating long-term fiscal risk that typically forces future tax increases.`});
       else if (t.pension < 70)
-        flags.push({sev:1, id:'pension', label:'Underfunded Pension',
+        flags.push({sev:1, id:'pension', pillar:'Fiscal Health', label:'Underfunded Pension',
           desc:`Pension funded at ${t.pension}%, below the 70% health threshold. Risk of future contribution spikes that crowd out other municipal services.`});
     }
 
+    // 2. Free cash stress
     if (t.free_cash != null) {
       if (t.free_cash < 2)
-        flags.push({sev:2, id:'freecash', label:'Critical Cash Reserves',
-          desc:`Free cash at ${t.free_cash}% of budget. MA DLS recommends 5%+. Almost no fiscal cushion for unexpected costs or revenue shortfalls.`});
+        flags.push({sev:2, id:'freecash', pillar:'Fiscal Health', label:'Critical Cash Reserves',
+          desc:`Free cash at only ${t.free_cash}% of budget. MA DLS recommends 5%+. Almost no fiscal cushion — one bad revenue year or unexpected cost could force emergency borrowing.`});
       else if (t.free_cash < 3)
-        flags.push({sev:1, id:'freecash', label:'Low Fiscal Reserves',
-          desc:`Free cash at ${t.free_cash}% — below the 3% prudent threshold. Limited buffer for emergency spending without borrowing.`});
+        flags.push({sev:1, id:'freecash', pillar:'Fiscal Health', label:'Low Fiscal Reserves',
+          desc:`Free cash at ${t.free_cash}% — below the 3% prudent threshold. MA best practice is 5%+. Limited buffer for emergency spending without going to short-term borrowing.`});
     }
 
+    // 3. Academic ROI gap
     const spendPct = pctRankAsc(perPupils, t.per_pupil);
     const outcomePct = dRankPcts[i];
     let roiGap = null;
     if (spendPct != null && outcomePct != null) {
       roiGap = spendPct - outcomePct;
       if (roiGap > 30)
-        flags.push({sev:2, id:'roi', label:'High Spend / Low Outcome',
-          desc:`Spending at ${Math.round(spendPct)}th percentile among peers, but academic outcomes at ${Math.round(outcomePct)}th percentile — a ${Math.round(roiGap)}-point gap.`});
+        flags.push({sev:2, id:'roi', pillar:'Schools', label:'High Spend / Low Outcome',
+          desc:`Per-pupil spending is at the ${Math.round(spendPct)}th percentile among peers, but school rank is only at the ${Math.round(outcomePct)}th percentile — a ${Math.round(roiGap)}-point gap suggesting below-average academic return on education spending.`});
       else if (roiGap > 15)
-        flags.push({sev:1, id:'roi', label:'Below-Average Academic ROI',
-          desc:`${Math.round(roiGap)}-point gap between spending percentile and outcome percentile. Above-peer spending relative to academic results.`});
+        flags.push({sev:1, id:'roi', pillar:'Schools', label:'Below-Average Academic ROI',
+          desc:`${Math.round(roiGap)}-point gap between spending percentile (${Math.round(spendPct)}th) and outcome percentile (${Math.round(outcomePct)}th). Above-peer spending relative to academic results warrants transparency about resource allocation.`});
     }
 
+    // 4. Debt burden
     if (t.debt_pc != null) {
       if (t.debt_pc > 7000)
-        flags.push({sev:2, id:'debt', label:'Excessive Per-Capita Debt',
-          desc:`$${t.debt_pc.toLocaleString()} debt per resident — ${(t.debt_pc/2400).toFixed(1)}× the MA median of ~$2,400.`});
+        flags.push({sev:2, id:'debt', pillar:'Fiscal Health', label:'Excessive Per-Capita Debt',
+          desc:`$${t.debt_pc.toLocaleString()} in municipal debt per resident — ${(t.debt_pc/2400).toFixed(1)}× the MA median of ~$2,400. High debt service costs limit future budget flexibility and may indicate past overspending on capital projects.`});
       else if (t.debt_pc > 4500)
-        flags.push({sev:1, id:'debt', label:'Elevated Debt Load',
-          desc:`$${t.debt_pc.toLocaleString()} debt per capita — above the MA median of ~$2,400.`});
+        flags.push({sev:1, id:'debt', pillar:'Fiscal Health', label:'Elevated Debt Load',
+          desc:`$${t.debt_pc.toLocaleString()} debt per capita — above the MA median of ~$2,400. Monitor for debt service cost growth that could crowd out municipal services in future budgets.`});
     }
 
+    // 5. High violent crime
+    if (t.violent != null) {
+      if (t.violent > 450)
+        flags.push({sev:2, id:'crime', pillar:'Safety', label:'Very High Violent Crime Rate',
+          desc:`Violent crime rate of ${t.violent}/100k residents — more than 4× the Essex County average of ~108/100k. This significantly impacts quality of life and property values.`});
+      else if (t.violent > 250)
+        flags.push({sev:1, id:'crime', pillar:'Safety', label:'Elevated Violent Crime',
+          desc:`Violent crime rate of ${t.violent}/100k — above the Essex County average of ~108/100k. Review crime trend data before purchasing.`});
+    }
+
+    // 6. Weak school rank
+    if (t.d_rank != null && t.d_total) {
+      const rankPct = (t.d_total - t.d_rank) / t.d_total * 100;
+      if (rankPct < 10)
+        flags.push({sev:2, id:'school', pillar:'Schools', label:'Bottom-Tier School District',
+          desc:`School district ranks #${t.d_rank} out of ${t.d_total} statewide — bottom 10%. Academic outcomes significantly below state average. MCAS math proficiency: ${t.math!=null?t.math+'%':'N/A'}.`});
+      else if (rankPct < 20)
+        flags.push({sev:1, id:'school', pillar:'Schools', label:'Below-Average School Rank',
+          desc:`School district ranks #${t.d_rank} out of ${t.d_total} — bottom 20% statewide. Below-average academic outcomes for the property tax investment.`});
+    }
+
+    // 7. Water violations
+    if (t.water_viol != null && t.water_viol > 0)
+      flags.push({sev:1, id:'water', pillar:'Infrastructure', label:'Drinking Water Violations',
+        desc:`${t.water_viol} drinking water violation${t.water_viol>1?'s':''} recorded in a 5-year window per EPA ECHO. Review EPA Safe Drinking Water Information System for details and current status.`});
+
+    // Info: data gaps
     if (t.gaps != null && t.gaps >= 20)
-      flags.push({sev:0, id:'gaps', label:'Limited Public Data',
-        desc:`${t.gaps} data fields unavailable. Full screening incomplete — residents can request ACFR documents directly from the town.`});
+      flags.push({sev:0, id:'gaps', pillar:'Transparency', label:'Limited Public Data',
+        desc:`${t.gaps} data fields unavailable. Full screening incomplete — residents can request ACFR and budget documents directly from the municipality.`});
 
     const flagScore = flags.reduce((s,f) => s + (f.sev===2?3:f.sev===1?1:0), 0);
-    const riskLevel = flagScore >= 6 ? 'critical' : flagScore >= 3 ? 'critical' : flagScore >= 1 ? 'warning' : 'clean';
+    const riskLevel = flagScore >= 3 ? 'critical' : flagScore >= 1 ? 'warning' : 'clean';
     return {...t, flags, flagScore, roiGap, spendPct, outcomePct, riskLevel};
   });
 }
@@ -438,6 +508,35 @@ function renderHeroStats(towns) {
   document.getElementById('cnt-all').textContent = towns.length;
 }
 
+/* ── HELPERS ── */
+function bondColor(b) {
+  if (!b) return 'var(--ter)';
+  if (b==='AAA'||b==='AA+'||b==='AA') return 'var(--green-text)';
+  if (b==='AA-'||b==='A+'||b==='A') return 'var(--orange-text)';
+  return 'var(--red-text)';
+}
+function rankColor(rank, total) {
+  if (rank==null) return 'var(--ter)';
+  const pct = (total-rank)/total*100;
+  if (pct>=75) return 'var(--green-text)';
+  if (pct>=40) return 'var(--blue)';
+  if (pct>=20) return 'var(--orange-text)';
+  return 'var(--red-text)';
+}
+function crimeColor(v) {
+  if (v==null) return 'var(--ter)';
+  if (v<100) return 'var(--green-text)';
+  if (v<250) return 'var(--blue)';
+  if (v<450) return 'var(--orange-text)';
+  return 'var(--red-text)';
+}
+function gradColor(g) {
+  if (g==null) return 'var(--ter)';
+  if (g>=95) return 'var(--green-text)';
+  if (g>=85) return 'var(--blue)';
+  return 'var(--orange-text)';
+}
+
 /* ── RENDER CARDS ── */
 function renderCards(towns) {
   let filtered = towns.filter(t => {
@@ -449,54 +548,90 @@ function renderCards(towns) {
 
   filtered = filtered.sort((a,b) => {
     const av = a[currentSort], bv = b[currentSort];
-    if (currentSort === 'name') return av < bv ? -1 : av > bv ? 1 : 0;
-    if (currentSort === 'pension' || currentSort === 'free_cash') {
-      const an = av ?? Infinity, bn = bv ?? Infinity;
-      return an - bn;
+    if (currentSort==='name') return av<bv?-1:av>bv?1:0;
+    if (currentSort==='pension'||currentSort==='free_cash') {
+      return (av??Infinity)-(bv??Infinity);
     }
-    const an = av ?? -Infinity, bn = bv ?? -Infinity;
-    return bn - an;
+    return (bv??-Infinity)-(av??-Infinity);
   });
 
-  const sevFlags = t => t.flags.filter(f=>f.sev>0);
-
   document.getElementById('cardsGrid').innerHTML = filtered.map(t => {
-    const flags = sevFlags(t);
-    const riskClass = t.riskLevel;
+    const flags = t.flags.filter(f=>f.sev>0);
     const sc = scoreColor(t.score);
+    const pensionColor = t.pension==null?'var(--ter)':t.pension<55?'var(--red-text)':t.pension<70?'var(--orange-text)':'var(--green-text)';
+    const cashColor = t.free_cash==null?'var(--ter)':t.free_cash<2?'var(--red-text)':t.free_cash<3?'var(--orange-text)':'var(--green-text)';
 
-    const pensionColor = t.pension == null ? '#ccc' : t.pension < 55 ? 'var(--red)' : t.pension < 70 ? 'var(--orange)' : 'var(--green)';
-    const cashColor = t.free_cash == null ? '#ccc' : t.free_cash < 2 ? 'var(--red)' : t.free_cash < 3 ? 'var(--orange)' : 'var(--green)';
+    const schoolDisp = t.d_rank!=null ? `#${t.d_rank}` : '—';
+    const schoolSub = t.d_rank!=null ? `of ${t.d_total}` : 'No data';
+    const crimeDisp = t.violent!=null ? t.violent : '—';
+    const crimeSub = t.violent!=null ? 'per 100k' : 'No data';
+    const gradDisp = t.grad!=null ? `${t.grad}%` : '—';
+    const perPupilDisp = t.per_pupil!=null ? `$${(t.per_pupil/1000).toFixed(0)}k` : '—';
 
     const flagsHtml = flags.length
       ? flags.map(f=>`<span class="flag-chip ${f.sev===2?'red':'orange'}">${f.sev===2?'●':'○'} ${f.label}</span>`).join('')
       : `<span class="no-flag-msg">✓ No significant flags</span>`;
 
-    return `<div class="tc risk-${riskClass}">
+    return `<div class="tc risk-${t.riskLevel}">
       <div class="tc-head">
         <div>
           <div class="tc-name">${t.name}</div>
-          <div class="tc-county">${t.county} County · Pop. ${t.pop?t.pop.toLocaleString():'—'}</div>
+          <div class="tc-county">${t.county} Co. · Pop. ${t.pop?t.pop.toLocaleString():'—'}</div>
         </div>
         <div class="tc-score-circle">${ringGauge(t.score, sc, 52)}</div>
       </div>
+
+      <div class="tc-metrics">
+        <div class="tc-metric">
+          <div class="tc-metric-val" style="color:${bondColor(t.bond)}">${t.bond||'—'}</div>
+          <div class="tc-metric-label">Bond Rating</div>
+        </div>
+        <div class="tc-metric">
+          <div class="tc-metric-val" style="color:${rankColor(t.d_rank,t.d_total)}">${schoolDisp}</div>
+          <div class="tc-metric-label">School Rank<br>${schoolSub}</div>
+        </div>
+        <div class="tc-metric">
+          <div class="tc-metric-val" style="color:${crimeColor(t.violent)}">${crimeDisp}</div>
+          <div class="tc-metric-label">Violent Crime<br>${crimeSub}</div>
+        </div>
+      </div>
+      <div class="tc-metrics" style="border-top:none">
+        <div class="tc-metric">
+          <div class="tc-metric-val" style="color:${pensionColor}">${t.pension!=null?t.pension+'%':'—'}</div>
+          <div class="tc-metric-label">Pension<br>Funded</div>
+        </div>
+        <div class="tc-metric">
+          <div class="tc-metric-val" style="color:${cashColor}">${t.free_cash!=null?t.free_cash+'%':'—'}</div>
+          <div class="tc-metric-label">Free Cash<br>Reserve</div>
+        </div>
+        <div class="tc-metric">
+          <div class="tc-metric-val" style="color:${gradColor(t.grad)}">${gradDisp}</div>
+          <div class="tc-metric-label">Grad<br>Rate</div>
+        </div>
+      </div>
+
       <div class="tc-bars">
         <div class="bar-row">
           <div class="bar-label-row"><span class="bar-label">Pension Funded</span><span class="bar-val" style="color:${pensionColor}">${t.pension!=null?t.pension+'%':'—'}</span></div>
-          <div class="bar-track"><div class="bar-fill" style="width:${t.pension??0}%;background:${pensionColor}"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${t.pension??0}%;background:${pensionColor==='var(--ter)'?'#ccc':pensionColor}"></div></div>
         </div>
         <div class="bar-row">
-          <div class="bar-label-row"><span class="bar-label">Free Cash Reserve</span><span class="bar-val" style="color:${cashColor}">${t.free_cash!=null?t.free_cash+'%':'No data'}</span></div>
-          <div class="bar-track"><div class="bar-fill" style="width:${t.free_cash!=null?Math.min(t.free_cash/15*100,100):0}%;background:${cashColor}"></div></div>
+          <div class="bar-label-row"><span class="bar-label">Free Cash · MA target: 5%</span><span class="bar-val" style="color:${cashColor}">${t.free_cash!=null?t.free_cash+'%':'No data'}</span></div>
+          <div class="bar-track">
+            <div style="position:relative;height:100%">
+              <div class="bar-fill" style="width:${t.free_cash!=null?Math.min(t.free_cash/15*100,100):0}%;background:${cashColor==='var(--ter)'?'#ccc':cashColor}"></div>
+              <div style="position:absolute;top:0;left:${5/15*100}%;width:1px;height:100%;background:rgba(0,0,0,0.2)"></div>
+            </div>
+          </div>
         </div>
       </div>
+
       <div class="tc-flags">${flagsHtml}</div>
     </div>`;
   }).join('');
 
-  if (!filtered.length) {
+  if (!filtered.length)
     document.getElementById('cardsGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ter);font-size:.88rem">No municipalities match this filter.</div>`;
-  }
 }
 
 /* ── RENDER DETAIL CARDS ── */
@@ -505,22 +640,36 @@ function renderDetailCards(towns) {
   const section = document.getElementById('detailSection');
   if (!highRisk.length) { section.style.display='none'; return; }
 
+  function mc(val, cls) { return `<div class="dc-metric"><div class="dc-metric-val ${cls}">${val}</div>`; }
+  function mclass(val, thresholds) {
+    if (val==null) return 'na';
+    for (const [limit, cls] of thresholds) if (val <= limit) return cls;
+    return thresholds[thresholds.length-1][1];
+  }
+
   document.getElementById('detailGrid').innerHTML = highRisk.map(t => {
     const isCritical = t.flagScore >= 6;
     const sevFlags = t.flags.filter(f=>f.sev>0);
 
-    const pensionDisp = t.pension!=null ? `${t.pension}%` : '—';
-    const cashDisp = t.free_cash!=null ? `${t.free_cash}%` : '—';
-    const debtDisp = t.debt_pc!=null ? `$${t.debt_pc.toLocaleString()}` : '—';
+    // Row 1: Fiscal
+    const pensionCls = t.pension==null?'na':t.pension<55?'red':t.pension<70?'orange':'green';
+    const cashCls = t.free_cash==null?'na':t.free_cash<2?'red':t.free_cash<3?'orange':'green';
+    const debtCls = t.debt_pc==null?'na':t.debt_pc>7000?'red':t.debt_pc>4500?'orange':'green';
+    const bondCls = !t.bond?'na':t.bond==='AAA'||t.bond==='AA+'||t.bond==='AA'?'green':'orange';
 
-    const pensionClass = t.pension==null?'na':t.pension<55?'red':t.pension<70?'orange':'green';
-    const cashClass = t.free_cash==null?'na':t.free_cash<2?'red':t.free_cash<3?'orange':'green';
-    const debtClass = t.debt_pc==null?'na':t.debt_pc>7000?'red':t.debt_pc>4500?'orange':'green';
+    // Row 2: Schools + Safety
+    const rankCls = t.d_rank==null?'na':rankColor(t.d_rank,t.d_total)==='var(--red-text)'?'red':rankColor(t.d_rank,t.d_total)==='var(--orange-text)'?'orange':'green';
+    const crimeCls = t.violent==null?'na':t.violent>450?'red':t.violent>250?'orange':'green';
+    const gradCls = t.grad==null?'na':t.grad<85?'orange':'green';
+    const mathCls = t.math==null?'na':t.math<30?'red':t.math<50?'orange':'green';
 
     const flagsHtml = sevFlags.map(f=>`
       <div class="dc-flag ${f.sev===2?'red':'orange'}">
         <div class="dc-flag-icon">${f.sev===2?'🔴':'🟠'}</div>
-        <div class="dc-flag-body"><strong>${f.label}</strong><span>${f.desc}</span></div>
+        <div class="dc-flag-body">
+          <strong>${f.label} <span style="font-weight:500;color:var(--sec);font-size:.74rem">· ${f.pillar}</span></strong>
+          <span>${f.desc}</span>
+        </div>
       </div>`).join('');
 
     return `<div class="dc">
@@ -532,9 +681,16 @@ function renderDetailCards(towns) {
         <div class="dc-badge ${isCritical?'critical':'warning'}">Risk Score: ${t.flagScore}</div>
       </div>
       <div class="dc-metrics">
-        <div class="dc-metric"><div class="dc-metric-val ${pensionClass}">${pensionDisp}</div><div class="dc-metric-label">Pension Funded</div></div>
-        <div class="dc-metric"><div class="dc-metric-val ${cashClass}">${cashDisp}</div><div class="dc-metric-label">Free Cash</div></div>
-        <div class="dc-metric"><div class="dc-metric-val ${debtClass}">${debtDisp}</div><div class="dc-metric-label">Debt / Capita</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${pensionCls}">${t.pension!=null?t.pension+'%':'—'}</div><div class="dc-metric-label">Pension<br>Funded</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${cashCls}">${t.free_cash!=null?t.free_cash+'%':'—'}</div><div class="dc-metric-label">Free<br>Cash</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${debtCls}">${t.debt_pc!=null?'$'+t.debt_pc.toLocaleString():'—'}</div><div class="dc-metric-label">Debt/<br>Capita</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${bondCls}">${t.bond||'—'}</div><div class="dc-metric-label">Bond<br>Rating</div></div>
+      </div>
+      <div class="dc-metrics dc-metrics-row2">
+        <div class="dc-metric"><div class="dc-metric-val ${rankCls}">${t.d_rank!=null?'#'+t.d_rank:'—'}</div><div class="dc-metric-label">School Rank<br>${t.d_rank?'of '+t.d_total:''}</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${gradCls}">${t.grad!=null?t.grad+'%':'—'}</div><div class="dc-metric-label">Grad<br>Rate</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${crimeCls}">${t.violent!=null?t.violent:'—'}</div><div class="dc-metric-label">Violent Crime<br>/100k</div></div>
+        <div class="dc-metric"><div class="dc-metric-val ${mathCls}">${t.math!=null?t.math+'%':'—'}</div><div class="dc-metric-label">Math<br>Proficiency</div></div>
       </div>
       <div class="dc-flags">${flagsHtml}</div>
     </div>`;
