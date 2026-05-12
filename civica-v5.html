@@ -1253,7 +1253,7 @@ const AD_VENDORS=[{icon:"🚚",name:"North Shore Moving Co.",type:"Full-service 
 /* ═══════════════════════════════
    STATE
 ═══════════════════════════════ */
-let state={view:'landing',filter:'all',sort:'score',favs:new Set(JSON.parse(localStorage.getItem('civica_favs')||'[]')),prof:null};
+let state={view:'landing',filter:'all',sort:'score',mapFilters:new Set(),favs:new Set(JSON.parse(localStorage.getItem('civica_favs')||'[]')),prof:null};
 let leafletMap=null;
 const FORMSPREE_ID='YOUR_FORM_ID';
 
@@ -1301,7 +1301,7 @@ function renderMapMarkers(){
   // Clear existing markers
   leafletMap.eachLayer(l=>{if(l instanceof L.Marker)leafletMap.removeLayer(l);});
 
-  const list=filteredTowns();
+  const list=mapFilteredTowns();
   list.forEach(t=>{
     if(!t.lat||!t.lng)return;
     const col=scoreColor(t.score);
@@ -1366,6 +1366,25 @@ function filteredTowns(){
     if(state.sort==='tax') return(a.med_tax||999999)-(b.med_tax||999999);
     if(state.sort==='name') return a.name.localeCompare(b.name);
     return 0;
+  });
+  return list;
+}
+
+function mapFilteredTowns(){
+  let list=TOWNS.map((t,i)=>({...t,idx:i}));
+  const f=state.mapFilters;
+  if(f.has('excellent')) list=list.filter(t=>t.score>=73);
+  if(f.has('good')) list=list.filter(t=>t.score>=67);
+  if(f.has('strong')) list=list.filter(t=>t.ter_r==='Strong');
+  if(f.has('schools')) list=list.filter(t=>t.d_rank&&t.d_rank<=120);
+  if(f.has('rail')) list=list.filter(t=>t.transit&&t.transit.includes('Rail'));
+  if(f.has('utility')) list=list.filter(t=>t.elec_save&&t.elec_save>500);
+  list.sort((a,b)=>{
+    if(state.sort==='score') return b.score-a.score;
+    if(state.sort==='schools') return(a.d_rank||999)-(b.d_rank||999);
+    if(state.sort==='tax') return(a.med_tax||999999)-(b.med_tax||999999);
+    if(state.sort==='name') return a.name.localeCompare(b.name);
+    return b.score-a.score;
   });
   return list;
 }
@@ -1726,7 +1745,7 @@ function renderMapChips(){
   const el=document.getElementById('map-town-chips');
   const ct=document.getElementById('map-filter-count');
   if(!el)return;
-  const list=filteredTowns();
+  const list=mapFilteredTowns();
   if(ct) ct.textContent=list.length===TOWNS.length?`Showing all ${TOWNS.length} cities and towns`:`${list.length} of ${TOWNS.length} cities and towns`;
   el.innerHTML=list.map(t=>`
     <div class="map-town-chip" onclick="showProf(${t.idx})">
@@ -1737,8 +1756,17 @@ function renderMapChips(){
 }
 
 function setMapFilter(f){
-  state.filter=f;
-  document.querySelectorAll('.mfp').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
+  if(f==='all'){
+    state.mapFilters.clear();
+  } else {
+    if(state.mapFilters.has(f)) state.mapFilters.delete(f);
+    else state.mapFilters.add(f);
+  }
+  const none=state.mapFilters.size===0;
+  document.querySelectorAll('.mfp').forEach(b=>{
+    if(b.dataset.filter==='all') b.classList.toggle('active',none);
+    else b.classList.toggle('active',state.mapFilters.has(b.dataset.filter));
+  });
   renderMapMarkers();
   renderMapChips();
 }
