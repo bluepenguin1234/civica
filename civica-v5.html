@@ -152,6 +152,14 @@ a{text-decoration:none;color:inherit}
 .map-below{background:#fff;border-top:1px solid var(--border);padding:22px 24px 32px}
 .map-below-inner{max-width:700px;margin:0 auto}
 .map-quick-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ter);margin-bottom:12px}
+.map-filters{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.map-filter-pills{display:flex;flex-wrap:wrap;gap:7px}
+.mfp{height:32px;padding:0 13px;border-radius:20px;border:1.5px solid var(--border-mid);background:#fff;font-size:.78rem;font-weight:600;color:var(--sec);cursor:pointer;transition:all .15s;font-family:inherit}
+.mfp:hover{border-color:var(--blue);color:var(--blue)}
+.mfp.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.map-sort-sel{height:32px;padding:0 10px;border-radius:8px;border:1.5px solid var(--border-mid);background:#fff;font-size:.78rem;font-weight:600;color:var(--sec);cursor:pointer;font-family:inherit;outline:none}
+.map-sort-sel:focus{border-color:var(--blue)}
+.map-filter-count{font-size:.72rem;color:var(--ter);font-weight:500;margin-top:8px}
 .map-town-chips{display:flex;flex-wrap:wrap;gap:9px}
 .map-town-chip{display:flex;align-items:center;gap:9px;padding:10px 15px;background:var(--bg);border:1.5px solid var(--border-mid);border-radius:12px;cursor:pointer;transition:all .15s}
 .map-town-chip:hover{border-color:var(--blue);background:#f0f6ff;transform:translateY(-1px);box-shadow:0 2px 8px rgba(13,45,82,.1)}
@@ -977,7 +985,24 @@ a{text-decoration:none;color:inherit}
   <!-- Quick access -->
   <div class="map-below">
     <div class="map-below-inner">
-      <div class="map-quick-label">Browse all cities &amp; towns</div>
+      <div class="map-filters">
+        <div class="map-filter-pills" id="map-filter-pills">
+          <button class="mfp active" data-filter="all" onclick="setMapFilter('all')">All</button>
+          <button class="mfp" data-filter="excellent" onclick="setMapFilter('excellent')">73+ Excellent</button>
+          <button class="mfp" data-filter="good" onclick="setMapFilter('good')">67+ Good</button>
+          <button class="mfp" data-filter="schools" onclick="setMapFilter('schools')">Top Schools</button>
+          <button class="mfp" data-filter="rail" onclick="setMapFilter('rail')">Commuter Rail</button>
+          <button class="mfp" data-filter="utility" onclick="setMapFilter('utility')">Muni Electric</button>
+          <button class="mfp" data-filter="strong" onclick="setMapFilter('strong')">Strong TER</button>
+        </div>
+        <select class="map-sort-sel" id="map-sort-sel" onchange="setMapSort(this.value)">
+          <option value="score">Score: High → Low</option>
+          <option value="name">A → Z</option>
+          <option value="tax">Tax: Lowest</option>
+          <option value="schools">Schools: Top ranked</option>
+        </select>
+      </div>
+      <div class="map-filter-count" id="map-filter-count"></div>
       <div class="map-town-chips" id="map-town-chips"></div>
     </div>
   </div>
@@ -1327,6 +1352,8 @@ function closeMapPanel(){document.getElementById('map-panel').classList.remove('
 ═══════════════════════════════ */
 function filteredTowns(){
   let list=TOWNS.map((t,i)=>({...t,idx:i}));
+  if(state.filter==='excellent') list=list.filter(t=>t.score>=73);
+  if(state.filter==='good') list=list.filter(t=>t.score>=67);
   if(state.filter==='strong') list=list.filter(t=>t.ter_r==='Strong');
   if(state.filter==='schools') list=list.filter(t=>t.d_rank&&t.d_rank<=120);
   if(state.filter==='rail') list=list.filter(t=>t.transit&&t.transit.includes('Rail'));
@@ -1697,14 +1724,29 @@ function showMap(pushHistory=true){
 }
 function renderMapChips(){
   const el=document.getElementById('map-town-chips');
+  const ct=document.getElementById('map-filter-count');
   if(!el)return;
-  const sorted=[...TOWNS].map((t,i)=>({...t,idx:i})).sort((a,b)=>b.score-a.score);
-  el.innerHTML=sorted.map(t=>`
+  const list=filteredTowns();
+  if(ct) ct.textContent=list.length===TOWNS.length?`Showing all ${TOWNS.length} cities and towns`:`${list.length} of ${TOWNS.length} cities and towns`;
+  el.innerHTML=list.map(t=>`
     <div class="map-town-chip" onclick="showProf(${t.idx})">
       <span class="mtc-name">${t.name}</span>
       <span class="mtc-div"></span>
       <span class="mtc-score" style="color:${scoreColor(t.score)}">${t.score}</span>
-    </div>`).join('');
+    </div>`).join('') || `<div style="font-size:.85rem;color:var(--ter);padding:8px 0">No towns match this filter.</div>`;
+}
+
+function setMapFilter(f){
+  state.filter=f;
+  document.querySelectorAll('.mfp').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
+  renderMapMarkers();
+  renderMapChips();
+}
+
+function setMapSort(s){
+  state.sort=s;
+  renderMapMarkers();
+  renderMapChips();
 }
 
 function initMapSearch(){
