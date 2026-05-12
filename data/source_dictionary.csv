@@ -1,0 +1,45 @@
+source_id,tier,full_name,publisher,base_url,api_url,license,update_frequency,vintage_used,notes
+CENSUS_ACS5,1,"U.S. Census Bureau, American Community Survey 5-Year Estimates",U.S. Census Bureau,https://data.census.gov/,https://api.census.gov/data,Public domain (U.S. government work),Annual,2024 5-year (covers 2019-2023),"Primary source for population, demographics, income, housing, commute"
+CENSUS_BPS,1,"U.S. Census Bureau, Building Permits Survey",U.S. Census Bureau,https://www.census.gov/construction/bps/,https://www.census.gov/construction/bps/txt/,Public domain,Monthly + annual,Most recent annual,Building permits issued by jurisdiction
+CENSUS_BFS,1,"U.S. Census Bureau, Business Formation Statistics",U.S. Census Bureau,https://www.census.gov/econ/bfs/,https://www.census.gov/econ/bfs/data.html,Public domain,Quarterly,Most recent quarter,Business application filings by geography
+BLS_LAUS,1,"U.S. Bureau of Labor Statistics, Local Area Unemployment Statistics",U.S. Bureau of Labor Statistics,https://www.bls.gov/lau/,https://api.bls.gov/publicAPI/v2/,Public domain,Monthly,Most recent month,Unemployment rates by city/town
+FBI_UCR,1,FBI Uniform Crime Reporting Program / NIBRS,U.S. FBI,https://cde.ucr.cjis.gov/,https://api.usa.gov/crime/fbi/cde/,Public domain,Annual (typically September prior year),2023 most recent,Violent and property crime by agency
+EPA_SDWIS,1,EPA Safe Drinking Water Information System,U.S. EPA,https://www.epa.gov/ground-water-and-drinking-water/safe-drinking-water-information-system-sdwis-federal-reporting,https://enviro.epa.gov/envirofacts/sdwis/search,Public domain,Quarterly,Most recent quarterly,Water system violations and compliance
+EPA_CCR,1,EPA Consumer Confidence Reports,U.S. EPA / local water utilities,https://www.epa.gov/ccr,,Public — utilities required to publish,Annual (by July 1),Most recent annual,Annual water quality report from each utility
+EPA_AIRNOW,1,EPA AirNow Air Quality Data,U.S. EPA,https://www.airnow.gov/,https://docs.airnowapi.org/,Public domain,Real-time + historical,Annual avg most recent year,AQI by location
+EPA_RADON,1,EPA Map of Radon Zones,U.S. EPA,https://www.epa.gov/radon/epa-map-radon-zones,,Public domain,"Static (1993 base, updated periodically)",Most recent,Radon zone classification 1-3 by county
+EPA_SUPERFUND,1,EPA Superfund National Priorities List + Brownfields,U.S. EPA,https://www.epa.gov/superfund,https://www.epa.gov/frs/geospatial-data-download-service,Public domain,Continuous,Current,Superfund sites and brownfields by location
+FCC_BROADBAND,1,FCC National Broadband Map,U.S. FCC,https://broadbandmap.fcc.gov/,https://broadbandmap.fcc.gov/api/public/,Public domain,Biannual,Most recent,Broadband availability by location
+EIA_F861,1,U.S. EIA Form EIA-861,U.S. Energy Information Administration,https://www.eia.gov/electricity/data/eia861/,https://api.eia.gov/,Public domain,Annual,Most recent,"Electric utility rates, customers, sales"
+NCES_CCD,1,"National Center for Education Statistics, Common Core of Data",U.S. Dept of Education,https://nces.ed.gov/ccd/,https://nces.ed.gov/ccd/elsi/,Public domain,Annual,2023-24 most recent,"Per-pupil spending, enrollment, graduation"
+MA_DESE,1,Massachusetts DESE District Profiles,Commonwealth of MA DESE,https://profiles.doe.mass.edu/,,Public,Annual,2024-25 school year,"MA-specific MCAS, district profiles, accountability"
+MA_DOR_DLS,1,Massachusetts DOR Division of Local Services,Commonwealth of MA DOR,https://www.mass.gov/orgs/division-of-local-services,https://dlsgateway.dor.state.ma.us/,Public,Annual,Most recent FY,"MA tax rates, levy, free cash certifications"
+MA_PERAC,1,Massachusetts PERAC,Commonwealth of MA PERAC,https://www.mass.gov/orgs/public-employee-retirement-administration-commission,,Public,Annual,Most recent valuation,"MA-specific pension funding ratios, valuations"
+EMMA,1,MSRB Electronic Municipal Market Access,Municipal Securities Rulemaking Board,https://emma.msrb.org/,,Public,Continuous,Most recent,"Bond ratings, official statements, disclosures"
+TOWN_ACFR,1,Town Annual Comprehensive Financial Report,Town finance/auditor,(town-specific — see _url column),,Public record,Annual,Latest published,Town-specific document — link per-town in _url
+TOWN_BUDGET,1,Town Annual Budget,Town manager/select board,(town-specific),,Public record,Annual,Most recent FY,Town-specific budget documents
+TOWN_WEBSITE,1,Official town website,Town government,(town-specific),,Public,Continuous,Current,"For town form, contacts, services info"
+TOWN_CLERK,1,Town Clerk election records,Town clerk,(town-specific),,Public record,After each election,Most recent election,"Election turnout, voter registration"
+CDC_PLACES,1,CDC PLACES Local Data for Better Health,U.S. CDC,https://www.cdc.gov/places/,https://chronicdata.cdc.gov/,Public domain,Annual,Most recent,"Health outcomes, prevention, social determinants"
+USDA_FOOD_ATLAS,1,USDA Food Access Research Atlas,USDA Economic Research Service,https://www.ers.usda.gov/data-products/food-access-research-atlas/,,Public domain,Periodic (~4-5 years),Most recent,Food deserts and access by census tract
+DOE_AFDC,1,DOE Alternative Fuels Data Center,U.S. DOE,https://afdc.energy.gov/,https://developer.nrel.gov/docs/transportation/alt-fuel-stations-v1/,Public domain,Continuous,Current,EV charging stations and alt fuels
+USDA_FOREST,1,USDA Forest Service Tree Canopy,U.S. Dept of Agriculture,https://data.fs.usda.gov/,,Public domain,Periodic satellite assessment,Most recent,Tree canopy from satellite analysis
+IRS_SOI_MIGRATION,1,IRS Statistics of Income Migration Data,U.S. IRS,https://www.irs.gov/statistics/soi-tax-stats-migration-data,,Public,Annual,Most recent,County-to-county migration from tax returns
+IMLS_PLS,1,IMLS Public Libraries Survey,U.S. IMLS,https://www.imls.gov/research-evaluation/data-collection/public-libraries-survey,,Public,Annual,Most recent FY,"Library circulation, programs, visits"
+FIRST_STREET,2,First Street Foundation Climate Risk Data,First Street Foundation (501c3),https://firststreet.org/,https://api.firststreet.org/,Commercial license (free for individual lookup; paid API),Continuous; major updates annual,Most recent,Property-level climate risk; widely cited as authoritative
+GFOA_CERT,2,GFOA Certificate of Achievement,Government Finance Officers Association,https://www.gfoa.org/award-programs,,Public award listing,Annual,Most recent,Recognition for high-quality ACFRs
+TPL_PARKSCORE,2,Trust for Public Land ParkScore Index,Trust for Public Land (501c3),https://www.tpl.org/parkscore,,Public reporting,Annual,Most recent,"Park acreage, access, investment for largest cities"
+C2ER_COLI,2,C2ER Cost of Living Index,C2ER,https://www.c2er.org/,,Commercial publication; widely cited,Quarterly,Most recent,"Cost of living index, 100 = US avg"
+NU_LNI,2,Northwestern Local News Initiative,Medill School / Northwestern University,https://localnewsinitiative.northwestern.edu/,,Academic,Annual,Most recent,Local news outlet inventory; news desert tracking
+AGG_DATAUSA,2,Data USA Aggregator,Deloitte / Datawheel,https://datausa.io/,https://datausa.io/about/api/,Open data aggregator,When upstream sources update,Current,Aggregates Census + BLS; verify upstream
+WALK_SCORE,3,Walk Score (Redfin subsidiary),Redfin / Walk Score,https://www.walkscore.com/,https://www.walkscore.com/professional/api.php,Commercial API (free tier available),Continuous,Current,Walk/Transit/Bike scores by location
+ZILLOW_ZHVI,3,Zillow Home Value Index,Zillow,https://www.zillow.com/research/data/,,Free download for non-commercial,Monthly,Most recent,Smoothed home value index by geography
+SCHOOLDIGGER,3,SchoolDigger.com,SchoolDigger,https://www.schooldigger.com/,https://developer.schooldigger.com/,Commercial API,Annual,Most recent,Use as supplement to state DOE; primary preferred
+USNEWS_HS,3,US News & World Report Best High Schools,US News & World Report,https://www.usnews.com/education/best-high-schools,,Editorial,Annual,Most recent,National HS rankings; methodology disclosed
+AGG_CITYDATA,3,City-Data.com Aggregator,City-Data.com,https://www.city-data.com/,,Free / aggregator,Periodic,Current,Aggregates Census + other sources
+AGG_OWNWELL,3,Ownwell Property Tax Aggregator,Ownwell,https://www.ownwell.com/,,Commercial,Annual,Most recent,Property tax rate aggregator; cross-check with state DOR
+AGG_NHSCOUT,3,NeighborhoodScout (FBI UCR derivative),"Location, Inc.",https://www.neighborhoodscout.com/,,Commercial,Annual,Most recent,FBI UCR data presented; verify with primary
+AGG_TAPWATER,3,TapWaterData (EWG-derived),TapWaterData,https://www.tapwaterdata.com/,,Free,Periodic,Current,Water utility quality summaries; cross-check with EPA
+AGG_NICHE,3,Niche.com,Niche,https://www.niche.com/,,Commercial,Annual,Most recent,Place rankings; compare but don't rely on as primary
+PRESS_LOCAL,4,Local newspaper (specific publication varies),Various,(specific publication),,Editorial,Daily,Specific articles cited per row,Used when primary unavailable; always cross-reference
+PRESS_PATCH,4,Patch.com Local News,Patch Media,https://patch.com/,,Editorial,Daily,Specific articles,Hyperlocal news; verify with primary sources

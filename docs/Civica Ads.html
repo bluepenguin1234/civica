@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Civica — Ad Structure & Market Rate Guide</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; max-width: 860px; margin: 0 auto; padding: 48px 40px; color: #1d1d1f; background: #fff; font-size: 15px; line-height: 1.6; }
+  h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .subtitle { color: #6e6e73; font-size: .95rem; margin-bottom: 40px; }
+  h2 { font-size: 1.15rem; font-weight: 700; color: #0071e3; margin: 36px 0 12px; border-bottom: 2px solid #e8f2ff; padding-bottom: 6px; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 20px 0 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: .9rem; }
+  th { background: #f5f5f7; text-align: left; padding: 10px 14px; font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .4px; color: #6e6e73; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .highlight { background: #e8f2ff; color: #0071e3; font-weight: 700; padding: 2px 8px; border-radius: 6px; font-size: .85rem; }
+  .box { background: #f5f5f7; border-radius: 12px; padding: 20px 24px; margin: 16px 0; }
+  .box.blue { background: #e8f2ff; border-left: 4px solid #0071e3; }
+  .box.green { background: #e8faea; border-left: 4px solid #30d158; }
+  .rec { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+  .rec-num { background: #0071e3; color: #fff; font-weight: 800; font-size: .85rem; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .rec-text strong { display: block; font-weight: 700; margin-bottom: 2px; }
+  .rec-text span { color: #6e6e73; font-size: .88rem; }
+  .total-row td { font-weight: 700; background: #f5f5f7; }
+  .big-num { font-size: 2rem; font-weight: 800; color: #0071e3; letter-spacing: -1px; }
+  .label { font-size: .75rem; color: #6e6e73; text-transform: uppercase; letter-spacing: .4px; }
+  .stats-row { display: flex; gap: 32px; margin: 20px 0 28px; }
+  .stat { text-align: center; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: .8rem; color: #98989d; }
+  @media print { body { padding: 32px; } }
+</style>
+</head>
+<body>
+
+<h1>Civica — Ad Structure & Market Rate Guide</h1>
+<div class="subtitle">Internal reference · May 2026 · 36 towns and cities live</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="big-num">36</div><div class="label">Towns Live</div></div>
+  <div class="stat"><div class="big-num">288</div><div class="label">Total Ad Slots</div></div>
+  <div class="stat"><div class="big-num">3</div><div class="label">Ad Units Per Profile</div></div>
+  <div class="stat"><div class="big-num">$72k</div><div class="label">Max Monthly (all slots sold)</div></div>
+</div>
+
+<h2>What's Already Built</h2>
+<p>Every town profile page has three ad units rendering in the live code today. All 36 towns currently show placeholder content (one global agent, four placeholder vendors). The structure is ready — it just needs real advertisers.</p>
+
+<table>
+  <thead><tr><th>Ad Unit</th><th>Location on Page</th><th>What It Shows</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Featured Agent</strong></td>
+      <td>Top of profile, below header</td>
+      <td>Agent card — name, photo, rating, phone, bio, specialty tags, contact buttons</td>
+      <td><span class="highlight">Placeholder</span></td>
+    </tr>
+    <tr>
+      <td><strong>Featured Listings</strong></td>
+      <td>Mid-profile</td>
+      <td>3 property cards with price, address, bed/bath, photo background</td>
+      <td><span class="highlight">Placeholder</span></td>
+    </tr>
+    <tr>
+      <td><strong>Vendor Strip</strong></td>
+      <td>Bottom of profile</td>
+      <td>4 partner slots: moving company, home inspector, mortgage lender, insurance agent</td>
+      <td><span class="highlight">Placeholder</span></td>
+    </tr>
+    <tr>
+      <td><strong>Mortgage Calculator</strong></td>
+      <td>Bottom of profile</td>
+      <td>Interactive payment calculator — logo/sponsor label unsold</td>
+      <td><span class="highlight">Unsold</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Total Ad Inventory</h2>
+
+<table>
+  <thead><tr><th>Ad Unit</th><th>Slots Per Town</th><th>× 36 Towns</th><th>Total Slots</th></tr></thead>
+  <tbody>
+    <tr><td>Featured Agent</td><td>1</td><td>36</td><td>36</td></tr>
+    <tr><td>Featured Listings</td><td>3 listings</td><td>36</td><td>108</td></tr>
+    <tr><td>Vendor — Moving Company</td><td>1</td><td>36</td><td>36</td></tr>
+    <tr><td>Vendor — Home Inspector</td><td>1</td><td>36</td><td>36</td></tr>
+    <tr><td>Vendor — Mortgage Lender</td><td>1</td><td>36</td><td>36</td></tr>
+    <tr><td>Vendor — Insurance Agent</td><td>1</td><td>36</td><td>36</td></tr>
+    <tr><td>Mortgage Calculator Sponsor</td><td>1</td><td>36</td><td>36</td></tr>
+    <tr class="total-row"><td>Total</td><td></td><td></td><td>288 slots</td></tr>
+  </tbody>
+</table>
+
+<h2>Going Market Rates</h2>
+<p>Based on comparable platforms: Zillow Premier Agent, Realtor.com, Homes.com, and local real estate digital ad benchmarks.</p>
+
+<h3>Featured Agent</h3>
+<table>
+  <thead><tr><th>Platform</th><th>Monthly Rate</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Zillow Premier Agent</td><td>$300 – $1,500</td><td>Per zip code, auction-based pricing</td></tr>
+    <tr><td>Realtor.com Featured Agent</td><td>$500 – $2,000</td><td>Per zip, varies by market competitiveness</td></tr>
+    <tr><td>Homes.com</td><td>$200 – $800</td><td>Per zip</td></tr>
+    <tr style="background:#e8f2ff"><td><strong>Civica — Recommended Price</strong></td><td><strong>$150 – $400 / town</strong></td><td>Hyper-targeted, high-intent buyers actively researching before listing search. Start lower to land first clients, raise as traffic grows.</td></tr>
+  </tbody>
+</table>
+
+<h3>Featured Listings</h3>
+<table>
+  <thead><tr><th>Platform</th><th>Monthly Rate</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Zillow Featured Listing</td><td>$200 – $500</td><td>Per zip code</td></tr>
+    <tr><td>Realtor.com Showcase</td><td>$150 – $400</td><td>Per listing</td></tr>
+    <tr style="background:#e8f2ff"><td><strong>Civica — Recommended Price</strong></td><td><strong>$100 – $300 / town</strong></td><td>Bundle: 3 active listings shown on any profile page for a flat monthly fee.</td></tr>
+  </tbody>
+</table>
+
+<h3>Vendor Strip Slots</h3>
+<table>
+  <thead><tr><th>Vendor Type</th><th>Market Rate (Local Digital)</th><th>Civica Recommended</th></tr></thead>
+  <tbody>
+    <tr><td>Mortgage Lender</td><td>$300 – $1,000 / mo</td><td>$200 – $400 / mo</td></tr>
+    <tr><td>Moving Company</td><td>$150 – $400 / mo</td><td>$100 – $200 / mo</td></tr>
+    <tr><td>Home Inspector</td><td>$75 – $200 / mo</td><td>$75 – $150 / mo</td></tr>
+    <tr><td>Insurance Agent</td><td>$200 – $600 / mo</td><td>$150 – $300 / mo</td></tr>
+  </tbody>
+</table>
+
+<h3>Mortgage Calculator Sponsorship</h3>
+<div class="box">
+  Logo/name on the calculator every buyer uses to run affordability math. Industry standard: <strong>$300 – $800 / month</strong>. Best sold as a single-lender exclusive across all 36 towns — pitch it as a package deal to one regional lender.
+</div>
+
+<h2>Revenue Scenarios</h2>
+
+<table>
+  <thead><tr><th>Scenario</th><th>Assumptions</th><th>Monthly Revenue</th><th>Annual Revenue</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Conservative</strong></td>
+      <td>10 towns sold · 1 agent + 2 vendors each · $150 avg</td>
+      <td>$4,500</td>
+      <td>$54,000</td>
+    </tr>
+    <tr>
+      <td><strong>Mid</strong></td>
+      <td>25 towns sold · 1 agent + 4 vendors each · $200 avg</td>
+      <td>$25,000</td>
+      <td>$300,000</td>
+    </tr>
+    <tr>
+      <td><strong>Full Sellout</strong></td>
+      <td>All 36 towns · all slots sold · $250 avg</td>
+      <td>$72,000</td>
+      <td>$864,000</td>
+    </tr>
+    <tr style="background:#e8faea">
+      <td><strong>+ Lender Package</strong></td>
+      <td>Mid scenario + one lender buys all 36 calculator spots @ $400</td>
+      <td>$39,400</td>
+      <td>$472,800</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Recommended First Moves</h2>
+
+<div class="rec">
+  <div class="rec-num">1</div>
+  <div class="rec-text">
+    <strong>Sell agent slots per town, not globally</strong>
+    <span>An agent who specializes in Marblehead or Andover will pay a premium to own that one profile exclusively. Pitch it as "own this page" — not just a banner ad.</span>
+  </div>
+</div>
+<div class="rec">
+  <div class="rec-num">2</div>
+  <div class="rec-text">
+    <strong>Land a mortgage lender first</strong>
+    <span>Easiest cold pitch — lenders buy anything buyer-facing. One regional lender (think Rockland Trust, Eastern Bank, Cape Ann Savings) could buy all 36 calculator placements as a package deal.</span>
+  </div>
+</div>
+<div class="rec">
+  <div class="rec-num">3</div>
+  <div class="rec-text">
+    <strong>Add a "Claim this page" CTA to every profile</strong>
+    <span>A small "Are you an agent in [Town]? Advertise here →" link at the bottom of every profile generates inbound leads passively. Build the waitlist before you cold-pitch.</span>
+  </div>
+</div>
+<div class="rec">
+  <div class="rec-num">4</div>
+  <div class="rec-text">
+    <strong>Create an Advertise page</strong>
+    <span>A simple one-page rate card at civica.com/advertise lets agents and vendors find you. Include slot types, pricing tiers, and a contact form.</span>
+  </div>
+</div>
+
+<div class="box blue" style="margin-top:32px">
+  <strong>Key advantage over Zillow/Realtor.com:</strong> Civica reaches buyers at the <em>pre-search</em> stage — before they have a saved search, before they've picked a town. That's earlier in the funnel than any listing platform, which means your audience is more open to influence. That's a story worth telling advertisers.
+</div>
+
+<footer>
+  Civica · Internal document · May 2026 · hello@civica.com · bluepenguin1234.github.io/civica
+</footer>
+
+</body>
+</html>

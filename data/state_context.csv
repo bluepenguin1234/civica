@@ -1,0 +1,10 @@
+state,metric,value,source,as_of_date,notes
+MA,violent_crime_per_100k,314.7,FBI_UCR,2023-12-31,FBI UCR 2023 most recent published
+MA,property_crime_per_100k,1112.1,FBI_UCR,2023-12-31,FBI UCR 2023 most recent published
+MA,total_crime_per_100k,1426.8,FBI_UCR,2023-12-31,FBI UCR 2023
+MA,median_household_income,103960,CENSUS_ACS5,2024-12-31,ACS 2024 5-year estimates
+MA,poverty_rate_pct,10.0,CENSUS_ACS5,2024-12-31,ACS 2024 5-year estimates
+MA,unemployment_rate_pct,4.2,BLS_LAUS,2024-12-31,BLS most recent monthly
+MA,debt_per_capita_median,2400,MA_DOR_DLS,2024-12-31,Estimated; needs DLS confirmation pull
+MA,per_pupil_spending_median,22500,MA_DESE,2024-12-31,FY24 estimate
+MA,electric_avg_rate_cents_kwh,33.61,EIA_F861,2024-12-31,EIA most recent residential rate

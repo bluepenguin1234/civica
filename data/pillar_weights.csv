@@ -1,0 +1,44 @@
+pillar_id,submetric_id,submetric_name,weight,data_column
+fiscal_health,bond_rating,Bond Rating (S&P),0.25,bond_rating_sp
+fiscal_health,free_cash_pct,Free Cash % of Budget,0.20,free_cash_pct_of_budget
+fiscal_health,pension_funded,Pension Funded Ratio,0.20,pension_funded_ratio_pct
+fiscal_health,debt_per_capita,Debt Per Capita vs State Median,0.15,debt_ratio (calculated)
+fiscal_health,gfoa_years,GFOA Certificate Consecutive Years,0.10,gfoa_certificate_consecutive_years
+fiscal_health,tax_base_diversification,Tax Base Diversification (% non-residential),0.10,tax_base_non_residential_pct
+tax_efficiency,effective_tax_rate,Effective Tax Rate,0.40,effective_tax_rate_pct
+tax_efficiency,tax_burden_to_income,Tax Burden as % of Income,0.30,tax_burden_pct (calculated)
+tax_efficiency,tax_base_health,Non-Residential Tax Base %,0.30,tax_base_non_residential_pct
+schools,rank_percentile,District State-Rank Percentile,0.30,rank_percentile (calculated)
+schools,rank_trajectory,10-Year Rank Trajectory,0.25,district_rank_10yr_change
+schools,test_scores,State Test Math Proficiency,0.15,test_scores_math_pct
+schools,graduation_rate,Graduation Rate,0.10,graduation_rate_pct
+schools,ap_participation,AP Participation Rate,0.10,ap_participation_pct
+schools,spending_efficiency,Spending Efficiency Index,0.10,spending_efficiency_idx (calculated)
+operational,response_311,311 Average Response Days,0.30,response_311_days
+operational,ems_response,EMS Response Time Minutes,0.25,ems_response_minutes
+operational,permits_efficiency,Building Permits per 1000 Residents,0.20,permits_per_1000
+operational,iso_fire,ISO Fire Rating,0.15,iso_fire_rating
+operational,transparency,Government Transparency,0.10,transparency
+infrastructure,electric_value,Electric Cost vs State Average,0.30,electric_savings_vs_state_avg
+infrastructure,water_quality,Water EPA Violations 5-Year,0.20,water_violations_5yr
+infrastructure,broadband,Broadband Coverage % (>=100/20 Mbps),0.15,broadband_coverage_pct
+infrastructure,transit,Transit Access,0.15,transit_access
+infrastructure,walkability,Walk Score,0.10,walk_score
+infrastructure,parks_libraries,Parks + Libraries Composite,0.10,park_acres_per_1000 + library_circ_per_capita (avg)
+safety,violent_crime,Violent Crime Ratio to State Avg,0.40,violent_crime_ratio (calculated)
+safety,property_crime,Property Crime Ratio to State Avg,0.25,property_crime_ratio (calculated)
+safety,crime_trajectory,Crime 5-Year % Change,0.20,crime_5yr_pct_change
+safety,iso_fire,ISO Fire Rating (alias of operational iso_fire),0.15,iso_fire_rating
+economic,income_trend,Median Income 10-Year Growth,0.25,income_10yr_change_pct
+economic,population_trend,Population 10-Year Growth,0.20,population_10yr_change_pct
+economic,income_level,Median Income vs State Median,0.15,income_ratio (calculated)
+economic,education_attainment,Bachelor's Degree+ Rate,0.15,bachelors_degree_pct
+economic,unemployment,Unemployment vs State Average,0.10,unemployment_ratio (calculated)
+economic,permits_growth,Building Permits 3-Year Trend,0.10,permits_3yr_per_1000
+economic,poverty,Poverty Ratio to State Average,0.05,poverty_ratio (calculated)
+climate,flood_risk,Flood Risk % Properties,0.35,flood_risk_pct
+climate,flood_trajectory,Flood Risk Growth to 2050,0.20,flood_2050_growth_pts
+climate,wildfire,Wildfire Risk Level,0.15,wildfire_risk
+climate,heat_trajectory,Heat Days Growth (90F+) to 2050,0.15,heat_days_growth_2050
+climate,air_quality,Air Quality Annual AQI,0.10,air_quality_aqi
+climate,tree_canopy,Tree Canopy %,0.05,tree_canopy_pct
