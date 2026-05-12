@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://formspree.io; font-src 'self'; frame-ancestors 'none'">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()">
 <title>Civica — Know Your City or Town Before You Buy</title>
 <meta name="description" content="Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure. Explore Massachusetts on the map.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
@@ -639,9 +640,10 @@ a{text-decoration:none;color:inherit}
             <input type="text" id="hero-state" class="state-input" placeholder="State" maxlength="20" autocomplete="address-level1">
           </div>
           <div class="hero-form-row">
-            <input type="email" id="hero-email" placeholder="Your email" required autocomplete="email">
+            <input type="email" id="hero-email" placeholder="Your email" required autocomplete="email" maxlength="254">
             <button type="submit" id="hero-btn">Notify Me</button>
           </div>
+          <input type="text" name="_gotcha" style="opacity:0;position:absolute;height:0;width:0;border:none;padding:0" tabindex="-1" autocomplete="off" aria-hidden="true">
         </form>
         <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new cities and towns launch.</div>
         <div style="margin-top:14px">
@@ -1108,7 +1110,7 @@ function initLeafletMap(){
   if(leafletMap){leafletMap.invalidateSize();return;}
   leafletMap=L.map('leaflet-map',{zoomControl:true,scrollWheelZoom:false}).setView([42.45,-71.25],9);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+    attribution:'© <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">OpenStreetMap</a> contributors © <a href="https://carto.com/" rel="noopener noreferrer" target="_blank">CARTO</a>',
     maxZoom:19
   }).addTo(leafletMap);
   renderMapMarkers();
