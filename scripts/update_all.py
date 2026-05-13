@@ -675,37 +675,6 @@ for obj_start, obj_end in objects:
 HTML_FILE.write_text(html, encoding="utf-8")
 print(f"  Patched {patched} town objects")
 
-# ─── Update civica_value_scores.xlsx ─────────────────────────────────────────
-vs_path = ROOT / "civica_value_scores.xlsx"
-if vs_path.exists():
-    wb_vs = openpyxl.load_workbook(vs_path)
-    ws_vs = wb_vs["Value Scores"]
-    # Clear all data rows below header
-    for r in ws_vs.iter_rows(min_row=2, max_row=ws_vs.max_row):
-        for cell in r:
-            cell.value = None
-    # Collect rows that have a value score
-    vs_rows = []
-    for r in rows:
-        t = r["town_name"]
-        vs = r.get("value_score", "")
-        vr = r.get("value_rating", "")
-        score = r.get("civica_score", "")
-        if vs and score:
-            vs_rows.append((t, int(score), float(vs), vr, ZHVI.get(t, ""), COUNTY_MAP.get(t, "")))
-    vs_rows.sort(key=lambda x: x[2], reverse=True)
-    for i, vsr in enumerate(vs_rows, start=2):
-        ws_vs.cell(row=i, column=1, value=vsr[0])
-        ws_vs.cell(row=i, column=2, value=vsr[1])
-        ws_vs.cell(row=i, column=3, value=vsr[2])
-        ws_vs.cell(row=i, column=4, value=vsr[3])
-        ws_vs.cell(row=i, column=5, value=vsr[4] if vsr[4] else None)
-        ws_vs.cell(row=i, column=6, value=vsr[5])
-    wb_vs.save(vs_path)
-    print(f"Updated civica_value_scores.xlsx ({len(vs_rows)} towns)")
-else:
-    print("MISSING: civica_value_scores.xlsx — skipping")
-
 # ─── Summary ──────────────────────────────────────────────────────────────────
 print("\nSCORE CHANGES:")
 print(f"{'Town':<28} {'Old':>5} {'New':>5} {'Delta':>7}")
