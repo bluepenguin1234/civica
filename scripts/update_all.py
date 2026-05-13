@@ -3,7 +3,7 @@ Master update pipeline — applies all new data, recomputes scores,
 updates towns.csv and civica-v5.html in one pass.
 """
 
-import csv, re, math
+import csv, re, math, openpyxl
 from pathlib import Path
 
 ROOT     = Path(__file__).parent.parent
@@ -26,6 +26,99 @@ def load_csv_index(path, key_col, transform=None):
 census  = load_csv_index(BULK / "census_acs_ma_towns.csv", "town_name", str.lower)
 schools = load_csv_index(BULK / "ma_schools_combined.csv", "district_name", str.lower)
 print(f"Loaded: {len(census)} Census towns, {len(schools)} school districts")
+
+# ─── Load Excel bulk data ─────────────────────────────────────────────────────
+def _find_col(headers, *keywords):
+    """Find column index where all keywords appear in the header (case-insensitive)."""
+    for i, h in enumerate(headers):
+        hl = h.lower()
+        if all(kw in hl for kw in keywords):
+            return i
+    return None
+
+# Free Cash (CFC_PerBudg.xlsx) — all 351 MA municipalities, stored as decimal (0.048 = 4.8%)
+print("Loading free cash Excel...")
+free_cash_bulk = {}
+fc_path = BULK / "CFC_PerBudg.xlsx"
+if fc_path.exists():
+    wb = openpyxl.load_workbook(fc_path, read_only=True, data_only=True)
+    ws = wb.active
+    rows_it = ws.iter_rows(values_only=True)
+    hdrs = [str(h).strip() if h else "" for h in next(rows_it)]
+    muni_i = _find_col(hdrs, "municipality")
+    fy_i   = _find_col(hdrs, "fiscal year") or _find_col(hdrs, "fy")
+    fc_i   = _find_col(hdrs, "%", "budget") or _find_col(hdrs, "% of")
+    if None not in (muni_i, fy_i, fc_i):
+        town_years = {}
+        for r in rows_it:
+            muni = str(r[muni_i]).strip() if r[muni_i] else ""
+            if not muni or muni == "None": continue
+            try:   fy = int(float(str(r[fy_i])))
+            except: continue
+            try:   pct = round(float(r[fc_i]) * 100, 2) if r[fc_i] else None
+            except: pct = None
+            if pct is not None:
+                town_years.setdefault(muni.lower(), {})[fy] = pct
+        for muni_l, yrs in town_years.items():
+            free_cash_bulk[muni_l] = yrs[max(yrs)]
+        print(f"  {len(free_cash_bulk)} municipalities loaded (best available year)")
+    else:
+        print(f"  Could not identify columns: muni={muni_i} fy={fy_i} fc={fc_i}")
+        print(f"  Headers: {hdrs}")
+    wb.close()
+else:
+    print(f"  MISSING: {fc_path.name}")
+
+# Municipal Debt (municipaldebt2022.xlsx) — headers at row ~7, town name forward-filled
+print("Loading municipal debt Excel...")
+debt_per_capita_bulk = {}
+debt_path = BULK / "municipaldebt2022.xlsx"
+if debt_path.exists():
+    wb = openpyxl.load_workbook(debt_path, read_only=True, data_only=True)
+    ws = wb["Debt"] if "Debt" in wb.sheetnames else wb.active
+    rows_it = ws.iter_rows(values_only=True)
+    # Scan for header row (contains "Municipality")
+    hdrs = None
+    for _ in range(20):
+        r = next(rows_it, None)
+        if r and any(str(c).strip().lower() == "municipality" for c in r if c):
+            hdrs = [str(c).strip() if c else "" for c in r]
+            break
+    if hdrs:
+        muni_i = _find_col(hdrs, "municipality")
+        fy_i   = _find_col(hdrs, "fy")
+        debt_i = _find_col(hdrs, "total outstanding debt") or _find_col(hdrs, "outstanding debt")
+        if None not in (muni_i, fy_i, debt_i):
+            cur_muni = ""
+            raw_debt = {}  # town_lower -> {fy: total_debt}
+            for r in rows_it:
+                if r[muni_i]:
+                    cur_muni = str(r[muni_i]).strip()
+                if not cur_muni: continue
+                try:   fy = int(float(str(r[fy_i])))
+                except: continue
+                try:   debt_val = float(r[debt_i]) if r[debt_i] else None
+                except: debt_val = None
+                if debt_val:
+                    raw_debt.setdefault(cur_muni.lower(), {})[fy] = debt_val
+            # Use most recent year, divide by census population
+            for muni_l, yrs in raw_debt.items():
+                best_debt = yrs[max(yrs)]
+                c = census.get(muni_l)
+                if c:
+                    try:
+                        pop = float(c.get("population") or 0)
+                        if pop > 0:
+                            debt_per_capita_bulk[muni_l] = round(best_debt / pop, 0)
+                    except: pass
+            print(f"  {len(debt_per_capita_bulk)} municipalities with debt_per_capita")
+        else:
+            print(f"  Could not identify columns. Headers: {hdrs}")
+    else:
+        print("  Could not find header row in debt file")
+    wb.close()
+else:
+    print(f"  MISSING: {debt_path.name}")
 
 # Town → district name mapping for regional schools
 DISTRICT_MAP = {
@@ -327,7 +420,15 @@ for row in rows:
         setf(row, "graduation_rate_pct",  sc.get("graduation_rate_pct"))
         setf(row, "ap_participation_pct", sc.get("ap_participation_pct"))
 
-    # 3. Agent data — fill gaps only
+    # 3. Excel bulk data (authoritative — override existing values)
+    fc = free_cash_bulk.get(town.lower())
+    if fc is not None:
+        setf(row, "free_cash_pct_of_budget", fc)
+    dpc = debt_per_capita_bulk.get(town.lower())
+    if dpc is not None:
+        setf(row, "debt_per_capita", dpc)
+
+    # 4. Agent data — fill gaps only
     setf_if_empty(row, "bond_rating_sp",                  BOND_UPDATES.get(town))
     setf_if_empty(row, "pension_funded_ratio_pct",         PENSION_UPDATES.get(town))
     setf_if_empty(row, "gfoa_certificate_consecutive_years", GFOA_UPDATES.get(town))
@@ -337,14 +438,13 @@ for row in rows:
     setf_if_empty(row, "flood_2050_growth_pts",            FLOOD_2050_UPDATES.get(town))
     setf_if_empty(row, "wildfire_risk",                    WILDFIRE_UPDATES.get(town))
 
-    # 4. Crime — use corrections (override if wrong)
+    # 5. Crime — use corrections (override if wrong)
     if town in VIOLENT_CRIME_UPDATES:
         setf(row, "violent_crime_per_100k", VIOLENT_CRIME_UPDATES[town])
     if town in PROPERTY_CRIME_UPDATES:
-        setf(row, "property_crime", PROPERTY_CRIME_UPDATES[town])
         setf(row, "property_crime_per_100k", PROPERTY_CRIME_UPDATES[town])
 
-    # 5. Recompute score
+    # 6. Recompute score
     old_score = row.get("civica_score", "")
     civica, ter, ter_r, gaps, conf = score_town(row, pw, sw, ri, si)
     row["civica_score"]     = str(civica)
@@ -354,7 +454,7 @@ for row in rows:
     row["data_confidence"]  = conf
     row["last_updated"]     = "2026-05-13"
 
-    # 6. Recompute value score
+    # 7. Recompute value score
     MA_ZHVI = 613049.0
     ZHVI = {
         "Cambridge":995293,"Lynn":537825,"Lawrence":455876,"Somerville":892143,
@@ -369,6 +469,7 @@ for row in rows:
         "Newbury":844611,"Groveland":648353,"Topsfield":898745,"Merrimac":597359,
         "Rockport":834071,"Rowley":733628,"Manchester-by-the-Sea":1183983,
         "Wenham":938834,"West Newbury":861236,"Essex":827029,"Nahant":903532,
+        "Boston":720000,"Revere":440000,"Winthrop":520000,
     }
     RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
     zhvi = ZHVI.get(town)
@@ -486,21 +587,42 @@ for obj_start, obj_end in objects:
             return obj[:m.start()] + replacement + obj[m.end():]
         return obj
 
+    def patch_any(obj, field, val):
+        """Patch field that may currently be a number, negative, or null."""
+        return re.sub(rf'({re.escape(field)}:)(?:-?[\d.]+|null)', rf'\g<1>{val}', obj)
+
+    def patch_str(obj, field, val):
+        """Patch a string field that may currently be a quoted string or null."""
+        return re.sub(rf'({re.escape(field)}:)(?:"[^"]*"|null)', rf'\g<1>{val}', obj)
+
     obj = patch(obj, r'score:\d+',      f'score:{score}')
-    obj = patch(obj, r'ter:[\d.]+',     f'ter:{ter}')
+    obj = patch_any(obj, 'ter',          ter)
     obj = patch(obj, r'ter_r:"[^"]*"',  f'ter_r:{ter_r}')
     obj = patch(obj, r'gaps:\d+',       f'gaps:{gaps}')
     obj = patch(obj, r'conf:"[^"]*"',   f'conf:{conf}')
-    obj = patch(obj, r'math:[\d.]+',    f'math:{math}')
-    obj = patch(obj, r'grad:[\d.]+',    f'grad:{grad}')
+    obj = patch_any(obj, 'math',         math)
+    obj = patch_any(obj, 'grad',         grad)
     if fv("ap_participation_pct"):
-        obj = patch(obj, r'ap:[\d.]+',  f'ap:{ap}')
-    obj = patch(obj, r'bach:[\d.]+',    f'bach:{bach}')
-    obj = patch(obj, r'pov:[\d.]+',     f'pov:{pov}')
+        obj = patch_any(obj, 'ap',       ap)
+    obj = patch_any(obj, 'bach',         bach)
+    obj = patch_any(obj, 'unemp',        unemp)
+    obj = patch_any(obj, 'pov',          pov)
+    if fv("income_10yr_change_pct"):
+        obj = patch_any(obj, 'inc10yr',  inc10)
+    if fv("population_10yr_change_pct"):
+        obj = patch_any(obj, 'pop10yr',  pop10)
+    if fv("median_household_income"):
+        obj = patch_any(obj, 'med_inc',  js_num("median_household_income"))
+    if fv("free_cash_pct_of_budget"):
+        obj = patch_any(obj, 'free_cash', free)
+    if fv("debt_per_capita"):
+        obj = patch_any(obj, 'debt_pc',  js_num("debt_per_capita"))
+    if fv("bond_rating_sp"):
+        obj = patch_str(obj, 'bond',     bond)
     if fv("violent_crime_per_100k"):
-        obj = patch(obj, r'violent:[\d.]+', f'violent:{viol}')
+        obj = patch_any(obj, 'violent',  viol)
     if fv("property_crime_per_100k"):
-        obj = patch(obj, r'prop_crime:[\d.]+', f'prop_crime:{prop}')
+        obj = patch_any(obj, 'prop_crime', prop)
 
     html = html[:s] + obj + html[e:]
     delta += len(obj) - (obj_end - obj_start)
