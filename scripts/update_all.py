@@ -428,6 +428,9 @@ ZHVI = {
     "Lowell":425000,"Chelmsford":595000,"Billerica":682000,"Tewksbury":593000,
     "Wilmington":764000,"Melrose":843000,"Ashland":615000,"Marlborough":570000,
     "Hudson":545000,"Hopkinton":877000,
+    "Walpole":620000,"Sharon":680000,"Franklin":590000,"Foxborough":540000,
+    "Medfield":870000,"Westford":730000,"Weston":1620000,"Dracut":430000,
+    "Littleton":555000,"Stoughton":475000,
 }
 RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
 
