@@ -139,6 +139,7 @@ DISTRICT_MAP = {
     "Nahant":               "lynn",
     "Acton":                "acton-boxborough",
     "Concord":              "concord-carlisle",
+    "Kingston":             "silver lake",
 }
 
 def get_school(town):
@@ -478,6 +479,9 @@ for row in rows:
         "Quincy":535000,"Braintree":640000,"Milton":970000,"Brookline":1450000,
         "Dedham":690000,"Needham":1250000,"Wellesley":1750000,"Weymouth":530000,
         "Canton":720000,"Norwood":580000,
+        "Hingham":1100000,"Duxbury":980000,"Scituate":850000,"Cohasset":1250000,
+        "Norwell":850000,"Hanover":660000,"Marshfield":640000,"Kingston":520000,
+        "Plymouth":540000,"Brockton":435000,
     }
     RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
     zhvi = ZHVI.get(town)
