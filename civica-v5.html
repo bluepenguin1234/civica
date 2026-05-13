@@ -850,7 +850,7 @@ a{text-decoration:none;color:inherit}
     <div class="hero-inner">
       <!-- Left: copy + form -->
       <div class="hero-left">
-        <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 100 towns and cities</div>
+        <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 110 towns and cities</div>
         <h1>Know before<br>you <em>buy.</em></h1>
         <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the Civica intelligence layer missing from every home search.</p>
         <div class="hero-search-wrap">
@@ -1109,7 +1109,7 @@ a{text-decoration:none;color:inherit}
   <div class="map-header">
     <div class="map-header-inner">
       <h2 class="map-title">Massachusetts</h2>
-      <p class="map-subtitle">Civica scores 100 towns and cities across 7 Civica pillars — fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
+      <p class="map-subtitle">Civica scores 110 towns and cities across 7 Civica pillars — fiscal health, schools, taxes, safety, and more. Click any marker to open a profile.</p>
       <div class="map-search-wrap">
         <div class="map-search-bar">
           <span class="map-search-ico">
@@ -1128,10 +1128,10 @@ a{text-decoration:none;color:inherit}
     <div id="leaflet-map"></div>
     <div class="map-legend">
       <div class="leg-title">Civica Score</div>
-      <div class="leg-row"><div class="leg-dot" style="background:#30d158"></div><span class="leg-label">73–100 Excellent</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#0d2d52"></div><span class="leg-label">67–72 Good</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#ff9f0a"></div><span class="leg-label">63–66 Fair</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#ff3b30"></div><span class="leg-label">Below 63</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#30d158"></div><span class="leg-label">65+ Excellent</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#0d2d52"></div><span class="leg-label">55–64 Good</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff9f0a"></div><span class="leg-label">45–54 Fair</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff3b30"></div><span class="leg-label">Below 45</span></div>
     </div>
   </div>
 
@@ -1240,7 +1240,7 @@ a{text-decoration:none;color:inherit}
         <span class="formula-equals">=</span>
         <div class="formula-result">Civica Score (0–100)</div>
       </div>
-      <p class="overview-note">Each of the 22 metrics is scored by ranking the town against all 100 towns in the database — top 10% scores near 100, median scores near 50, bottom 10% near 0. Pillar scores are weighted averages of their metrics, then combined into the composite Civica Score. Missing data defaults conservatively and lowers the town's confidence rating.</p>
+      <p class="overview-note">Each of the 22 metrics is scored by ranking the town against all 110 towns in the database — top 10% scores near 100, median scores near 50, bottom 10% near 0. Pillar scores are weighted averages of their metrics, then combined into the composite Civica Score. Missing data defaults conservatively and lowers the town's confidence rating.</p>
     </div>
     <div class="ter-card">
       <h3>Tax Efficiency Ratio (TER) — Civica Proprietary Metric</h3>
@@ -1295,7 +1295,7 @@ a{text-decoration:none;color:inherit}
     <h1>Reach homebuyers<br>at the moment of decision</h1>
     <p>Every visitor on Civica is actively researching where to buy a home in Massachusetts. They compare towns, read school rankings, and evaluate tax burdens before they sign anything.</p>
     <div class="adv-stats">
-      <div class="adv-stat"><span class="adv-stat-num">100</span><span class="adv-stat-label">Towns covered</span></div>
+      <div class="adv-stat"><span class="adv-stat-num">110</span><span class="adv-stat-label">Towns covered</span></div>
       <div class="adv-stat"><span class="adv-stat-num">36</span><span class="adv-stat-label">Data points per town</span></div>
       <div class="adv-stat"><span class="adv-stat-num">$658k</span><span class="adv-stat-label">Avg. home value</span></div>
       <div class="adv-stat"><span class="adv-stat-num">48hr</span><span class="adv-stat-label">Time to go live</span></div>
@@ -1530,7 +1530,7 @@ const FORMSPREE_ID='YOUR_FORM_ID';
 /* ═══════════════════════════════
    UTILS
 ═══════════════════════════════ */
-const scoreColor=s=>s>=73?'#30d158':s>=67?'#0d2d52':s>=63?'#ff9f0a':'#ff3b30';
+const scoreColor=s=>s>=65?'#30d158':s>=55?'#0d2d52':s>=45?'#ff9f0a':'#ff3b30';
 const confColor=c=>({high:'#30d158',medium:'#ff9f0a',low:'#ff3b30'})[c]||'#98989d';
 function saveFavs(){localStorage.setItem('civica_favs',JSON.stringify([...state.favs]));}
 
