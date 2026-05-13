@@ -1429,8 +1429,8 @@ const G_DOT={green:'#30d158',yellow:'#ff9f0a',red:'#ff3b30',na:'#e5e5ea'};
 
 /* ═══════════════════════════════
    DYNAMIC SCORE COMPUTATION
-   Weights: Fiscal 30% · Tax 15% · Schools 15% · Ops 10%
-            Infra 10% · Momentum 10% · Safety 5% · Climate 5%
+   Weights: Fiscal 28% · Schools 25% · Tax 15% · Safety 15%
+            Momentum 8% · Infra 6% · Climate 3%
 ═══════════════════════════════ */
 function computeScore(t){
   const gv=s=>s==='green'?100:s==='yellow'?55:15;
@@ -2361,6 +2361,7 @@ function buildPDFHTML(t){
   const tax=pillarScore([['eff_rate',t.eff_rate],['ter_r',t.ter_r]]);
   const school=pillarScore([['d_rank',t.d_rank],['math',t.math],['grad',t.grad]]);
   const safety=pillarScore([['violent',t.violent],['prop_crime',t.prop_crime]]);
+  const momentum=pillarScore([['unemp',t.unemp],['pov',t.pov]]);
   const infra=pillarScore([['elec_save',t.elec_save],['water_viol',t.water_viol]]);
   const climate=pillarScore([['flood',t.flood],['flood50',t.flood50]]);
 
@@ -2409,12 +2410,13 @@ function buildPDFHTML(t){
   <div style="padding:28px 48px 22px;border-bottom:1px solid #f0f0f0">
     <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6e6e73;margin-bottom:18px">Score Breakdown by Pillar</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 40px">
-      ${hbar('&#127970; Fiscal Health (30%)',fiscal,bc(fiscal),fiscal+'/100')}
+      ${hbar('&#127970; Fiscal Health (28%)',fiscal,bc(fiscal),fiscal+'/100')}
+      ${hbar('&#127891; Schools (25%)',school,bc(school),school+'/100')}
       ${hbar('&#128176; Tax Efficiency (15%)',tax,bc(tax),tax+'/100')}
-      ${hbar('&#127891; Schools (15%)',school,bc(school),school+'/100')}
-      ${hbar('&#128737; Safety (5%)',safety,bc(safety),safety+'/100')}
-      ${hbar('&#9889; Infrastructure (10%)',infra,bc(infra),infra+'/100')}
-      ${hbar('&#127807; Climate Resilience (5%)',climate,bc(climate),climate+'/100')}
+      ${hbar('&#128737; Safety (15%)',safety,bc(safety),safety+'/100')}
+      ${hbar('&#128200; Economic Momentum (8%)',momentum,bc(momentum),momentum+'/100')}
+      ${hbar('&#9889; Infrastructure (6%)',infra,bc(infra),infra+'/100')}
+      ${hbar('&#127807; Climate Resilience (3%)',climate,bc(climate),climate+'/100')}
     </div>
   </div>
 
