@@ -1797,7 +1797,7 @@ function mapFilteredTowns(){
 
 function renderGrid(){
   const list=filteredTowns();
-  document.getElementById('map-count').textContent=list.length===TOWNS.length?`${TOWNS.length} towns across Massachusetts`:`${list.length} of ${TOWNS.length} towns`;
+  const _mc=document.getElementById('map-count');if(_mc)_mc.textContent=list.length===TOWNS.length?`${TOWNS.length} towns across Massachusetts`:`${list.length} of ${TOWNS.length} towns`;
   if(!list.length){document.getElementById('grid').innerHTML=`<div class="no-results">No towns match this filter.</div>`;return;}
   document.getElementById('grid').innerHTML=list.map(t=>{
     const col=scoreColor(t.score),fav=state.favs.has(t.idx);
