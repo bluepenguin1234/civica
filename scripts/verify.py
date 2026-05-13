@@ -26,10 +26,10 @@ import csv
 import sys
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent
+DATA_DIR = Path(__file__).parent.parent / "data"
 EXPECTED = {
-    "Danvers": {"score": 72, "ter": 5.4},
-    "Beverly": {"score": 73, "ter": 6.5},
+    "Danvers": {"score": 76, "ter": 5.7},
+    "Beverly": {"score": 76, "ter": 6.8},
 }
 
 
@@ -117,14 +117,6 @@ def score_town(town_data, pw, sw, ri, si):
         "poverty_ratio": safe_div(town_data.get("poverty_pct"), ctx["poverty_rate_pct"]),
         "unemployment_ratio": safe_div(town_data.get("unemployment_pct"), ctx["unemployment_rate_pct"]),
     }
-    if h["rank_percentile"] is not None and town_data.get("per_pupil_spending"):
-        h["spending_efficiency_idx"] = (
-            (h["rank_percentile"] / 100) /
-            (float(town_data["per_pupil_spending"]) / ctx["per_pupil_spending_median"])
-        )
-    else:
-        h["spending_efficiency_idx"] = None
-
     # Map sub-metric → input value (raw or helper)
     SM = {
         "bond_rating": town_data.get("bond_rating_sp"),
@@ -141,17 +133,10 @@ def score_town(town_data, pw, sw, ri, si):
         "test_scores": town_data.get("test_scores_math_pct"),
         "graduation_rate": town_data.get("graduation_rate_pct"),
         "ap_participation": town_data.get("ap_participation_pct"),
-        "spending_efficiency": h["spending_efficiency_idx"],
-        "response_311": town_data.get("response_311_days"),
-        "ems_response": town_data.get("ems_response_minutes"),
-        "permits_efficiency": town_data.get("permits_per_1000"),
-        "iso_fire": town_data.get("iso_fire_rating"),
         "transparency": town_data.get("transparency"),
         "electric_value": town_data.get("electric_savings_vs_state_avg"),
         "water_quality": town_data.get("water_violations_5yr"),
-        "broadband": town_data.get("broadband_coverage_pct"),
         "transit": town_data.get("transit_access"),
-        "walkability": town_data.get("walk_score"),
         "violent_crime": h["violent_crime_ratio"],
         "property_crime": h["property_crime_ratio"],
         "crime_trajectory": town_data.get("crime_5yr_pct_change"),
@@ -160,22 +145,13 @@ def score_town(town_data, pw, sw, ri, si):
         "income_level": h["income_ratio"],
         "education_attainment": town_data.get("bachelors_degree_pct"),
         "unemployment": h["unemployment_ratio"],
-        "permits_growth": town_data.get("permits_3yr_per_1000"),
         "poverty": h["poverty_ratio"],
         "flood_risk": town_data.get("flood_risk_pct"),
         "flood_trajectory": town_data.get("flood_2050_growth_pts"),
         "wildfire": town_data.get("wildfire_risk"),
-        "heat_trajectory": town_data.get("heat_days_growth_2050"),
-        "air_quality": town_data.get("air_quality_aqi"),
-        "tree_canopy": town_data.get("tree_canopy_pct"),
     }
 
     sub_scores = {sm: score_submetric(sm, val, ri) for sm, val in SM.items()}
-
-    # parks_libraries composite
-    park_s = score_submetric("park_score", town_data.get("park_acres_per_1000"), ri)
-    lib_s = score_submetric("library_score", town_data.get("library_circ_per_capita"), ri)
-    parks_libraries = (park_s + lib_s) / 2
 
     # Aggregate to pillars
     ps = {}
@@ -188,14 +164,7 @@ def score_town(town_data, pw, sw, ri, si):
     op = sw["operational"]
     ps["operational"] = sum(sub_scores[k] * op[k] for k in op)
     inf = sw["infrastructure"]
-    ps["infrastructure"] = (
-        sub_scores["electric_value"] * inf["electric_value"] +
-        sub_scores["water_quality"] * inf["water_quality"] +
-        sub_scores["broadband"] * inf["broadband"] +
-        sub_scores["transit"] * inf["transit"] +
-        sub_scores["walkability"] * inf["walkability"] +
-        parks_libraries * inf["parks_libraries"]
-    )
+    ps["infrastructure"] = sum(sub_scores[k] * inf[k] for k in inf)
     sa = sw["safety"]
     ps["safety"] = sum(sub_scores[k] * sa[k] for k in sa)
     ec = sw["economic"]
@@ -228,20 +197,17 @@ DANVERS = {
     "median_household_income": 125395, "residential_rate_per_1000": 13.36,
     "district_state_rank": 196, "district_state_rank_total": 351,
     "district_rank_10yr_change": 51, "test_scores_math_pct": 32.29,
-    "graduation_rate_pct": 95.0, "ap_participation_pct": 54.0, "per_pupil_spending": 20883,
-    "response_311_days": None, "ems_response_minutes": None, "permits_per_1000": None,
-    "iso_fire_rating": None, "transparency": "yes",
+    "graduation_rate_pct": 95.0, "ap_participation_pct": 54.0,
+    "transparency": "yes",
     "electric_savings_vs_state_avg": 2036, "water_violations_5yr": 0,
-    "broadband_coverage_pct": None, "transit_access": "no", "walk_score": None,
-    "park_acres_per_1000": 9.0, "library_circ_per_capita": 7.0,
+    "transit_access": "no",
     "violent_crime_per_100k": 137.4, "property_crime_per_100k": 1480.2,
     "crime_5yr_pct_change": None,
     "income_10yr_change_pct": 65.0, "population_10yr_change_pct": 6.1,
     "bachelors_degree_pct": 48.4, "unemployment_pct": None,
-    "permits_3yr_per_1000": None, "poverty_pct": 4.8,
+    "poverty_pct": 4.8,
     "flood_risk_pct": 9.8, "flood_2050_growth_pts": 2.8,
-    "wildfire_risk": "low", "heat_days_growth_2050": 21,
-    "air_quality_aqi": None, "tree_canopy_pct": None,
+    "wildfire_risk": "low",
 }
 
 BEVERLY = {
@@ -253,20 +219,17 @@ BEVERLY = {
     "median_household_income": 106044, "residential_rate_per_1000": 11.23,
     "district_state_rank": 109, "district_state_rank_total": 351,
     "district_rank_10yr_change": -10, "test_scores_math_pct": 48.68,
-    "graduation_rate_pct": 94.4, "ap_participation_pct": 37.0, "per_pupil_spending": 15302,
-    "response_311_days": None, "ems_response_minutes": None, "permits_per_1000": None,
-    "iso_fire_rating": None, "transparency": "yes",
+    "graduation_rate_pct": 94.4, "ap_participation_pct": 37.0,
+    "transparency": "yes",
     "electric_savings_vs_state_avg": -300, "water_violations_5yr": 0,
-    "broadband_coverage_pct": None, "transit_access": "commuter_rail_in_town", "walk_score": None,
-    "park_acres_per_1000": 8.0, "library_circ_per_capita": 8.0,
+    "transit_access": "commuter_rail_in_town",
     "violent_crime_per_100k": 195, "property_crime_per_100k": 1450,
     "crime_5yr_pct_change": None,
     "income_10yr_change_pct": 32.0, "population_10yr_change_pct": 8.4,
     "bachelors_degree_pct": 31.3, "unemployment_pct": None,
-    "permits_3yr_per_1000": None, "poverty_pct": 9.36,
+    "poverty_pct": 9.36,
     "flood_risk_pct": 14.0, "flood_2050_growth_pts": 4.0,
-    "wildfire_risk": "low", "heat_days_growth_2050": 21,
-    "air_quality_aqi": None, "tree_canopy_pct": None,
+    "wildfire_risk": "low",
 }
 
 
@@ -297,8 +260,8 @@ def main():
         print(f"  Pillar scores:")
         for p, s in result["pillar_scores"].items():
             print(f"    {p:25s} {s:5.1f}")
-        print(f"  Civica Score: {result['civica_score']} (expected {expected['score']}) {'✓' if score_ok else '✗'}")
-        print(f"  TER: {result['ter']} (expected {expected['ter']}) {'✓' if ter_ok else '✗'}")
+        print(f"  Civica Score: {result['civica_score']} (expected {expected['score']}) {'PASS' if score_ok else 'FAIL'}")
+        print(f"  TER: {result['ter']} (expected {expected['ter']}) {'PASS' if ter_ok else 'FAIL'}")
         print(f"  TER Rating: {result['ter_rating']}")
         print()
 
@@ -307,10 +270,10 @@ def main():
 
     print("=" * 60)
     if all_pass:
-        print("✓ VERIFICATION PASSED")
+        print("VERIFICATION PASSED")
         sys.exit(0)
     else:
-        print("✗ VERIFICATION FAILED")
+        print("VERIFICATION FAILED")
         sys.exit(1)
 
 

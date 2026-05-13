@@ -7,7 +7,7 @@ import csv
 import sys
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 # MA electric avg rate from state_context.csv: 33.61 cents/kWh
 # Electric savings formula: (state_avg_cents - town_rate_cents) / 100 * 10380
@@ -84,14 +84,6 @@ def score_town(town_data, pw, sw, ri, si):
         "poverty_ratio": safe_div(town_data.get("poverty_pct"), ctx["poverty_rate_pct"]),
         "unemployment_ratio": safe_div(town_data.get("unemployment_pct"), ctx["unemployment_rate_pct"]),
     }
-    if h["rank_percentile"] is not None and town_data.get("per_pupil_spending"):
-        h["spending_efficiency_idx"] = (
-            (h["rank_percentile"] / 100) /
-            (float(town_data["per_pupil_spending"]) / ctx["per_pupil_spending_median"])
-        )
-    else:
-        h["spending_efficiency_idx"] = None
-
     SM = {
         "bond_rating": town_data.get("bond_rating_sp"),
         "free_cash_pct": town_data.get("free_cash_pct_of_budget"),
@@ -107,17 +99,10 @@ def score_town(town_data, pw, sw, ri, si):
         "test_scores": town_data.get("test_scores_math_pct"),
         "graduation_rate": town_data.get("graduation_rate_pct"),
         "ap_participation": town_data.get("ap_participation_pct"),
-        "spending_efficiency": h["spending_efficiency_idx"],
-        "response_311": town_data.get("response_311_days"),
-        "ems_response": town_data.get("ems_response_minutes"),
-        "permits_efficiency": town_data.get("permits_per_1000"),
-        "iso_fire": town_data.get("iso_fire_rating"),
         "transparency": town_data.get("transparency"),
         "electric_value": town_data.get("electric_savings_vs_state_avg"),
         "water_quality": town_data.get("water_violations_5yr"),
-        "broadband": town_data.get("broadband_coverage_pct"),
         "transit": town_data.get("transit_access"),
-        "walkability": town_data.get("walk_score"),
         "violent_crime": h["violent_crime_ratio"],
         "property_crime": h["property_crime_ratio"],
         "crime_trajectory": town_data.get("crime_5yr_pct_change"),
@@ -126,45 +111,17 @@ def score_town(town_data, pw, sw, ri, si):
         "income_level": h["income_ratio"],
         "education_attainment": town_data.get("bachelors_degree_pct"),
         "unemployment": h["unemployment_ratio"],
-        "permits_growth": town_data.get("permits_3yr_per_1000"),
         "poverty": h["poverty_ratio"],
         "flood_risk": town_data.get("flood_risk_pct"),
         "flood_trajectory": town_data.get("flood_2050_growth_pts"),
         "wildfire": town_data.get("wildfire_risk"),
-        "heat_trajectory": town_data.get("heat_days_growth_2050"),
-        "air_quality": town_data.get("air_quality_aqi"),
-        "tree_canopy": town_data.get("tree_canopy_pct"),
     }
 
     sub_scores = {sm: score_submetric(sm, val, ri) for sm, val in SM.items()}
-    park_s = score_submetric("park_score", town_data.get("park_acres_per_1000"), ri)
-    lib_s = score_submetric("library_score", town_data.get("library_circ_per_capita"), ri)
-    parks_libraries = (park_s + lib_s) / 2
 
     ps = {}
-    fh = sw["fiscal_health"]
-    ps["fiscal_health"] = sum(sub_scores[k] * fh[k] for k in fh)
-    te = sw["tax_efficiency"]
-    ps["tax_efficiency"] = sum(sub_scores[k] * te[k] for k in te)
-    sc = sw["schools"]
-    ps["schools"] = sum(sub_scores[k] * sc[k] for k in sc)
-    op = sw["operational"]
-    ps["operational"] = sum(sub_scores[k] * op[k] for k in op)
-    inf = sw["infrastructure"]
-    ps["infrastructure"] = (
-        sub_scores["electric_value"] * inf["electric_value"] +
-        sub_scores["water_quality"] * inf["water_quality"] +
-        sub_scores["broadband"] * inf["broadband"] +
-        sub_scores["transit"] * inf["transit"] +
-        sub_scores["walkability"] * inf["walkability"] +
-        parks_libraries * inf["parks_libraries"]
-    )
-    sa = sw["safety"]
-    ps["safety"] = sum(sub_scores[k] * sa[k] for k in sa)
-    ec = sw["economic"]
-    ps["economic"] = sum(sub_scores[k] * ec[k] for k in ec)
-    cl = sw["climate"]
-    ps["climate"] = sum(sub_scores[k] * cl[k] for k in cl)
+    for pillar in pw:
+        ps[pillar] = sum(sub_scores[k] * sw[pillar][k] for k in sw[pillar])
 
     civica = round(sum(ps[p] * pw[p] for p in pw))
     ter = round(civica / float(town_data["residential_rate_per_1000"]), 1)
@@ -194,21 +151,18 @@ MARBLEHEAD = {
     "median_household_income": 182132, "residential_rate_per_1000": 9.05,
     "district_state_rank": 89, "district_state_rank_total": 351,
     "district_rank_10yr_change": None, "test_scores_math_pct": 59.0,
-    "graduation_rate_pct": 99.0, "ap_participation_pct": 67.0, "per_pupil_spending": 21972,
-    "response_311_days": None, "ems_response_minutes": None, "permits_per_1000": None,
-    "iso_fire_rating": None, "transparency": "yes",
+    "graduation_rate_pct": 99.0, "ap_participation_pct": 67.0,
+    "transparency": "yes",
     # MMLD municipal electric: (33.61 - 15.0) / 100 * 10380 = $1,931
     "electric_savings_vs_state_avg": 1931, "water_violations_5yr": 0,
-    "broadband_coverage_pct": None, "transit_access": "bus_only", "walk_score": 49,
-    "park_acres_per_1000": 2.1, "library_circ_per_capita": 10.3,
+    "transit_access": "bus_only",
     "violent_crime_per_100k": 14.6, "property_crime_per_100k": 57.8,
     "crime_5yr_pct_change": None,
     "income_10yr_change_pct": 28.3, "population_10yr_change_pct": 3.2,
     "bachelors_degree_pct": 78.3, "unemployment_pct": 1.9,
-    "permits_3yr_per_1000": None, "poverty_pct": 4.4,
+    "poverty_pct": 4.4,
     "flood_risk_pct": 17.6, "flood_2050_growth_pts": 3.0,
-    "wildfire_risk": "low", "heat_days_growth_2050": None,
-    "air_quality_aqi": None, "tree_canopy_pct": None,
+    "wildfire_risk": "low",
 }
 
 SALEM = {
@@ -220,20 +174,17 @@ SALEM = {
     "median_household_income": 85153, "residential_rate_per_1000": 11.34,
     "district_state_rank": 295, "district_state_rank_total": 351,
     "district_rank_10yr_change": None, "test_scores_math_pct": 42.0,
-    "graduation_rate_pct": 81.6, "ap_participation_pct": 32.0, "per_pupil_spending": 25712,
-    "response_311_days": None, "ems_response_minutes": None, "permits_per_1000": None,
-    "iso_fire_rating": None, "transparency": "yes",
+    "graduation_rate_pct": 81.6, "ap_participation_pct": 32.0,
+    "transparency": "yes",
     "electric_savings_vs_state_avg": 0, "water_violations_5yr": 0,
-    "broadband_coverage_pct": None, "transit_access": "commuter_rail_in_town", "walk_score": 70,
-    "park_acres_per_1000": None, "library_circ_per_capita": 11.9,
+    "transit_access": "commuter_rail_in_town",
     "violent_crime_per_100k": 152.0, "property_crime_per_100k": 1554.0,
     "crime_5yr_pct_change": None,
     "income_10yr_change_pct": None, "population_10yr_change_pct": 4.86,
     "bachelors_degree_pct": 47.8, "unemployment_pct": 3.3,
-    "permits_3yr_per_1000": None, "poverty_pct": 12.1,
+    "poverty_pct": 12.1,
     "flood_risk_pct": 16.0, "flood_2050_growth_pts": 12.0,
-    "wildfire_risk": "low", "heat_days_growth_2050": 11,
-    "air_quality_aqi": None, "tree_canopy_pct": None,
+    "wildfire_risk": "low",
 }
 
 PEABODY = {
@@ -245,21 +196,18 @@ PEABODY = {
     "median_household_income": 96657, "residential_rate_per_1000": 9.26,
     "district_state_rank": 265, "district_state_rank_total": 351,
     "district_rank_10yr_change": None, "test_scores_math_pct": 33.0,
-    "graduation_rate_pct": 90.7, "ap_participation_pct": 33.0, "per_pupil_spending": 19148,
-    "response_311_days": None, "ems_response_minutes": None, "permits_per_1000": None,
-    "iso_fire_rating": None, "transparency": "partial",
+    "graduation_rate_pct": 90.7, "ap_participation_pct": 33.0,
+    "transparency": "partial",
     # PMLP municipal electric: (33.61 - 15.78) / 100 * 10380 = $1,850
     "electric_savings_vs_state_avg": 1850, "water_violations_5yr": 0,
-    "broadband_coverage_pct": None, "transit_access": "commuter_rail_nearby", "walk_score": 43,
-    "park_acres_per_1000": None, "library_circ_per_capita": 4.6,
+    "transit_access": "commuter_rail_nearby",
     "violent_crime_per_100k": 254.7, "property_crime_per_100k": 836.9,
     "crime_5yr_pct_change": None,
     "income_10yr_change_pct": None, "population_10yr_change_pct": 3.48,
     "bachelors_degree_pct": 35.0, "unemployment_pct": None,
-    "permits_3yr_per_1000": None, "poverty_pct": 7.7,
+    "poverty_pct": 7.7,
     "flood_risk_pct": 10.5, "flood_2050_growth_pts": 0.4,
-    "wildfire_risk": "low", "heat_days_growth_2050": None,
-    "air_quality_aqi": None, "tree_canopy_pct": None,
+    "wildfire_risk": "low",
 }
 
 GLOUCESTER = {
@@ -271,20 +219,17 @@ GLOUCESTER = {
     "median_household_income": 83883, "residential_rate_per_1000": 9.72,
     "district_state_rank": 254, "district_state_rank_total": 351,
     "district_rank_10yr_change": None, "test_scores_math_pct": 29.0,
-    "graduation_rate_pct": 89.1, "ap_participation_pct": 29.0, "per_pupil_spending": 22663,
-    "response_311_days": None, "ems_response_minutes": None, "permits_per_1000": None,
-    "iso_fire_rating": None, "transparency": "yes",
+    "graduation_rate_pct": 89.1, "ap_participation_pct": 29.0,
+    "transparency": "yes",
     "electric_savings_vs_state_avg": 0, "water_violations_5yr": 0,
-    "broadband_coverage_pct": None, "transit_access": "commuter_rail_in_town", "walk_score": 42,
-    "park_acres_per_1000": 212.0, "library_circ_per_capita": 5.1,
+    "transit_access": "commuter_rail_in_town",
     "violent_crime_per_100k": None, "property_crime_per_100k": None,
     "crime_5yr_pct_change": None,
     "income_10yr_change_pct": None, "population_10yr_change_pct": 4.5,
     "bachelors_degree_pct": 40.3, "unemployment_pct": 4.3,
-    "permits_3yr_per_1000": None, "poverty_pct": 9.6,
+    "poverty_pct": 9.6,
     "flood_risk_pct": None, "flood_2050_growth_pts": None,
-    "wildfire_risk": "low", "heat_days_growth_2050": None,
-    "air_quality_aqi": None, "tree_canopy_pct": None,
+    "wildfire_risk": "low",
 }
 
 NEWBURYPORT = {
@@ -296,20 +241,17 @@ NEWBURYPORT = {
     "median_household_income": 139625, "residential_rate_per_1000": 9.58,
     "district_state_rank": 87, "district_state_rank_total": 351,
     "district_rank_10yr_change": None, "test_scores_math_pct": 48.0,
-    "graduation_rate_pct": 98.0, "ap_participation_pct": 64.0, "per_pupil_spending": 23233,
-    "response_311_days": None, "ems_response_minutes": None, "permits_per_1000": None,
-    "iso_fire_rating": None, "transparency": "yes",
+    "graduation_rate_pct": 98.0, "ap_participation_pct": 64.0,
+    "transparency": "yes",
     "electric_savings_vs_state_avg": None, "water_violations_5yr": 0,
-    "broadband_coverage_pct": None, "transit_access": "commuter_rail_in_town", "walk_score": 52,
-    "park_acres_per_1000": None, "library_circ_per_capita": 19.8,
+    "transit_access": "commuter_rail_in_town",
     "violent_crime_per_100k": 47.0, "property_crime_per_100k": 395.0,
     "crime_5yr_pct_change": None,
     "income_10yr_change_pct": None, "population_10yr_change_pct": 5.3,
     "bachelors_degree_pct": 64.0, "unemployment_pct": 3.7,
-    "permits_3yr_per_1000": None, "poverty_pct": 5.0,
+    "poverty_pct": 5.0,
     "flood_risk_pct": None, "flood_2050_growth_pts": None,
-    "wildfire_risk": "low", "heat_days_growth_2050": None,
-    "air_quality_aqi": None, "tree_canopy_pct": None,
+    "wildfire_risk": "low",
 }
 
 NEW_TOWNS = [MARBLEHEAD, SALEM, PEABODY, GLOUCESTER, NEWBURYPORT]
@@ -322,16 +264,13 @@ def count_gaps(town_data):
         "debt_per_capita", "gfoa_certificate_consecutive_years", "tax_base_non_residential_pct",
         "effective_tax_rate_pct", "median_annual_tax_bill", "median_household_income",
         "district_state_rank", "district_rank_10yr_change", "test_scores_math_pct",
-        "graduation_rate_pct", "ap_participation_pct", "per_pupil_spending",
-        "response_311_days", "ems_response_minutes", "permits_per_1000", "iso_fire_rating",
+        "graduation_rate_pct", "ap_participation_pct",
         "transparency", "electric_savings_vs_state_avg", "water_violations_5yr",
-        "broadband_coverage_pct", "transit_access", "walk_score",
-        "park_acres_per_1000", "library_circ_per_capita",
+        "transit_access",
         "violent_crime_per_100k", "property_crime_per_100k", "crime_5yr_pct_change",
         "income_10yr_change_pct", "population_10yr_change_pct", "bachelors_degree_pct",
-        "unemployment_pct", "permits_3yr_per_1000", "poverty_pct",
-        "flood_risk_pct", "flood_2050_growth_pts", "wildfire_risk", "heat_days_growth_2050",
-        "air_quality_aqi", "tree_canopy_pct",
+        "unemployment_pct", "poverty_pct",
+        "flood_risk_pct", "flood_2050_growth_pts", "wildfire_risk",
     ]
     return sum(1 for f in required_inputs if town_data.get(f) is None or town_data.get(f) == "")
 

@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>How the Civica Score Works — Methodology</title>
-<meta name="description" content="The Civica Score is a composite of 54 data points across 8 civic pillars. Learn exactly how we score every town.">
+<meta name="description" content="The Civica Score is a composite of 30 data points across 8 civic pillars. Learn exactly how we score every town.">
 <meta property="og:title" content="Civica Score Methodology">
-<meta property="og:description" content="54 data points. 8 pillars. One score. Here's exactly how we build it.">
+<meta property="og:description" content="30 data points. 8 pillars. One score. Here's exactly how we build it.">
 <meta property="og:type" content="website">
 
 <!-- GOOGLE ANALYTICS — uncomment and replace ID when ready
@@ -255,7 +255,7 @@ footer{
 <div class="page-hero">
   <span class="eyebrow">Methodology</span>
   <h1>How the Civica Score is built</h1>
-  <p>54 data points. 8 pillars. One composite score. Here's exactly what we measure, how we weight it, and where the data comes from.</p>
+  <p>30 data points. 8 pillars. One composite score. Here's exactly what we measure, how we weight it, and where the data comes from.</p>
 </div>
 
 <!-- CONTENT -->
@@ -375,7 +375,6 @@ footer{
           <div class="dp-item"><div class="dp-dot" style="background:#ff9f0a"></div><span>MCAS Math Proficiency %</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#ff9f0a"></div><span>4-Year Graduation Rate</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#ff9f0a"></div><span>AP Participation Rate</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#ff9f0a"></div><span>Per-Pupil Spending</span></div>
         </div>
         <div class="source-row"><strong>Sources:</strong> MA DESE (Dept. of Elementary & Secondary Education), SchoolDigger, MA Report Cards</div>
       </div>
@@ -395,16 +394,12 @@ footer{
     </div>
     <div class="pillar-body">
       <div class="pillar-body-inner">
-        <p>This pillar measures execution quality — how fast potholes get fixed, how quickly EMS arrives, how easy it is to get a building permit. Many towns in this cohort have provisional scores for this pillar due to limited publicly available 311 and EMS response data. We flag this transparently in each profile.</p>
+        <p>Government transparency — specifically whether a town publishes an Annual Comprehensive Financial Report (ACFR) — is the operational data point consistently available across all towns. Metrics like EMS response time, 311 resolution time, and ISO fire rating will be added as more municipalities publish structured open data.</p>
         <span class="data-points-label">Data points measured</span>
         <div class="dp-grid">
-          <div class="dp-item"><div class="dp-dot" style="background:#98989d"></div><span>311 Response Time (avg days)</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#98989d"></div><span>EMS Response Time (avg min)</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#98989d"></div><span>Building Permits per 1,000 Residents</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#98989d"></div><span>ISO Fire Rating</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#98989d"></div><span>ACFR Publication (financial transparency)</span></div>
         </div>
-        <div class="source-row"><strong>Sources:</strong> Town open data portals, ISO (Insurance Services Office), MA 911 reporting, GFOA</div>
+        <div class="source-row"><strong>Sources:</strong> Town websites, GFOA award registry</div>
       </div>
     </div>
   </div>
@@ -427,11 +422,9 @@ footer{
         <div class="dp-grid">
           <div class="dp-item"><div class="dp-dot" style="background:#0071e3"></div><span>Electric Savings vs State Avg ($/yr)</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#0071e3"></div><span>Water Quality Violations (5yr)</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#0071e3"></div><span>Broadband Coverage %</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#0071e3"></div><span>Transit Access (rail/bus/none)</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#0071e3"></div><span>Walk Score</span></div>
         </div>
-        <div class="source-row"><strong>Sources:</strong> Muni utility annual reports, EPA ECHO, FCC broadband data, MBTA, Walk Score API</div>
+        <div class="source-row"><strong>Sources:</strong> Muni utility annual reports, EPA ECHO, MBTA</div>
       </div>
     </div>
   </div>
@@ -441,24 +434,22 @@ footer{
     <div class="pillar-hdr" onclick="toggle('p6')">
       <div class="pillar-icon-wrap" style="background:#fff0ee">🛡️</div>
       <div class="pillar-title">
-        <h3>6. Safety & Amenities</h3>
-        <p>Crime rates, parks, and public library access</p>
+        <h3>6. Safety</h3>
+        <p>Crime rates and public safety trends</p>
       </div>
       <span class="pillar-wt-badge">5% of score</span>
       <span class="pillar-chev">▼</span>
     </div>
     <div class="pillar-body">
       <div class="pillar-body-inner">
-        <p>We use per-capita crime rates (per 100,000 residents) for comparability across towns of different sizes. Violent crime receives higher weight than property crime within this pillar. Park access and library circulation are included as quality-of-life indicators.</p>
+        <p>We use per-capita crime rates (per 100,000 residents) for comparability across towns of different sizes. Violent crime receives higher weight than property crime. The 5-year trend flags whether a town's safety profile is improving or deteriorating.</p>
         <span class="data-points-label">Data points measured</span>
         <div class="dp-grid">
           <div class="dp-item"><div class="dp-dot" style="background:#ff3b30"></div><span>Violent Crime per 100k</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#ff3b30"></div><span>Property Crime per 100k</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#ff3b30"></div><span>Crime 5-Year Trend (%)</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#ff3b30"></div><span>Park Acres per 1,000 Residents</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#ff3b30"></div><span>Library Circulations per Capita</span></div>
         </div>
-        <div class="source-row"><strong>Sources:</strong> FBI Crime Data Explorer (CDE), MA State Police, Trust for Public Land ParkScore, MBLC (MA Board of Library Commissioners)</div>
+        <div class="source-row"><strong>Sources:</strong> FBI Crime Data Explorer (CDE), MA State Police</div>
       </div>
     </div>
   </div>
@@ -509,11 +500,8 @@ footer{
           <div class="dp-item"><div class="dp-dot" style="background:#30d158"></div><span>Flood Risk — Current Properties %</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#30d158"></div><span>Flood Risk Growth by 2050 (pts)</span></div>
           <div class="dp-item"><div class="dp-dot" style="background:#30d158"></div><span>Wildfire Risk Rating</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#30d158"></div><span>Additional Heat Days by 2050</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#30d158"></div><span>Air Quality AQI (annual avg)</span></div>
-          <div class="dp-item"><div class="dp-dot" style="background:#30d158"></div><span>Tree Canopy Coverage %</span></div>
         </div>
-        <div class="source-row"><strong>Sources:</strong> First Street Foundation, FEMA NFIP, EPA AirNow, Climate Central, USDA Forest Service</div>
+        <div class="source-row"><strong>Sources:</strong> First Street Foundation, FEMA NFIP</div>
       </div>
     </div>
   </div>
