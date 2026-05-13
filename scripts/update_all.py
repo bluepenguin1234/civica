@@ -401,6 +401,60 @@ def setf_if_empty(row, field, value):
 
 score_changes = []
 
+MA_ZHVI = 613049.0
+ZHVI = {
+    "Cambridge":995293,"Lynn":537825,"Lawrence":455876,"Somerville":892143,
+    "Haverhill":497568,"Medford":784462,"Peabody":652390,"Methuen":561211,
+    "Arlington":1005584,"Salem":572734,"Woburn":704405,"Chelsea":505101,
+    "Beverly":696077,"Andover":911128,"Lexington":1469802,"North Andover":760639,
+    "Saugus":650624,"Danvers":674241,"Gloucester":693415,"Wakefield":756484,
+    "Belmont":1377983,"Burlington":824833,"Reading":844034,"Winchester":1449988,
+    "Newburyport":845604,"Amesbury":570013,"Marblehead":959425,"Uxbridge":487277,
+    "Swampscott":763080,"Lynnfield":1018229,"Ipswich":790546,"Middleton":819582,
+    "Salisbury":589785,"Georgetown":708796,"Boxford":989433,"Hamilton":827397,
+    "Newbury":844611,"Groveland":648353,"Topsfield":898745,"Merrimac":597359,
+    "Rockport":834071,"Rowley":733628,"Manchester-by-the-Sea":1183983,
+    "Wenham":938834,"West Newbury":861236,"Essex":827029,"Nahant":903532,
+    "Boston":720000,"Revere":440000,"Winthrop":520000,
+    "Newton":1200000,"Waltham":720000,"Malden":545000,"Everett":530000,
+    "Watertown":840000,"Framingham":575000,"Natick":775000,
+    "Acton":840000,"Concord":1100000,"Stoneham":690000,
+    "Quincy":535000,"Braintree":640000,"Milton":970000,"Brookline":1450000,
+    "Dedham":690000,"Needham":1250000,"Wellesley":1750000,"Weymouth":530000,
+    "Canton":720000,"Norwood":580000,
+    "Hingham":1100000,"Duxbury":980000,"Scituate":850000,"Cohasset":1250000,
+    "Norwell":850000,"Hanover":660000,"Marshfield":640000,"Kingston":520000,
+    "Plymouth":540000,"Brockton":435000,
+}
+RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
+
+COUNTY_MAP = {
+    "Danvers":"Essex","Beverly":"Essex","Marblehead":"Essex","Salem":"Essex",
+    "Peabody":"Essex","Gloucester":"Essex","Newburyport":"Essex","Andover":"Essex",
+    "North Andover":"Essex","Swampscott":"Essex","Amesbury":"Essex","Ipswich":"Essex",
+    "Lynnfield":"Essex","Rockport":"Essex","Manchester-by-the-Sea":"Essex",
+    "Boxford":"Essex","Hamilton":"Essex","Georgetown":"Essex","Middleton":"Essex",
+    "Salisbury":"Essex","Topsfield":"Essex","Merrimac":"Essex","Groveland":"Essex",
+    "Newbury":"Essex","West Newbury":"Essex","Rowley":"Essex","Wenham":"Essex",
+    "Essex":"Essex","Nahant":"Essex","Lynn":"Essex","Lawrence":"Essex",
+    "Haverhill":"Essex","Methuen":"Essex","Saugus":"Essex",
+    "Boston":"Suffolk","Revere":"Suffolk","Winthrop":"Suffolk","Chelsea":"Suffolk",
+    "Newton":"Middlesex","Waltham":"Middlesex","Malden":"Middlesex","Everett":"Middlesex",
+    "Watertown":"Middlesex","Framingham":"Middlesex","Natick":"Middlesex",
+    "Acton":"Middlesex","Concord":"Middlesex","Stoneham":"Middlesex",
+    "Cambridge":"Middlesex","Somerville":"Middlesex","Medford":"Middlesex",
+    "Belmont":"Middlesex","Winchester":"Middlesex","Woburn":"Middlesex",
+    "Wakefield":"Middlesex","Reading":"Middlesex","Burlington":"Middlesex",
+    "Arlington":"Middlesex","Lexington":"Middlesex",
+    "Quincy":"Norfolk","Braintree":"Norfolk","Milton":"Norfolk","Brookline":"Norfolk",
+    "Dedham":"Norfolk","Needham":"Norfolk","Wellesley":"Norfolk","Weymouth":"Norfolk",
+    "Canton":"Norfolk","Norwood":"Norfolk",
+    "Hingham":"Plymouth","Duxbury":"Plymouth","Scituate":"Plymouth","Cohasset":"Plymouth",
+    "Norwell":"Plymouth","Hanover":"Plymouth","Marshfield":"Plymouth","Kingston":"Plymouth",
+    "Plymouth":"Plymouth","Brockton":"Plymouth",
+    "Uxbridge":"Worcester",
+}
+
 for row in rows:
     town = row["town_name"]
     print(f"  {town}...", end=" ")
@@ -458,32 +512,6 @@ for row in rows:
     row["last_updated"]     = "2026-05-13"
 
     # 7. Recompute value score
-    MA_ZHVI = 613049.0
-    ZHVI = {
-        "Cambridge":995293,"Lynn":537825,"Lawrence":455876,"Somerville":892143,
-        "Haverhill":497568,"Medford":784462,"Peabody":652390,"Methuen":561211,
-        "Arlington":1005584,"Salem":572734,"Woburn":704405,"Chelsea":505101,
-        "Beverly":696077,"Andover":911128,"Lexington":1469802,"North Andover":760639,
-        "Saugus":650624,"Danvers":674241,"Gloucester":693415,"Wakefield":756484,
-        "Belmont":1377983,"Burlington":824833,"Reading":844034,"Winchester":1449988,
-        "Newburyport":845604,"Amesbury":570013,"Marblehead":959425,"Uxbridge":487277,
-        "Swampscott":763080,"Lynnfield":1018229,"Ipswich":790546,"Middleton":819582,
-        "Salisbury":589785,"Georgetown":708796,"Boxford":989433,"Hamilton":827397,
-        "Newbury":844611,"Groveland":648353,"Topsfield":898745,"Merrimac":597359,
-        "Rockport":834071,"Rowley":733628,"Manchester-by-the-Sea":1183983,
-        "Wenham":938834,"West Newbury":861236,"Essex":827029,"Nahant":903532,
-        "Boston":720000,"Revere":440000,"Winthrop":520000,
-        "Newton":1200000,"Waltham":720000,"Malden":545000,"Everett":530000,
-        "Watertown":840000,"Framingham":575000,"Natick":775000,
-        "Acton":840000,"Concord":1100000,"Stoneham":690000,
-        "Quincy":535000,"Braintree":640000,"Milton":970000,"Brookline":1450000,
-        "Dedham":690000,"Needham":1250000,"Wellesley":1750000,"Weymouth":530000,
-        "Canton":720000,"Norwood":580000,
-        "Hingham":1100000,"Duxbury":980000,"Scituate":850000,"Cohasset":1250000,
-        "Norwell":850000,"Hanover":660000,"Marshfield":640000,"Kingston":520000,
-        "Plymouth":540000,"Brockton":435000,
-    }
-    RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
     zhvi = ZHVI.get(town)
     if zhvi and civica:
         raw = civica / (zhvi / MA_ZHVI)
@@ -646,6 +674,37 @@ for obj_start, obj_end in objects:
 
 HTML_FILE.write_text(html, encoding="utf-8")
 print(f"  Patched {patched} town objects")
+
+# ─── Update civica_value_scores.xlsx ─────────────────────────────────────────
+vs_path = ROOT / "civica_value_scores.xlsx"
+if vs_path.exists():
+    wb_vs = openpyxl.load_workbook(vs_path)
+    ws_vs = wb_vs["Value Scores"]
+    # Clear all data rows below header
+    for r in ws_vs.iter_rows(min_row=2, max_row=ws_vs.max_row):
+        for cell in r:
+            cell.value = None
+    # Collect rows that have a value score
+    vs_rows = []
+    for r in rows:
+        t = r["town_name"]
+        vs = r.get("value_score", "")
+        vr = r.get("value_rating", "")
+        score = r.get("civica_score", "")
+        if vs and score:
+            vs_rows.append((t, int(score), float(vs), vr, ZHVI.get(t, ""), COUNTY_MAP.get(t, "")))
+    vs_rows.sort(key=lambda x: x[2], reverse=True)
+    for i, vsr in enumerate(vs_rows, start=2):
+        ws_vs.cell(row=i, column=1, value=vsr[0])
+        ws_vs.cell(row=i, column=2, value=vsr[1])
+        ws_vs.cell(row=i, column=3, value=vsr[2])
+        ws_vs.cell(row=i, column=4, value=vsr[3])
+        ws_vs.cell(row=i, column=5, value=vsr[4] if vsr[4] else None)
+        ws_vs.cell(row=i, column=6, value=vsr[5])
+    wb_vs.save(vs_path)
+    print(f"Updated civica_value_scores.xlsx ({len(vs_rows)} towns)")
+else:
+    print("MISSING: civica_value_scores.xlsx — skipping")
 
 # ─── Summary ──────────────────────────────────────────────────────────────────
 print("\nSCORE CHANGES:")
