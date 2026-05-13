@@ -1,306 +1,250 @@
-# Civica AI Implementation Specification v1.0
+# Civica AI Implementation Specification v2.0
 
-> Implementation-level details an AI assistant needs to correctly compute Civica Scores from the methodology CSVs.
+> Implementation-level details for correctly computing Civica Scores from the 36 data points.
 
-This document is targeted at an AI implementing the Civica scorer from scratch. The conceptual methodology lives in `04-scoring-methodology.md`; the **mechanics that produce silently wrong scores if implemented naively** live here.
+This document is targeted at an AI computing Civica Scores from collected data. The conceptual methodology is in `04-scoring-methodology.md`; the **mechanics that produce silently wrong scores if implemented naively** live here.
 
-**Verification:** A correct implementation reproduces Danvers, MA = 72 / TER 5.4 and Beverly, MA = 73 / TER 6.5. Run `verify.py` to confirm.
-
----
-
-## Why This Document Exists
-
-While building the Civica reference workbook, two specific implementation bugs were discovered that produced silently wrong scores — no error message, just numbers that looked plausible but were incorrect:
-
-1. The safety pillar referenced a sub-metric `fire_iso` that had no rubric rules, returning `#N/A` and breaking aggregation
-2. Ratio helper calculations returned 0 (not blank) when raw inputs were missing, which silently matched the lowest range bucket and inflated scores
-
-Both bugs are documented here so future implementations don't repeat them.
+**Authoritative source:** The `computeScore(t)` and `grade(k,v,t)` functions in `civica-v5.html` are the single source of truth. If this document conflicts with that code, the code wins.
 
 ---
 
-## 1. The Helper Calculation Checklist
+## 1. The Scoring Formula
 
-Before any rubric lookup, **9 helper values must be computed** from raw inputs. These are inputs to specific sub-metrics.
+```
+Civica Score = fiscal×0.28 + schools×0.25 + tax×0.15 + safety×0.15
+             + momentum×0.08 + infra×0.06 + climate×0.03
+```
 
-| Helper | Formula | Used By |
+Seven pillars. Weights sum to 1.00. Result is rounded to the nearest integer (0–100).
+
+Each pillar score is the **unweighted average** of the green/yellow/red grades for its gradeable metrics:
+
+```
+green  = 100 points
+yellow =  55 points
+red    =  15 points
+na     = excluded from average (not counted in denominator)
+```
+
+If all metrics in a pillar are `na`, the pillar defaults to 50.
+
+---
+
+## 2. The `grade(key, value, town)` Function
+
+Every metric is graded as `"green"`, `"yellow"`, `"red"`, or `"na"`.
+
+- `"na"` means data is missing or the metric is display-only (not scored)
+- A `null` or missing value always returns `"na"` — **never 0, never red by default**
+
+The grade thresholds for each key are defined in the `grade()` function in `civica-v5.html`. Below are the grading rules for each scored metric:
+
+### Fiscal Health grades
+
+| Key | Green | Yellow | Red |
+|---|---|---|---|
+| `bond` | AAA, AA+, AA | AA-, A+, A | below A or null |
+| `free_cash` | ≥7% | ≥3% | <3% |
+| `debt_pc` | <$2,000 | <$4,000 | ≥$4,000 |
+| `eff_rate` | <1.2% | <1.7% | ≥1.7% |
+
+`pension`, `gfoa`, `transp` are displayed but graded `na` (informational only, not scored directly — they feed the fiscal weighted blend).
+
+### Fiscal Health — weighted blend
+
+Fiscal Health uses a custom weighted blend rather than a simple average:
+
+```javascript
+const fiscalBase = avg(grade(bond), grade(free_cash), grade(debt_pc));  // weight 3
+const pg = gradePension(pension);   // weight 1
+const tg = gradeTransp(transp);     // weight 0.5
+const gg = gradeGfoa(gfoa);         // weight 0.5
+
+fiscal = weightedAvg([fiscalBase×3, pg×1, tg×0.5, gg×0.5])
+```
+
+Pension grading: ≥80% → green, ≥60% → yellow, <60% → red
+Transparency grading: "Yes" → green, "Partial" → yellow, "No" → red
+GFOA grading: ≥16 yrs → green, ≥10 yrs → yellow, <10 yrs → red
+
+Only non-null components are included in the weighted average denominator.
+
+### Schools grades
+
+| Key | Green | Yellow | Red |
+|---|---|---|---|
+| `d_rank` | top 30% of districts | top 60% | bottom 40% |
+| `math` | ≥55% | ≥35% | <35% |
+| `grad` | ≥92% | ≥82% | <82% |
+
+`d_10yr`, `ap`, `enrollment_trend` are display-only (`na`).
+
+Schools pillar = average of `grade(d_rank)`, `grade(math)`, `grade(grad)`.
+
+### Tax Efficiency grades
+
+| Key | Green | Yellow | Red |
+|---|---|---|---|
+| `eff_rate` | <1.2% | <1.7% | ≥1.7% |
+| `ter_r` | "Strong" | "Fair" | "Weak" |
+
+`med_tax`, `med_inc`, `res_rate`, `tax_non_res`, `med_home_val` are display-only (`na`).
+
+Tax pillar = average of `grade(eff_rate)`, `grade(ter_r)`.
+
+### Safety grades
+
+| Key | Green | Yellow | Red |
+|---|---|---|---|
+| `violent` | <60/100k | <150/100k | ≥150/100k |
+| `prop_crime` | <800/100k | <2000/100k | ≥2000/100k |
+
+`sex_off` is display-only (`na`).
+
+Safety pillar = average of `grade(violent)`, `grade(prop_crime)`.
+
+### Economic Momentum grades
+
+| Key | Green | Yellow | Red |
+|---|---|---|---|
+| `unemp` | <4% | <7% | ≥7% |
+| `pov` | <6% | <12% | ≥12% |
+
+`inc10yr`, `pop10yr`, `owner_occ`, `vacancy`, `med_age` are display-only (`na`).
+
+Momentum pillar = average of `grade(unemp)`, `grade(pov)`.
+
+### Infrastructure grades
+
+| Key | Green | Yellow | Red |
+|---|---|---|---|
+| `elec_save` | >$500/yr savings | ≥$0 | negative (costs more than state avg) |
+| `water_viol` | 0 violations | ≤2 | >2 |
+
+`transit` is display-only (`na`).
+
+Infra pillar = average of `grade(elec_save)`, `grade(water_viol)`.
+
+### Climate grades
+
+| Key | Green | Yellow | Red |
+|---|---|---|---|
+| `flood` | <5% properties | <15% | ≥15% |
+| `flood50` | <2 pt growth | <5 pt | ≥5 pt |
+
+`fire` is display-only (`na`).
+
+Climate pillar = average of `grade(flood)`, `grade(flood50)`.
+
+---
+
+## 3. The Missing-Data Convention
+
+**Critical rule:** When a raw input is `null` or missing, `grade()` returns `"na"` — never `"red"` and never `0`.
+
+The `na` grade is excluded from pillar averages. A pillar with all `na` values defaults to 50 (neutral), not 0.
+
+**Never** substitute 0 for a missing value before passing to the grader. That would silently score the town as if the value is 0, which hits the lowest bucket and artificially deflates the score.
+
+---
+
+## 4. The TER (Tax Efficiency Ratio)
+
+TER is a derived metric — do not collect it, compute it:
+
+```
+TER = civica_score / res_rate
+```
+
+TER rating bands:
+- `"Strong"` — TER ≥ 5.0
+- `"Fair"` — TER ≥ 3.0
+- `"Weak"` — TER < 3.0
+
+TER is computed and stored in the town object. `ter_r` feeds back into the Tax pillar as a gradeable metric.
+
+---
+
+## 5. The Scoring Sequence
+
+```
+1. Collect all 36 data points per 06-collection-playbook.md
+2. For each pillar, pass the relevant (key, value) pairs to grade()
+3. Filter out 'na' grades, average the numeric scores (green=100, yellow=55, red=15)
+4. Compute fiscal using the weighted blend (see Section 2)
+5. Compute Civica Score using pillar weights (28/25/15/15/8/6/3)
+6. Round Civica Score to nearest integer
+7. Compute TER = score / res_rate, round to 1 decimal
+8. Assign ter_r rating band
+9. Count gaps (null fields among the 36)
+10. Set conf: "high" <5 gaps, "medium" 5–15, "low" >15
+```
+
+---
+
+## 6. Fields That Are Display-Only (Not Scored)
+
+These fields appear in town profiles but do not affect the Civica Score:
+
+`pension`, `gfoa`, `transp` — informational under Fiscal (but do feed the fiscal weighted blend — see Section 2)
+`d_10yr`, `ap`, `enrollment_trend` — informational under Schools
+`med_tax`, `med_inc`, `res_rate`, `tax_non_res`, `med_home_val` — informational under Tax
+`sex_off` — informational under Safety
+`inc10yr`, `pop10yr`, `owner_occ`, `vacancy`, `med_age` — informational under Economic Momentum
+`transit` — informational under Infrastructure
+`fire` — informational under Climate
+
+**Do not skip collecting these.** They display in town profiles and are valuable to buyers even if they don't feed the score formula.
+
+---
+
+## 7. Fields Removed from Prior Versions
+
+These fields appeared in v1 of the collection playbook and implementation spec but are **no longer used**. Do not collect them:
+
+- `response_311_days` (311 response time)
+- `ems_response_minutes` (EMS response time)
+- `permits_per_1000` / `permits_3yr_per_1000` (building permits)
+- `iso_fire_rating` (ISO fire rating)
+- `broadband_coverage_pct` (broadband access)
+- `walk_score` (Walk Score)
+- `park_acres_per_1000` (park acreage)
+- `library_circ_per_capita` (library circulation)
+- `crime_5yr_pct_change` (crime trend)
+- `bachelors_degree_pct` (education attainment)
+- `per_pupil_spending` (school spending)
+- `heat_days_growth_2050` (heat days projection)
+- `air_quality_aqi` (air quality)
+- `tree_canopy_pct` (tree canopy)
+
+These were part of the original 8-pillar design that included an Operational Responsiveness pillar. That pillar has been removed. The operational and climate metrics listed above are no longer scored.
+
+---
+
+## 8. Common Implementation Mistakes
+
+**"I'll estimate the missing value to be helpful"**
+Wrong. Leave null. Let the grade default to `na` and be excluded from the average.
+
+**"I'll collect the extra fields from v1 just in case"**
+Wrong. The v1 fields are not displayed and not scored. Collecting them wastes time and clutters the data.
+
+**"I'll use the old 8-pillar weights"**
+Wrong. Current weights: Fiscal 28%, Schools 25%, Tax 15%, Safety 15%, Momentum 8%, Infrastructure 6%, Climate 3%.
+
+**"I'll round intermediate pillar scores"**
+Wrong. Round only the final Civica Score (integer) and TER (1 decimal). Rounding intermediate values accumulates error.
+
+---
+
+## 9. Output Fields Written to Town Object
+
+| Field | Type | Notes |
 |---|---|---|
-| `tax_burden_pct` | `(median_annual_tax_bill / median_household_income) × 100` | tax_burden_to_income |
-| `rank_percentile` | `(1 − district_state_rank / district_state_rank_total) × 100` | rank_percentile, spending_efficiency |
-| `spending_efficiency_idx` | `(rank_pct/100) ÷ (per_pupil_spending / state_median_per_pupil)` | spending_efficiency |
-| `debt_ratio` | `town_debt_per_capita / state_debt_per_capita_median` | debt_per_capita |
-| `violent_crime_ratio` | `town_violent_per_100k / state_violent_avg` | violent_crime |
-| `property_crime_ratio` | `town_property_per_100k / state_property_avg` | property_crime |
-| `income_ratio` | `town_median_income / state_median_income` | income_level |
-| `poverty_ratio` | `town_poverty_pct / state_poverty_pct` | poverty |
-| `unemployment_ratio` | `town_unemployment / state_unemployment` | unemployment |
-
-**Compute these BEFORE attempting any rubric lookup.** The sub-metrics that consume them expect the ratio/percentage value, not the raw values.
-
----
-
-## 2. The Missing-Data Convention
-
-**Critical rule:** When a raw input is missing, helper calculations must return `null`/`None`/blank — **never 0**.
-
-### Why this matters
-
-If `unemployment_ratio` returns 0 when input is missing, Excel/Sheets/Python treats 0 as a valid number that falls into the lowest range bucket (0 to 0.7 → score 100). This silently inflates the score by ~30 points.
-
-### Correct pattern (Python)
-
-```python
-def safe_div(a, b):
-    if a is None or a == "":
-        return None
-    try:
-        return float(a) / float(b)
-    except (TypeError, ValueError, ZeroDivisionError):
-        return None
-```
-
-### Correct pattern (spreadsheet)
-
-```
-=IF(input_cell="","",input_cell / state_median)
-```
-
-**Wrong** (returns 0 when blank):
-```
-=IFERROR(input_cell / state_median, 0)
-```
-
-### What happens when a sub-metric receives null
-
-The rubric returns the **documented default** for that sub-metric (typically 50–70). This is correct behavior — it represents genuine uncertainty without artificially inflating or deflating the score.
-
----
-
-## 3. The fire_iso / iso_fire Aliasing
-
-### The fact
-
-The safety pillar uses sub-metric ID `iso_fire` (not `fire_iso`). The rubrics file only has rules for `iso_fire`. The same ISO fire rating contributes to **both** the operational pillar and the safety pillar — they reuse the same sub-metric.
-
-### Why this matters
-
-Earlier versions of `pillar_weights.csv` used `fire_iso` for the safety pillar. If you implement based on those weights without checking the rubrics, the safety pillar tries to look up `fire_iso` rules that don't exist and silently fails.
-
-### Correct implementation
-
-In the safety pillar weighted sum:
-
-```python
-safety_score = (
-    sub_scores["violent_crime"] * 0.40 +
-    sub_scores["property_crime"] * 0.25 +
-    sub_scores["crime_trajectory"] * 0.20 +
-    sub_scores["iso_fire"] * 0.15           # NOT fire_iso
-)
-```
-
-The current `pillar_weights.csv` correctly uses `iso_fire` for the safety pillar's last sub-metric. Maintain this convention.
-
----
-
-## 4. The Parks + Libraries Composite
-
-The `parks_libraries` sub-metric is not directly looked up. It's a **composite of two separately-scored sub-metrics**:
-
-```python
-park_score = score_submetric("park_score", park_acres_per_1000, rubrics)
-library_score = score_submetric("library_score", library_circ_per_capita, rubrics)
-parks_libraries_score = (park_score + library_score) / 2
-```
-
-In the infrastructure pillar aggregation:
-
-```python
-infrastructure_score = (
-    sub_scores["electric_value"] * 0.30 +
-    sub_scores["water_quality"] * 0.20 +
-    sub_scores["broadband"] * 0.15 +
-    sub_scores["transit"] * 0.15 +
-    sub_scores["walkability"] * 0.10 +
-    parks_libraries_score * 0.10            # the composite, not a direct lookup
-)
-```
-
-Both `park_score` and `library_score` have their own rubric rules in `scoring_rubrics.csv`. The composite is computed in code, not stored in the rubrics file.
-
----
-
-## 5. Data Format Conventions
-
-These look obvious but trip up implementations.
-
-### ISO fire ratings are strings
-
-In `scoring_rubrics.csv`, ISO ratings are stored as `"1"`, `"2"`, ... `"10"` (strings, not integers). The lookup is a string match. If your input is integer 4, convert to string `"4"` before matching.
-
-### Categorical values are case-insensitive
-
-`"AA+"` and `"aa+"` should both match the bond_rating row for `AA+`. Implement lookup as:
-
-```python
-str(raw_value).strip().lower() == str(rule["match_value"]).strip().lower()
-```
-
-### Range bounds are inclusive low, exclusive high
-
-A rule with `lower_bound=0, upper_bound=2` matches values where `0 <= v < 2`. A value of exactly 2 matches the **next** row. Critical for boundary cases.
-
-### Wildfire risk values are lowercase
-
-Use `"low"`, `"moderate"`, `"high"`, `"very high"`, `"extreme"`. Capitalized inputs like `"Low"` will match (case-insensitive), but the canonical form is lowercase.
-
-### Transparency is `yes`/`partial`/`no`
-
-Lowercase only. The rubric matches case-insensitively but documents the canonical form as lowercase.
-
-### Transit access has 8 valid values
-
-`commuter_rail_in_town`, `commuter_rail_nearby`, `bus_only`, `limited`, `none`, `yes`, `no`, `nearby`. The first five are the canonical taxonomy; `yes`/`no`/`nearby` are aliases for backward compatibility.
-
----
-
-## 6. State Context Is Required Before Scoring
-
-Six sub-metrics require state-level baseline values from `state_context.csv`:
-
-| Sub-metric | Requires | State Context Key |
-|---|---|---|
-| debt_per_capita | state debt median | `debt_per_capita_median` |
-| violent_crime | state violent crime avg | `violent_crime_per_100k` |
-| property_crime | state property crime avg | `property_crime_per_100k` |
-| income_level | state median income | `median_household_income` |
-| poverty | state poverty rate | `poverty_rate_pct` |
-| unemployment | state unemployment | `unemployment_rate_pct` |
-
-Plus `spending_efficiency` requires `per_pupil_spending_median`.
-
-**Before scoring any town in a new state, populate `state_context.csv` for that state.** If you score a town in a state without context, the ratio calculations will fail (return null) and 6 sub-metrics will fall back to defaults — silently producing a less accurate score.
-
----
-
-## 7. The Scoring Sequence
-
-Strict order required. Skipping or reordering produces wrong results.
-
-```
-1. Load methodology files (master_weights, pillar_weights, scoring_rubrics, state_context)
-2. Confirm state_context has rows for the town's state
-3. Load the town's raw inputs (from towns.csv or directly from data sources)
-4. Compute the 9 helper values (using state context where needed)
-5. For each of 42 sub-metrics, look up the rubric and compute 0–100 score
-6. For park_score and library_score, compute additionally; average for parks_libraries
-7. For each pillar, compute weighted sum of sub-metric scores
-8. Compute Civica Score as weighted sum of pillar scores; round to integer
-9. Compute TER = Civica Score / residential_rate_per_1000; round to 1 decimal
-10. Look up TER rating from band thresholds
-11. Write output to towns.csv schema
-12. Run verify.py to confirm methodology hasn't drifted
-```
-
----
-
-## 8. Verification Protocol
-
-After ANY change that touches the methodology files or scoring code:
-
-```bash
-python verify.py
-```
-
-Expected output ends with `✓ VERIFICATION PASSED`. If it shows `✗ VERIFICATION FAILED`, the methodology has drifted and must be fixed before any new town scores are treated as authoritative.
-
-`verify.py` independently re-implements the scoring logic and tests against the Danvers and Beverly datasets. It is the canonical reproducibility test.
-
----
-
-## 9. Output Schema
-
-When writing to `towns.csv`:
-
-| Column Group | Notes |
-|---|---|
-| Identity (5 cols) | town_name, state, county, zip_codes, population |
-| Raw inputs (~42 cols) | One per sub-metric input; left blank if data unavailable |
-| Helper calcs (9 cols) | Computed; left blank if any input null |
-| Pillar scores (8 cols) | Computed; rounded to 1 decimal |
-| Final outputs (3 cols) | civica_score (integer), ter (1 decimal), ter_rating (string) |
-| Metadata (4 cols) | data_gaps_count, data_confidence, last_updated, compiler_notes |
-
-For each raw input column, also populate the `_src` and `_retrieved` companion columns per `05-citation-sop.md`. Town-specific document fields also populate `_url`.
-
----
-
-## 10. Common Implementation Mistakes
-
-### "I'll just estimate the missing values to be helpful"
-**Wrong.** Leave blank, document the gap, let the rubric default fire. Estimating compromises the citation discipline that is the entire point of Civica.
-
-### "I'll average two disagreeing sources"
-**Wrong.** Pick the higher-tier source and document the discrepancy. Averaging hides the source disagreement.
-
-### "I'll round at every intermediate step for cleanliness"
-**Wrong.** Round only at the final Civica Score (integer) and TER (1 decimal). Intermediate rounding accumulates error.
-
-### "The Danvers verification passes, so my code is correct"
-**Necessary but not sufficient.** Danvers has many data gaps. A code bug affecting only well-populated fields might not show up in Danvers. Run verify.py against both Danvers and Beverly, and ideally a third town once you score one.
-
-### "I'll add this new sub-metric without versioning"
-**Wrong.** Any change to weights, rubrics, or sub-metric definitions requires a methodology version bump. Add to `methodology/archive/v1.0/` first.
-
-### "The score came out as 87 not 72 — must be a calculation issue, let me adjust"
-**Wrong.** If verify.py passes (Danvers = 72), the methodology is correct. If a new town scores 87, that's the methodology's honest output. Don't tune to taste; document and publish.
-
----
-
-## 11. Performance Notes
-
-For one town, scoring takes <1 second (mostly file I/O). For 100 towns, scoring takes <10 seconds. Don't optimize prematurely.
-
-If scoring 1000+ towns, consider:
-- Loading methodology files once and reusing
-- Pandas vectorization for the rubric lookups
-- Parallel scoring (each town is independent)
-
-But first, get correctness right. The verification protocol matters more than performance.
-
----
-
-## 12. When You're Stuck
-
-If your implementation produces a score that doesn't match `verify.py`:
-
-1. Compare your pillar scores to the documented Danvers values:
-   - Fiscal Health 80.3, Tax Efficiency 75.4, Schools 50.2, Operational 66.2, Infrastructure 76.6, Safety 69.8, Economic 81.3, Climate 68.7
-2. Find which pillar diverges
-3. Compare your sub-metric scores within that pillar
-4. Find which sub-metric diverges
-5. Check the rubric application for that sub-metric:
-   - Is the input the right one? (raw value vs helper calc?)
-   - Is the rubric type right? (range vs lookup?)
-   - For range: are bounds inclusive low / exclusive high?
-   - For lookup: is the comparison case-insensitive?
-   - Is missing-data handling returning the documented default?
-
-Most divergences come from: helper calc returning 0 instead of blank, ISO ratings as int not string, or fire_iso vs iso_fire.
-
----
-
-## Files Referenced
-
-| File | Role |
-|---|---|
-| `master_weights.csv` | Pillar weights |
-| `pillar_weights.csv` | Sub-metric weights |
-| `scoring_rubrics.csv` | 276 rubric rules |
-| `state_context.csv` | State medians |
-| `verify.py` | Reproducibility test (run after any change) |
-| `04-scoring-methodology.md` | Conceptual reference |
-| `05-citation-sop.md` | Citation rules |
-| `06-collection-playbook.md` | Field-by-field data sourcing |
-
-**When this spec conflicts with `verify.py` output, `verify.py` is authoritative.** It is the single source of truth for "is the methodology working correctly."
+| Identity (5) | string/int | name, county, state, zip, pop |
+| Scored inputs (36) | varies | per collection playbook |
+| `score` | integer | computed Civica Score |
+| `ter` | decimal (1 place) | computed TER |
+| `ter_r` | string | "Strong" / "Fair" / "Weak" |
+| `gaps` | integer | count of null scored fields |
+| `conf` | string | "high" / "medium" / "low" |
