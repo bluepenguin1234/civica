@@ -425,6 +425,9 @@ ZHVI = {
     "Hingham":1100000,"Duxbury":980000,"Scituate":850000,"Cohasset":1250000,
     "Norwell":850000,"Hanover":660000,"Marshfield":640000,"Kingston":520000,
     "Plymouth":540000,"Brockton":435000,
+    "Lowell":425000,"Chelmsford":595000,"Billerica":682000,"Tewksbury":593000,
+    "Wilmington":764000,"Melrose":843000,"Ashland":615000,"Marlborough":570000,
+    "Hudson":545000,"Hopkinton":877000,
 }
 RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
 
