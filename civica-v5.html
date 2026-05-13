@@ -1947,6 +1947,42 @@ function renderProf(idx){
       <div style="font-size:.8rem;line-height:1.65;color:#78350f">${t.name} has ${t.gaps} data gaps. Many smaller Massachusetts towns do not publish annual financial reports online, do not carry an active bond rating, or report crime data on a delay. Civica shows verified data only — gaps reflect limited public disclosure, not poor performance. The score may shift as new data becomes available.</div>
     </div>`:''}
 
+    <!-- SCORE EXPLAINED -->
+    ${(()=>{
+      const pillars=[
+        {label:'Schools',        icon:'🎓', score:schScore,  note:schScore>=80?`Ranked #${t.d_rank||'?'} of ${t.d_total||351} statewide`:schScore>=65?'Above-average district ranking':schScore>=50?'Mid-tier school district':'Below-average school performance'},
+        {label:'Safety',         icon:'🛡️', score:safScore,  note:safScore>=80?'Very low crime, well below state average':safScore>=65?'Below-average crime rates':safScore>=50?'Near-average crime levels':'Above-average crime rates'},
+        {label:'Fiscal Health',  icon:'🏦', score:fiscScore, note:fiscScore>=80?`${t.bond||'Strong'} bond rating, healthy reserves`:fiscScore>=65?'Above-average fiscal position':fiscScore>=50?'Average fiscal health':'Fiscal stress indicators present'},
+        {label:'Taxes',          icon:'💰', score:taxScore,  note:taxScore>=80?'Low effective rate and affordable homes':taxScore>=65?'Below-average tax burden':taxScore>=50?'Average tax load':'High taxes relative to income and home value'},
+        {label:'Economic Vitality',icon:'📈',score:econScore, note:econScore>=80?'Strong income growth and population gains':econScore>=65?'Growing town, rising incomes':econScore>=50?'Moderate economic momentum':'Slow growth or stagnation'},
+        {label:'Infra & Utilities',icon:'⚡',score:qolScore,  note:qolScore>=80?'Municipal electric and strong transit access':qolScore>=65?'Good transit or utility advantage':qolScore>=50?'Average transit and utility access':'Limited transit; on Eversource grid'},
+        {label:'Climate Risk',   icon:'🌿', score:climScore, note:climScore>=80?'Minimal flood and fire exposure':climScore>=65?'Low climate risk overall':climScore>=50?'Moderate flood or fire exposure':'Elevated flood or wildfire risk'},
+      ];
+      const sorted=[...pillars].sort((a,b)=>b.score-a.score);
+      const strengths=sorted.filter(p=>p.score>=60).slice(0,3);
+      const drags=sorted.filter(p=>p.score<60);
+      const scColor=s=>s>=65?'#1a8a3c':s>=55?'#0d2d52':s>=45?'#b25a00':'#c0392b';
+      const scBg=s=>s>=65?'#e4faea':s>=55?'#e8eef6':s>=45?'#fff4e0':'#fff0ee';
+      const row=(p)=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f2f2f2">
+        <div style="font-size:.78rem;flex:1;font-weight:500;color:#1d1d1f">${p.icon} ${p.label}</div>
+        <div style="font-size:.75rem;color:#6e6e73;flex:2">${p.note}</div>
+        <div style="font-size:.78rem;font-weight:700;background:${scBg(p.score)};color:${scColor(p.score)};padding:2px 8px;border-radius:20px;flex-shrink:0">${p.score}</div>
+      </div>`;
+      return`<div style="padding:20px 32px;background:#fff;border-bottom:1px solid #efefef">
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:14px">Score Explained</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px">
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1a8a3c;margin-bottom:4px">Working for you</div>
+            ${strengths.map(row).join('')}
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:${drags.length?'#b25a00':'#98989d'};margin-bottom:4px">${drags.length?'Holding it back':'No major weaknesses'}</div>
+            ${drags.length?drags.map(row).join(''):`<div style="font-size:.78rem;color:#6e6e73;padding:7px 0">All pillars score 60 or above.</div>`}
+          </div>
+        </div>
+      </div>`;
+    })()}
+
     <!-- PILLAR SCORES -->
     <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:14px">Pillar Scores</div>
