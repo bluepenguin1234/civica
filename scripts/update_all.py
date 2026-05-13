@@ -3,7 +3,7 @@ Master update pipeline — applies all new data, recomputes scores,
 updates towns.csv and civica-v5.html in one pass.
 """
 
-import csv, re, math, openpyxl
+import csv, re, openpyxl, bisect
 from pathlib import Path
 
 ROOT     = Path(__file__).parent.parent
@@ -140,6 +140,8 @@ DISTRICT_MAP = {
     "Acton":                "acton-boxborough",
     "Concord":              "concord-carlisle",
     "Kingston":             "silver lake",
+    "Northborough":         "northborough-southborough",
+    "North Attleborough":   "north attleborough",
 }
 
 def get_school(town):
@@ -255,10 +257,12 @@ PROPERTY_CRIME_UPDATES = {
 FLOOD_RISK_UPDATES     = {"Gloucester": 20.0, "Chelsea": 14.0}
 FLOOD_2050_UPDATES     = {"Chelsea": 5.0}
 
-# Wildfire (all low for coastal Essex County)
+# Wildfire (all low for coastal Essex County and inland MA towns)
 WILDFIRE_UPDATES = {t: "Low" for t in [
     "Rockport","Manchester-by-the-Sea","Boxford","Hamilton","Georgetown",
-    "Newbury","West Newbury","Rowley","Wenham","Essex"
+    "Newbury","West Newbury","Rowley","Wenham","Essex",
+    "Shrewsbury","Westborough","Northborough","Grafton","Milford",
+    "Mansfield","Easton","North Attleborough","Medway","Millis",
 ]}
 
 # ─── Load methodology ─────────────────────────────────────────────────────────
@@ -280,11 +284,44 @@ def load_methodology():
         si.setdefault(r["state"], {})[r["metric"]] = float(r["value"])
     return pw, sw, ri, si
 
-def score_submetric(sm_id, raw, ri):
+# Direction for percentile scoring: True = higher raw value is better, False = lower is better
+DIRECTION = {
+    # Higher raw value = better score
+    "free_cash_pct": True,  "pension_funded": True,  "rank_percentile": True,
+    "test_scores": True,  "graduation_rate": True,
+    "electric_value": True,  "income_level": True,
+    "income_trend": True,  "population_trend": True,
+    # Lower raw value = better score
+    "debt_per_capita": False,  "effective_tax_rate": False,  "tax_burden_to_income": False,
+    "rank_trajectory": False,  "water_quality": False,  "violent_crime": False,
+    "property_crime": False,  "crime_trajectory": False,
+    "flood_risk": False,  "flood_trajectory": False,
+}
+LOOKUP_ONLY = {"bond_rating", "transit", "wildfire"}
+
+def cap(val, lo, hi):
+    if val is None: return None
+    try: return max(lo, min(hi, float(val)))
+    except: return val
+
+def percentile_score(value, sorted_vals, higher_is_better):
+    n = len(sorted_vals)
+    below = bisect.bisect_left(sorted_vals, value)
+    above = bisect.bisect_right(sorted_vals, value)
+    pct = 100.0 * (below + (above - below) / 2.0) / n
+    return round(100.0 - pct if not higher_is_better else pct)
+
+def score_submetric(sm_id, raw, ri, dists=None):
     if sm_id not in ri: return 50
     rules = ri[sm_id]
     default = float(rules[0]["default_if_missing"])
     if raw is None or raw == "": return default
+    if dists and sm_id in dists and sm_id not in LOOKUP_ONLY and sm_id in DIRECTION:
+        try:
+            v = float(raw)
+            if len(dists[sm_id]) >= 5:
+                return percentile_score(v, dists[sm_id], DIRECTION[sm_id])
+        except: pass
     for rule in rules:
         if rule["rule_type"] == "range":
             try:
@@ -296,7 +333,7 @@ def score_submetric(sm_id, raw, ri):
                 return float(rule["score_0_100"])
     return default
 
-def score_town(td, pw, sw, ri, si):
+def score_town(td, pw, sw, ri, si, dists=None):
     ctx = si.get(td.get("state","MA"), si["MA"])
     def sf(a, b):
         try: return float(a)/float(b)
@@ -312,42 +349,39 @@ def score_town(td, pw, sw, ri, si):
         "violent_crime_ratio":  sf(fv("violent_crime_per_100k"), ctx["violent_crime_per_100k"]),
         "property_crime_ratio": sf(fv("property_crime_per_100k"), ctx["property_crime_per_100k"]),
         "income_ratio":         sf(fv("median_household_income"), ctx["median_household_income"]),
-        "poverty_ratio":        sf(fv("poverty_pct"), ctx["poverty_rate_pct"]),
-        "unemployment_ratio":   sf(fv("unemployment_pct"), ctx["unemployment_rate_pct"]),
     }
     SM = {
-        "bond_rating":           fv("bond_rating_sp"),
-        "free_cash_pct":         fv("free_cash_pct_of_budget"),
-        "pension_funded":        fv("pension_funded_ratio_pct"),
-        "debt_per_capita":       h["debt_ratio"],
-        "gfoa_years":            fv("gfoa_certificate_consecutive_years"),
-        "tax_base_diversification": fv("tax_base_non_residential_pct"),
-        "effective_tax_rate":    fv("effective_tax_rate_pct"),
-        "tax_burden_to_income":  h["tax_burden_pct"],
-        "tax_base_health":       fv("tax_base_non_residential_pct"),
-        "rank_percentile":       h["rank_percentile"],
-        "rank_trajectory":       fv("district_rank_10yr_change"),
-        "test_scores":           fv("test_scores_math_pct"),
-        "graduation_rate":       fv("graduation_rate_pct"),
-        "ap_participation":      fv("ap_participation_pct"),
-        "transparency":          fv("transparency"),
-        "electric_value":        fv("electric_savings_vs_state_avg"),
-        "water_quality":         fv("water_violations_5yr"),
-        "transit":               fv("transit_access"),
-        "violent_crime":         h["violent_crime_ratio"],
-        "property_crime":        h["property_crime_ratio"],
-        "crime_trajectory":      fv("crime_5yr_pct_change"),
-        "income_trend":          fv("income_10yr_change_pct"),
-        "population_trend":      fv("population_10yr_change_pct"),
-        "income_level":          h["income_ratio"],
-        "education_attainment":  fv("bachelors_degree_pct"),
-        "unemployment":          h["unemployment_ratio"],
-        "poverty":               h["poverty_ratio"],
-        "flood_risk":            fv("flood_risk_pct"),
-        "flood_trajectory":      fv("flood_2050_growth_pts"),
-        "wildfire":              fv("wildfire_risk"),
+        # Fiscal Health
+        "bond_rating":          fv("bond_rating_sp"),
+        "free_cash_pct":        fv("free_cash_pct_of_budget"),
+        "pension_funded":       fv("pension_funded_ratio_pct"),
+        "debt_per_capita":      h["debt_ratio"],
+        # Taxes
+        "effective_tax_rate":   fv("effective_tax_rate_pct"),
+        "tax_burden_to_income": h["tax_burden_pct"],
+        # Schools
+        "rank_percentile":      h["rank_percentile"],
+        "rank_trajectory":      cap(fv("district_rank_10yr_change"), -150, 150),
+        "test_scores":          fv("test_scores_math_pct"),
+        "graduation_rate":      fv("graduation_rate_pct"),
+        # Safety
+        "violent_crime":        h["violent_crime_ratio"],
+        "property_crime":       h["property_crime_ratio"],
+        "crime_trajectory":     cap(fv("crime_5yr_pct_change"), -75, 150),
+        # Economic Vitality
+        "income_level":         h["income_ratio"],
+        "income_trend":         fv("income_10yr_change_pct"),
+        "population_trend":     fv("population_10yr_change_pct"),
+        # Quality of Life
+        "transit":              fv("transit_access"),
+        "electric_value":       fv("electric_savings_vs_state_avg"),
+        "water_quality":        cap(fv("water_violations_5yr"), 0, 100),
+        # Climate
+        "flood_risk":           fv("flood_risk_pct"),
+        "flood_trajectory":     fv("flood_2050_growth_pts"),
+        "wildfire":             fv("wildfire_risk"),
     }
-    ss = {sm: score_submetric(sm, val, ri) for sm, val in SM.items()}
+    ss = {sm: score_submetric(sm, val, ri, dists) for sm, val in SM.items()}
     ps = {}
     for pillar_id, weights in sw.items():
         ps[pillar_id] = sum(ss[k]*weights[k] for k in weights)
@@ -359,27 +393,71 @@ def score_town(td, pw, sw, ri, si):
     else:
         ter = None
     if ter is None:       ter_r = "N/A"
-    elif ter >= 9.0:      ter_r = "Exceptional"
-    elif ter >= 7.0:      ter_r = "Strong"
-    elif ter >= 5.0:      ter_r = "Average"
+    elif ter >= 6.5:      ter_r = "Exceptional"
+    elif ter >= 5.5:      ter_r = "Strong"
+    elif ter >= 4.0:      ter_r = "Average"
     elif ter >= 3.0:      ter_r = "Below Average"
     else:                 ter_r = "Poor"
 
     # Count data gaps (fields used in scoring that are missing)
     scored_fields = ["bond_rating_sp","free_cash_pct_of_budget","pension_funded_ratio_pct",
-                     "debt_per_capita","gfoa_certificate_consecutive_years",
-                     "tax_base_non_residential_pct","effective_tax_rate_pct",
-                     "median_annual_tax_bill","district_state_rank","district_rank_10yr_change",
-                     "test_scores_math_pct","graduation_rate_pct","ap_participation_pct",
-                     "transparency","electric_savings_vs_state_avg","water_violations_5yr",
-                     "transit_access","violent_crime_per_100k","property_crime_per_100k",
-                     "crime_5yr_pct_change","income_10yr_change_pct","population_10yr_change_pct",
-                     "bachelors_degree_pct","unemployment_pct","poverty_pct",
-                     "flood_risk_pct","flood_2050_growth_pts","wildfire_risk"]
+                     "debt_per_capita","effective_tax_rate_pct","median_annual_tax_bill",
+                     "district_state_rank","district_rank_10yr_change",
+                     "test_scores_math_pct","graduation_rate_pct",
+                     "violent_crime_per_100k","property_crime_per_100k","crime_5yr_pct_change",
+                     "median_household_income","income_10yr_change_pct","population_10yr_change_pct",
+                     "transit_access","electric_savings_vs_state_avg",
+                     "water_violations_5yr","flood_risk_pct","flood_2050_growth_pts","wildfire_risk"]
     gaps = sum(1 for f in scored_fields if not td.get(f))
     conf = "high" if gaps <= 3 else ("medium" if gaps <= 8 else "low")
 
-    return civica, ter, ter_r, gaps, conf
+    return civica, ter, ter_r, gaps, conf, ps
+
+def build_distributions(rows, si):
+    """First pass: collect all SM values to build percentile distributions."""
+    raw_vals = {}
+    for td in rows:
+        ctx = si.get(td.get("state","MA"), si["MA"])
+        def sf(a, b):
+            try: return float(a)/float(b)
+            except: return None
+        def fv(k): return td.get(k) or None
+        h = {
+            "tax_burden_pct":      (float(td["median_annual_tax_bill"])/float(td["median_household_income"])*100)
+                                    if td.get("median_annual_tax_bill") and td.get("median_household_income") else None,
+            "rank_percentile":     (1-float(td["district_state_rank"])/float(td["district_state_rank_total"]))*100
+                                    if td.get("district_state_rank") and td.get("district_state_rank_total") else None,
+            "debt_ratio":          sf(fv("debt_per_capita"), ctx["debt_per_capita_median"]),
+            "violent_crime_ratio": sf(fv("violent_crime_per_100k"), ctx["violent_crime_per_100k"]),
+            "property_crime_ratio":sf(fv("property_crime_per_100k"), ctx["property_crime_per_100k"]),
+            "income_ratio":        sf(fv("median_household_income"), ctx["median_household_income"]),
+        }
+        sm_vals = {
+            "free_cash_pct":        fv("free_cash_pct_of_budget"),
+            "pension_funded":       fv("pension_funded_ratio_pct"),
+            "debt_per_capita":      h["debt_ratio"],
+            "effective_tax_rate":   fv("effective_tax_rate_pct"),
+            "tax_burden_to_income": h["tax_burden_pct"],
+            "rank_percentile":      h["rank_percentile"],
+            "rank_trajectory":      cap(fv("district_rank_10yr_change"), -150, 150),
+            "test_scores":          fv("test_scores_math_pct"),
+            "graduation_rate":      fv("graduation_rate_pct"),
+            "violent_crime":        h["violent_crime_ratio"],
+            "property_crime":       h["property_crime_ratio"],
+            "crime_trajectory":     cap(fv("crime_5yr_pct_change"), -75, 150),
+            "income_level":         h["income_ratio"],
+            "income_trend":         fv("income_10yr_change_pct"),
+            "population_trend":     fv("population_10yr_change_pct"),
+            "electric_value":       fv("electric_savings_vs_state_avg"),
+            "water_quality":        cap(fv("water_violations_5yr"), 0, 100),
+            "flood_risk":           fv("flood_risk_pct"),
+            "flood_trajectory":     fv("flood_2050_growth_pts"),
+        }
+        for sm_id, val in sm_vals.items():
+            if val is not None:
+                try: raw_vals.setdefault(sm_id, []).append(float(val))
+                except: pass
+    return {sm_id: sorted(vals) for sm_id, vals in raw_vals.items()}
 
 # ─── Main update loop ─────────────────────────────────────────────────────────
 print("\nLoading methodology...")
@@ -388,6 +466,10 @@ pw, sw, ri, si = load_methodology()
 print("Loading towns.csv...")
 rows = list(csv.DictReader(open(CSV_FILE, encoding="utf-8")))
 fieldnames = list(rows[0].keys())
+for f in ["p_schools","p_safety","p_taxes","p_fiscal","p_econ","p_qol","p_climate"]:
+    if f not in fieldnames:
+        fieldnames.append(f)
+        for r in rows: r.setdefault(f, "50")
 
 def setf(row, field, value):
     """Set field only if value is not None and field is in CSV."""
@@ -398,8 +480,6 @@ def setf_if_empty(row, field, value):
     """Set field only if currently empty and value not None."""
     if value is not None and field in fieldnames and not row.get(field):
         row[field] = str(value)
-
-score_changes = []
 
 MA_ZHVI = 613049.0
 ZHVI = {
@@ -431,8 +511,12 @@ ZHVI = {
     "Walpole":620000,"Sharon":680000,"Franklin":590000,"Foxborough":540000,
     "Medfield":870000,"Westford":730000,"Weston":1620000,"Dracut":430000,
     "Littleton":555000,"Stoughton":475000,
+    "Shrewsbury":530000,"Westborough":620000,"Northborough":595000,
+    "Grafton":510000,"Milford":445000,
+    "Mansfield":530000,"Easton":610000,"North Attleborough":430000,
+    "Medway":570000,"Millis":520000,
 }
-RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
+RATING_BANDS = [(60,"Great Value"),(50,"Good Value"),(40,"Fair Market"),(30,"Premium"),(0,"Luxury")]
 
 COUNTY_MAP = {
     "Danvers":"Essex","Beverly":"Essex","Marblehead":"Essex","Salem":"Essex",
@@ -459,11 +543,16 @@ COUNTY_MAP = {
     "Norwell":"Plymouth","Hanover":"Plymouth","Marshfield":"Plymouth","Kingston":"Plymouth",
     "Plymouth":"Plymouth","Brockton":"Plymouth",
     "Uxbridge":"Worcester",
+    "Shrewsbury":"Worcester","Westborough":"Worcester","Northborough":"Worcester",
+    "Grafton":"Worcester","Milford":"Worcester",
+    "Mansfield":"Bristol","Easton":"Bristol","North Attleborough":"Bristol",
+    "Medway":"Norfolk","Millis":"Norfolk",
 }
 
+# ─── Phase 1: Fill all data ───────────────────────────────────────────────────
+print("\nPhase 1: Filling data for all towns...")
 for row in rows:
     town = row["town_name"]
-    print(f"  {town}...", end=" ")
 
     # 1. Census ACS data (authoritative — update all towns)
     c = census.get(town.lower()) or census.get(town.lower() + " town")
@@ -473,7 +562,6 @@ for row in rows:
         setf(row, "unemployment_pct",           c.get("unemployment_pct"))
         setf(row, "income_10yr_change_pct",     c.get("income_10yr_change_pct"))
         setf(row, "population_10yr_change_pct", c.get("population_10yr_change_pct"))
-        # Only update median income if currently missing
         setf_if_empty(row, "median_household_income", c.get("median_household_income"))
 
     # 2. DESE school data (update all towns)
@@ -507,28 +595,47 @@ for row in rows:
     if town in PROPERTY_CRIME_UPDATES:
         setf(row, "property_crime_per_100k", PROPERTY_CRIME_UPDATES[town])
 
-    # 6. Recompute score
+# ─── Phase 2: Build percentile distributions ──────────────────────────────────
+print("Phase 2: Building percentile distributions...")
+dists = build_distributions(rows, si)
+for sm_id, vals in sorted(dists.items()):
+    print(f"  {sm_id}: n={len(vals)}, range=[{min(vals):.2f}, {max(vals):.2f}]")
+
+# ─── Phase 3: Score all towns ─────────────────────────────────────────────────
+print("Phase 3: Scoring all towns...")
+score_changes = []
+for row in rows:
+    town = row["town_name"]
     old_score = row.get("civica_score", "")
-    civica, ter, ter_r, gaps, conf = score_town(row, pw, sw, ri, si)
+    civica, ter, ter_r, gaps, conf, ps = score_town(row, pw, sw, ri, si, dists)
     row["civica_score"]     = str(civica)
     row["ter"]              = str(ter) if ter else ""
     row["ter_rating"]       = ter_r
     row["data_gaps_count"]  = str(gaps)
     row["data_confidence"]  = conf
     row["last_updated"]     = "2026-05-13"
+    row["p_schools"] = str(round(ps.get("schools",           50)))
+    row["p_safety"]  = str(round(ps.get("safety",            50)))
+    row["p_taxes"]   = str(round(ps.get("taxes",             50)))
+    row["p_fiscal"]  = str(round(ps.get("fiscal_health",     50)))
+    row["p_econ"]    = str(round(ps.get("economic_vitality", 50)))
+    row["p_qol"]     = str(round(ps.get("quality_of_life",   50)))
+    row["p_climate"] = str(round(ps.get("climate",           50)))
 
-    # 7. Recompute value score
     zhvi = ZHVI.get(town)
     if zhvi and civica:
-        raw = civica / (zhvi / MA_ZHVI)
-        vs = round(raw, 1)
+        raw_vs = civica / (zhvi / MA_ZHVI)
+        vs = round(raw_vs, 1)
         rating = next(label for t, label in RATING_BANDS if vs >= t)
         row["value_score"]  = str(vs)
         row["value_rating"] = rating
 
-    delta = int(civica) - int(old_score) if old_score.isdigit() else 0
-    score_changes.append((town, old_score, civica, delta))
-    print(f"{old_score} -> {civica} ({'+' if delta>=0 else ''}{delta})")
+    score_changes.append((town, old_score, civica, 0))  # delta filled after rescale
+
+score_changes = [(t, old, new, new - int(old) if str(old).isdigit() else 0)
+                 for t, old, new, _ in score_changes]
+for town, old, new, delta in score_changes:
+    print(f"  {town}: {old} -> {new} ({'+' if delta>=0 else ''}{delta})")
 
 # ─── Save towns.csv ───────────────────────────────────────────────────────────
 with open(CSV_FILE, "w", newline="", encoding="utf-8") as f:
@@ -633,6 +740,13 @@ for obj_start, obj_end in objects:
             return obj[:m.start()] + replacement + obj[m.end():]
         return obj
 
+    def ensure_field(obj, field, val):
+        """Update existing numeric field, or insert before closing } if absent."""
+        new_obj = re.sub(rf'({re.escape(field)}:)(?:-?[\d.]+|null)', rf'\g<1>{val}', obj)
+        if new_obj != obj:
+            return new_obj
+        return obj[:-1].rstrip() + f',{field}:{val}' + '}'
+
     def patch_any(obj, field, val):
         """Patch field that may currently be a number, negative, or null."""
         return re.sub(rf'({re.escape(field)}:)(?:-?[\d.]+|null)', rf'\g<1>{val}', obj)
@@ -673,6 +787,14 @@ for obj_start, obj_end in objects:
         obj = patch_any(obj, 'violent',  viol)
     if fv("property_crime_per_100k"):
         obj = patch_any(obj, 'prop_crime', prop)
+
+    obj = ensure_field(obj, 'p_schools', row["p_schools"])
+    obj = ensure_field(obj, 'p_safety',  row["p_safety"])
+    obj = ensure_field(obj, 'p_taxes',   row["p_taxes"])
+    obj = ensure_field(obj, 'p_fiscal',  row["p_fiscal"])
+    obj = ensure_field(obj, 'p_econ',    row["p_econ"])
+    obj = ensure_field(obj, 'p_qol',     row["p_qol"])
+    obj = ensure_field(obj, 'p_climate', row["p_climate"])
 
     html = html[:s] + obj + html[e:]
     delta += len(obj) - (obj_end - obj_start)

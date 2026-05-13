@@ -1,31 +1,23 @@
 pillar_id,submetric_id,submetric_name,weight,data_column
-fiscal_health,bond_rating,Bond Rating (S&P),0.25,bond_rating_sp
-fiscal_health,free_cash_pct,Free Cash % of Budget,0.20,free_cash_pct_of_budget
-fiscal_health,pension_funded,Pension Funded Ratio,0.20,pension_funded_ratio_pct
-fiscal_health,debt_per_capita,Debt Per Capita vs State Median,0.15,debt_ratio (calculated)
-fiscal_health,gfoa_years,GFOA Certificate Consecutive Years,0.10,gfoa_certificate_consecutive_years
-fiscal_health,tax_base_diversification,Tax Base Diversification (% non-residential),0.10,tax_base_non_residential_pct
-tax_efficiency,effective_tax_rate,Effective Tax Rate,0.40,effective_tax_rate_pct
-tax_efficiency,tax_burden_to_income,Tax Burden as % of Income,0.30,tax_burden_pct (calculated)
-tax_efficiency,tax_base_health,Non-Residential Tax Base %,0.30,tax_base_non_residential_pct
-schools,rank_percentile,District State-Rank Percentile,0.33,rank_percentile (calculated)
-schools,rank_trajectory,10-Year Rank Trajectory,0.28,district_rank_10yr_change
-schools,test_scores,State Test Math Proficiency,0.17,test_scores_math_pct
-schools,graduation_rate,Graduation Rate,0.11,graduation_rate_pct
-schools,ap_participation,AP Participation Rate,0.11,ap_participation_pct
-operational,transparency,Government Transparency,1.00,transparency
-infrastructure,electric_value,Electric Cost vs State Average,0.46,electric_savings_vs_state_avg
-infrastructure,water_quality,Water EPA Violations 5-Year,0.31,water_violations_5yr
-infrastructure,transit,Transit Access,0.23,transit_access
-safety,violent_crime,Violent Crime Ratio to State Avg,0.47,violent_crime_ratio (calculated)
-safety,property_crime,Property Crime Ratio to State Avg,0.29,property_crime_ratio (calculated)
-safety,crime_trajectory,Crime 5-Year % Change,0.24,crime_5yr_pct_change
-economic,income_trend,Median Income 10-Year Growth,0.28,income_10yr_change_pct
-economic,population_trend,Population 10-Year Growth,0.22,population_10yr_change_pct
-economic,income_level,Median Income vs State Median,0.17,income_ratio (calculated)
-economic,education_attainment,Bachelor's Degree+ Rate,0.17,bachelors_degree_pct
-economic,unemployment,Unemployment vs State Average,0.11,unemployment_ratio (calculated)
-economic,poverty,Poverty Ratio to State Average,0.05,poverty_ratio (calculated)
-climate,flood_risk,Flood Risk % Properties,0.50,flood_risk_pct
-climate,flood_trajectory,Flood Risk Growth to 2050,0.29,flood_2050_growth_pts
-climate,wildfire,Wildfire Risk Level,0.21,wildfire_risk
+schools,rank_percentile,School District State Rank,0.40,rank_percentile (calculated)
+schools,test_scores,MCAS Math Proficiency,0.25,test_scores_math_pct
+schools,graduation_rate,Graduation Rate,0.20,graduation_rate_pct
+schools,rank_trajectory,10-Year Rank Trend,0.15,district_rank_10yr_change
+safety,violent_crime,Violent Crime Rate,0.50,violent_crime_ratio (calculated)
+safety,property_crime,Property Crime Rate,0.35,property_crime_ratio (calculated)
+safety,crime_trajectory,Crime 5-Year Trend,0.15,crime_5yr_pct_change
+taxes,effective_tax_rate,Effective Tax Rate,0.55,effective_tax_rate_pct
+taxes,tax_burden_to_income,Tax Burden as % of Income,0.45,tax_burden_pct (calculated)
+fiscal_health,bond_rating,Bond Rating,0.30,bond_rating_sp
+fiscal_health,free_cash_pct,Free Cash Reserve,0.25,free_cash_pct_of_budget
+fiscal_health,pension_funded,Pension Funded Ratio,0.25,pension_funded_ratio_pct
+fiscal_health,debt_per_capita,Debt Per Capita vs State,0.20,debt_ratio (calculated)
+economic_vitality,income_level,Median Income vs State,0.40,income_ratio (calculated)
+economic_vitality,income_trend,Median Income 10-Year Growth,0.35,income_10yr_change_pct
+economic_vitality,population_trend,Population 10-Year Growth,0.25,population_10yr_change_pct
+quality_of_life,transit,Transit Access,0.35,transit_access
+quality_of_life,electric_value,Electric Utility Savings,0.35,electric_savings_vs_state_avg
+quality_of_life,water_quality,Water Quality (EPA Violations),0.30,water_violations_5yr
+climate,flood_risk,Flood Risk,0.50,flood_risk_pct
+climate,flood_trajectory,Flood Risk Growth to 2050,0.30,flood_2050_growth_pts
+climate,wildfire,Wildfire Risk,0.20,wildfire_risk

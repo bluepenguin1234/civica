@@ -1,9 +1,8 @@
 pillar_id,pillar_name,weight,rationale
-fiscal_health,Fiscal Health,0.30,Strongest predictor of future tax stability and primary differentiator from competitors
-tax_efficiency,Tax Efficiency,0.15,Signature differentiating metric — unique to Civica
-schools,Schools,0.15,Major buyer factor but covered by Niche/GreatSchools (reduced from 25%)
-operational,Operational Responsiveness,0.10,New differentiator — operational data nobody else surfaces
-infrastructure,Infrastructure & Utilities,0.10,Includes municipal utility savings — major hidden affordability factor
-safety,Safety,0.05,Widely covered by competitors; lower differentiation value
-economic,Economic Momentum,0.10,Forward-looking signal that supports trajectory indicator
-climate,Climate Resilience,0.05,First Street partnership ultimately preferred over building in-house
+schools,Schools,0.22,Primary homebuyer decision factor for families
+safety,Safety,0.18,Day-to-day quality of life and community feel
+taxes,Taxes,0.18,Direct out-of-pocket cost to the homebuyer
+fiscal_health,Fiscal Health,0.18,Predicts future tax stability and municipal services
+economic_vitality,Economic Vitality,0.12,Is the town growing and prosperous?
+quality_of_life,Quality of Life,0.07,Livability — transit, utilities, water
+climate,Climate Risk,0.05,Long-term risk to property value and insurance costs
