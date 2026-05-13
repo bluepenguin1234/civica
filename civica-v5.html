@@ -442,6 +442,14 @@ a{text-decoration:none;color:inherit}
 .hero-cta-primary:hover{opacity:.9}
 .hero-cta-secondary{font-size:.85rem;color:rgba(255,255,255,.65);font-weight:500;text-align:center;text-decoration:none;transition:color .15s}
 .hero-cta-secondary:hover{color:rgba(255,255,255,.9)}
+.hero-search-wrap{max-width:440px;margin:30px 0 0;position:relative}
+.hero-search-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:12px;padding:0 14px;height:50px;transition:border-color .2s,background .2s}
+.hero-search-bar:focus-within{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.65)}
+.hero-search-ico{color:rgba(255,255,255,.7);flex-shrink:0;display:flex;align-items:center}
+.hero-search-inp{flex:1;border:none;outline:none;font-size:.95rem;color:#fff;background:transparent;font-family:inherit}
+.hero-search-inp::placeholder{color:rgba(255,255,255,.55)}
+.hero-search-clear{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.6);font-size:1rem;padding:0;display:none;line-height:1;font-family:inherit}
+.hero-search-dd{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--border-mid);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden;z-index:500;display:none}
 .hero-trust span{display:flex;align-items:center;gap:5px}
 .form-success{max-width:440px;margin:20px 0 0;padding:16px 20px;border-radius:12px;background:rgba(48,209,88,.15);border:1px solid rgba(48,209,88,.3);color:#30d158;font-weight:600;font-size:.88rem;display:none;align-items:center;gap:10px}
 .hero-right{flex-shrink:0;width:340px}
@@ -601,6 +609,7 @@ a{text-decoration:none;color:inherit}
   .hero-trust{justify-content:center}
   .hero-ctas{max-width:100%;margin-left:auto;margin-right:auto}
   .hero-cta-primary{width:100%}
+  .hero-search-wrap{max-width:100%;margin:30px auto 0}
   .hero-right{width:100%;max-width:340px;margin:0 auto}
   /* Stats bar */
   .stats-numbers-inner{grid-template-columns:repeat(2,1fr);gap:20px 0}
@@ -829,6 +838,14 @@ a{text-decoration:none;color:inherit}
         <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 47 towns and cities</div>
         <h1>Know before<br>you <em>buy.</em></h1>
         <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the Civica intelligence layer missing from every home search.</p>
+        <div class="hero-search-wrap">
+          <div class="hero-search-bar">
+            <span class="hero-search-ico"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><line x1="14.5" y1="14.5" x2="19" y2="19"/></svg></span>
+            <input class="hero-search-inp" id="hero-search-inp" type="text" placeholder="Search your town or city…" autocomplete="off" spellcheck="false">
+            <button class="hero-search-clear" id="hero-search-clear" aria-label="Clear">✕</button>
+          </div>
+          <div class="hero-search-dd" id="hero-search-dd"></div>
+        </div>
         <div class="hero-ctas">
           <a href="#" onclick="showMap();return false" class="hero-cta-primary">See all towns and cities →</a>
           <a href="#waitlist" class="hero-cta-secondary">My town isn't listed — join the waitlist ↓</a>
@@ -2240,6 +2257,34 @@ window.addEventListener('popstate',e=>{
   else if(s.view==='prof') showProf(s.idx,false);
 });
 
+function initHeroSearch(){
+  const inp=document.getElementById('hero-search-inp');
+  const clr=document.getElementById('hero-search-clear');
+  const dd=document.getElementById('hero-search-dd');
+  if(!inp)return;
+  function run(){
+    const q=inp.value.trim().toLowerCase().replace(/\s+/g,'');
+    if(!q){dd.style.display='none';clr.style.display='none';return;}
+    clr.style.display='block';
+    const hits=TOWNS.map((t,i)=>({t,i})).filter(({t})=>{
+      const name=t.name.toLowerCase().replace(/\s+/g,'');
+      const zip=(t.zip||'').replace(/;/g,' ');
+      return name.includes(q)||zip.includes(q);
+    });
+    dd.innerHTML=hits.length
+      ? hits.map(({t,i})=>`<div class="map-search-item" onclick="showProf(${i})"><div class="msi-left"><span class="msi-name">${t.name}</span><span class="msi-zip">${t.county} County, MA</span></div><span class="msi-score" style="color:${scoreColor(t.score)}">${t.score}</span></div>`).join('')
+      : '<div class="map-search-empty">No towns or cities found — try "Beverly" or "Salem"</div>';
+    dd.style.display='block';
+  }
+  inp.addEventListener('input',run);
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Escape')dd.style.display='none';
+    if(e.key==='Enter'){const first=dd.querySelector('.map-search-item');if(first)first.click();}
+  });
+  clr.addEventListener('click',()=>{inp.value='';clr.style.display='none';dd.style.display='none';inp.focus();});
+  document.addEventListener('click',e=>{if(!e.target.closest('.hero-search-wrap'))dd.style.display='none';});
+}
+initHeroSearch();
 history.replaceState({view:'landing'},'',location.pathname);
 (function handleInitialHash(){
   const hash=location.hash.slice(1);
