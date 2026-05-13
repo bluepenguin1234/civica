@@ -288,6 +288,7 @@ a{text-decoration:none;color:inherit}
 .prof-nav{display:flex;align-items:center;gap:10px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
 .back-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;border-radius:7px;font-size:.8rem;font-weight:500;color:var(--blue);background:#e8eef6;transition:background .15s}
 .back-btn:hover{background:#d1e8ff}
+.back-short{display:none}
 .export-btn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 13px;border-radius:7px;font-size:.8rem;font-weight:600;color:#fff;background:var(--blue);border:none;cursor:pointer;font-family:inherit;transition:background .15s}
 .export-btn:hover{background:var(--blue-dk)}
 .prof-nav-town{font-size:.83rem;font-weight:600;color:var(--sec)}
@@ -572,6 +573,11 @@ a{text-decoration:none;color:inherit}
   .mortgage-inputs{grid-template-columns:1fr}
   .buyer-grid{grid-template-columns:1fr}
   .buyer-col:first-child{border-right:none;border-bottom:1px solid var(--border)}
+  .prof-nav{padding:8px 12px;gap:8px}
+  .back-long{display:none}
+  .back-short{display:inline}
+  .prof-nav-town,.prof-nav-score{display:none}
+  .prof-cmp-btn{margin-left:auto}
   .prof-hero{flex-direction:column;gap:18px;padding:22px 18px}
   .prof-hero-right{width:100%;display:flex;justify-content:center}
   .town-grid{grid-template-columns:1fr}
@@ -1149,7 +1155,7 @@ a{text-decoration:none;color:inherit}
 ══════════════════════════════════════ -->
 <div id="prof-view" class="view">
   <div class="prof-nav">
-    <button class="back-btn" onclick="showMap()">← All Cities & Towns</button>
+    <button class="back-btn" onclick="showMap()"><span class="back-long">← All Cities &amp; Towns</span><span class="back-short">← Back</span></button>
     <span class="prof-nav-town" id="pnav-town"></span>
     <span class="prof-nav-score" id="pnav-score"></span>
     <button class="prof-cmp-btn" id="prof-cmp-btn" onclick="toggleCompare(state.prof)">+ Compare</button>
