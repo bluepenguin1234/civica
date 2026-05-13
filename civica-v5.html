@@ -739,6 +739,11 @@ a{text-decoration:none;color:inherit}
   .adv-body{padding:36px 20px}
 }
 
+/* ── KEY STAT TOOLTIPS ── */
+.kst-i{position:relative;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#e5e5ea;color:#6e6e73;font-size:8px;font-weight:800;cursor:default;flex-shrink:0;margin-left:5px;line-height:1}
+.kst-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:210px;background:#1d1d1f;color:#fff;font-size:11px;line-height:1.55;padding:9px 12px;border-radius:9px;z-index:9999;pointer-events:none;font-weight:400;letter-spacing:0;white-space:normal;box-shadow:0 4px 18px rgba(0,0,0,.22);text-transform:none}
+.kst-i:hover .kst-tip{display:block}
+
 /* ── COMPARE BAR ── */
 .compare-bar{position:fixed;bottom:0;left:0;right:0;z-index:2000;background:#0d2d52;color:#fff;padding:12px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 -4px 24px rgba(0,0,0,.18);transform:translateY(100%);transition:transform .25s ease;flex-wrap:wrap}
 .compare-bar.visible{transform:translateY(0)}
@@ -1788,12 +1793,12 @@ function renderProf(idx){
     <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:12px">Key Stats</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-        ${profKstat('Bond Rating',t.bond||'—')}
-        ${profKstat('Median Tax',t.med_tax?'$'+t.med_tax.toLocaleString():'—')}
-        ${profKstat('School Rank',t.d_rank?'#'+t.d_rank+' / '+t.d_total:'—')}
-        ${profKstat('Tax Eff. Ratio',t.ter+' — '+t.ter_r)}
-        ${profKstat('Free Cash',t.free_cash!=null?t.free_cash+'%':'—')}
-        ${profKstat('Elec. Savings/yr',t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():'—')}
+        ${profKstat('Bond Rating',t.bond||'—','Municipal credit rating from S&P or Moody\'s. AAA is the highest — it signals strong fiscal management and lowers the town\'s borrowing costs. Unrated towns are typically smaller communities that haven\'t issued public debt.')}
+        ${profKstat('Median Tax',t.med_tax?'$'+t.med_tax.toLocaleString():'—','Median annual property tax bill for a single-family home. Reflects both the residential tax rate and the assessed value of homes in this municipality.')}
+        ${profKstat('School Rank',t.d_rank?'#'+t.d_rank+' / '+t.d_total:'—','District ranking by MCAS performance across all Massachusetts school districts. Lower number = stronger academic performance. Based on DESE district profiles.')}
+        ${profKstat('Tax Eff. Ratio',t.ter+' — '+t.ter_r,'Civica\'s Tax Efficiency Ratio: how much civic quality you receive per dollar of tax burden, normalized against the statewide average. A high TER means you get more for your money; a low TER means you\'re paying a premium relative to what\'s delivered.')}
+        ${profKstat('Free Cash',t.free_cash!=null?t.free_cash+'%':'—','Certified free cash as a percentage of the operating budget. Measures fiscal cushion available after bills are paid. 5% or higher is generally healthy; below 3% signals tighter margins with less room to absorb unexpected costs.')}
+        ${profKstat('Elec. Savings/yr',t.elec_save!=null?(t.elec_save>=0?'+$':'-$')+Math.abs(t.elec_save).toLocaleString():'—','Annual electricity cost difference vs. the state grid rate for a typical household. Applies only to towns with a municipal light department (MLD). A positive number means the MLD rate is cheaper than the grid.')}
       </div>
     </div>
 
@@ -2332,9 +2337,10 @@ function schoolTrend(d){
   if(v<-5)return'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#fff0ee;color:#c0392b;margin-left:6px">↓ Declining</span>';
   return'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#f5f5f7;color:#6e6e73;margin-left:6px">→ Stable</span>';
 }
-function profKstat(label,val){
+function profKstat(label,val,tip){
+  const ico=tip?`<span class="kst-i">i<span class="kst-tip">${tip}</span></span>`:'';
   return`<div style="background:#f8f8f9;border-radius:10px;padding:13px 15px;border:1px solid #efefef">
-    <div style="font-size:10px;color:#98989d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${label}</div>
+    <div style="font-size:10px;color:#98989d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center">${label}${ico}</div>
     <div style="font-size:15px;font-weight:700;color:#1d1d1f">${val}</div>
   </div>`;
 }
