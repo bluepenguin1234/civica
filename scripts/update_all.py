@@ -137,6 +137,8 @@ DISTRICT_MAP = {
     "Salisbury":            "triton",
     "Newbury":              "triton",
     "Nahant":               "lynn",
+    "Acton":                "acton-boxborough",
+    "Concord":              "concord-carlisle",
 }
 
 def get_school(town):
@@ -470,6 +472,9 @@ for row in rows:
         "Rockport":834071,"Rowley":733628,"Manchester-by-the-Sea":1183983,
         "Wenham":938834,"West Newbury":861236,"Essex":827029,"Nahant":903532,
         "Boston":720000,"Revere":440000,"Winthrop":520000,
+        "Newton":1200000,"Waltham":720000,"Malden":545000,"Everett":530000,
+        "Watertown":840000,"Framingham":575000,"Natick":775000,
+        "Acton":840000,"Concord":1100000,"Stoneham":690000,
     }
     RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
     zhvi = ZHVI.get(town)
