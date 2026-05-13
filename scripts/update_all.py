@@ -619,6 +619,10 @@ for obj_start, obj_end in objects:
         obj = patch_any(obj, 'debt_pc',  js_num("debt_per_capita"))
     if fv("bond_rating_sp"):
         obj = patch_str(obj, 'bond',     bond)
+    if fv("district_rank_10yr_change"):
+        # patch_any handles number or null; also handles old string values like "-10 spots"
+        d10yr_val = js_num("district_rank_10yr_change")
+        obj = re.sub(r'd_10yr:(?:-?[\d.]+|null|"[^"]*")', f'd_10yr:{d10yr_val}', obj)
     if fv("violent_crime_per_100k"):
         obj = patch_any(obj, 'violent',  viol)
     if fv("property_crime_per_100k"):
