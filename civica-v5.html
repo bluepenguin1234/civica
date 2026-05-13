@@ -437,6 +437,11 @@ a{text-decoration:none;color:inherit}
 .hero-form button{height:50px;padding:0 22px;border-radius:12px;background:#fff;color:#0d2d52;font-size:.9rem;font-weight:700;white-space:nowrap;transition:background .15s,transform .1s;flex-shrink:0}
 .hero-form button:hover{background:rgba(255,255,255,.92);transform:translateY(-1px)}
 .hero-trust{font-size:.78rem;color:rgba(255,255,255,.5);margin-top:14px;display:flex;align-items:center;justify-content:center;gap:16px}
+.hero-ctas{margin-top:32px;display:flex;flex-direction:column;gap:12px;max-width:340px}
+.hero-cta-primary{display:flex;align-items:center;justify-content:center;height:52px;border-radius:14px;background:#fff;color:#0d2d52;font-size:.95rem;font-weight:700;text-decoration:none;padding:0 24px;transition:opacity .15s}
+.hero-cta-primary:hover{opacity:.9}
+.hero-cta-secondary{font-size:.85rem;color:rgba(255,255,255,.65);font-weight:500;text-align:center;text-decoration:none;transition:color .15s}
+.hero-cta-secondary:hover{color:rgba(255,255,255,.9)}
 .hero-trust span{display:flex;align-items:center;gap:5px}
 .form-success{max-width:440px;margin:20px 0 0;padding:16px 20px;border-radius:12px;background:rgba(48,209,88,.15);border:1px solid rgba(48,209,88,.3);color:#30d158;font-weight:600;font-size:.88rem;display:none;align-items:center;gap:10px}
 .hero-right{flex-shrink:0;width:340px}
@@ -594,6 +599,8 @@ a{text-decoration:none;color:inherit}
   .hero-form button{width:100%}
   .form-success{margin:20px auto 0}
   .hero-trust{justify-content:center}
+  .hero-ctas{max-width:100%;margin-left:auto;margin-right:auto}
+  .hero-cta-primary{width:100%}
   .hero-right{width:100%;max-width:340px;margin:0 auto}
   /* Stats bar */
   .stats-numbers-inner{grid-template-columns:repeat(2,1fr);gap:20px 0}
@@ -822,20 +829,9 @@ a{text-decoration:none;color:inherit}
         <div class="hero-badge"><span class="dot"></span>Now live · Massachusetts · 47 cities and towns</div>
         <h1>Know before<br>you <em>buy.</em></h1>
         <p class="hero-sub">Civica scores every city and town on fiscal health, schools, taxes, safety, and infrastructure — the Civica intelligence layer missing from every home search.</p>
-        <form class="hero-form" id="hero-form" onsubmit="submitHero(event)">
-          <div class="hero-form-row">
-            <input type="text" id="hero-town" placeholder="City or town" autocomplete="address-level2">
-            <input type="text" id="hero-state" class="state-input" placeholder="State" maxlength="20" autocomplete="address-level1">
-          </div>
-          <div class="hero-form-row">
-            <input type="email" id="hero-email" placeholder="Your email" required autocomplete="email" maxlength="254">
-            <button type="submit" id="hero-btn">Notify Me</button>
-          </div>
-          <input type="text" name="_gotcha" style="opacity:0;position:absolute;height:0;width:0;border:none;padding:0" tabindex="-1" autocomplete="off" aria-hidden="true">
-        </form>
-        <div class="form-success" id="hero-success">✓ &nbsp;You're on the list. We'll notify you when new cities and towns launch.</div>
-        <div style="margin-top:14px">
-          <a href="#" onclick="showMap();return false" style="font-size:.95rem;color:rgba(255,255,255,.8);font-weight:600;text-decoration:none;border-bottom:1.5px solid rgba(255,255,255,.3);padding-bottom:1px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(255,255,255,.8)'" onmouseout="this.style.borderColor='rgba(255,255,255,.3)'">See all towns and cities →</a>
+        <div class="hero-ctas">
+          <a href="#" onclick="showMap();return false" class="hero-cta-primary">See all 47 towns and cities →</a>
+          <a href="#waitlist" class="hero-cta-secondary">My town isn't listed — join the waitlist ↓</a>
         </div>
       </div>
       <!-- Right: live score card preview -->
@@ -1038,7 +1034,26 @@ a{text-decoration:none;color:inherit}
     </div>
   </section>
 
-  <!-- CTA -->
+  <!-- Waitlist CTA -->
+  <section class="lp-cta" id="waitlist">
+    <div class="section-eyebrow" style="color:rgba(255,255,255,.55);margin-bottom:16px">Get Notified</div>
+    <h2>Your town isn't on Civica yet?</h2>
+    <p>Tell us where you're looking. We'll reach out as soon as we launch coverage for your area.</p>
+    <form class="lp-cta-form" id="cta-form" onsubmit="submitCta(event)">
+      <div class="lp-cta-form-row">
+        <input type="text" id="cta-town" placeholder="City or town" autocomplete="address-level2">
+        <input type="text" id="cta-state" class="state-input" placeholder="State" maxlength="20" autocomplete="address-level1">
+      </div>
+      <div class="lp-cta-form-row">
+        <input type="email" id="cta-email" placeholder="Your email" required autocomplete="email" maxlength="254">
+        <button type="submit" id="cta-btn">Join Waitlist</button>
+      </div>
+      <input type="text" name="_gotcha" style="opacity:0;position:absolute;height:0;width:0;border:none;padding:0" tabindex="-1" autocomplete="off" aria-hidden="true">
+    </form>
+    <div class="lp-cta-success" id="cta-success">✓ &nbsp;You're on the list. We'll notify you when we launch in your area.</div>
+    <div class="lp-cta-trust"><span>🔒 No spam, ever</span><span>📍 Location-based alerts only</span></div>
+  </section>
+
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-logo">
