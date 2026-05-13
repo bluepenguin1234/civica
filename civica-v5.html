@@ -1151,8 +1151,8 @@ a{text-decoration:none;color:inherit}
         </div>
         <div class="map-filter-pills" id="map-filter-pills">
           <button class="mfp active" data-filter="all" onclick="setMapFilter('all')">All</button>
-          <button class="mfp" data-filter="excellent" onclick="setMapFilter('excellent')">73+ Excellent</button>
-          <button class="mfp" data-filter="good" onclick="setMapFilter('good')">67+ Good</button>
+          <button class="mfp" data-filter="excellent" onclick="setMapFilter('excellent')">65+ Excellent</button>
+          <button class="mfp" data-filter="good" onclick="setMapFilter('good')">55+ Good</button>
           <button class="mfp" data-filter="schools" onclick="setMapFilter('schools')">Top Schools</button>
           <button class="mfp" data-filter="rail" onclick="setMapFilter('rail')">Commuter Rail</button>
           <button class="mfp" data-filter="utility" onclick="setMapFilter('utility')">Muni Electric</button>
@@ -1748,8 +1748,8 @@ function closeMapPanel(){document.getElementById('map-panel').classList.remove('
 ═══════════════════════════════ */
 function filteredTowns(){
   let list=TOWNS.map((t,i)=>({...t,idx:i}));
-  if(state.filter==='excellent') list=list.filter(t=>t.score>=73);
-  if(state.filter==='good') list=list.filter(t=>t.score>=67);
+  if(state.filter==='excellent') list=list.filter(t=>t.score>=65);
+  if(state.filter==='good') list=list.filter(t=>t.score>=55);
   if(state.filter==='strong') list=list.filter(t=>t.ter_r==='Strong');
   if(state.filter==='schools') list=list.filter(t=>t.d_rank&&t.d_rank<=120);
   if(state.filter==='rail') list=list.filter(t=>t.transit&&t.transit.includes('Rail'));
@@ -1774,8 +1774,8 @@ function filteredTowns(){
 function mapFilteredTowns(){
   let list=TOWNS.map((t,i)=>({...t,idx:i}));
   const f=state.mapFilters;
-  if(f.has('excellent')) list=list.filter(t=>t.score>=73);
-  if(f.has('good')) list=list.filter(t=>t.score>=67);
+  if(f.has('excellent')) list=list.filter(t=>t.score>=65);
+  if(f.has('good')) list=list.filter(t=>t.score>=55);
   if(f.has('strong')) list=list.filter(t=>t.ter_r==='Strong');
   if(f.has('schools')) list=list.filter(t=>t.d_rank&&t.d_rank<=120);
   if(f.has('rail')) list=list.filter(t=>t.transit&&t.transit.includes('Rail'));
