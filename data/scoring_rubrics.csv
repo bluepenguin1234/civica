@@ -275,3 +275,9 @@ tree_canopy,range,15,25,,55,60
 tree_canopy,range,25,35,,75,60
 tree_canopy,range,35,45,,88,60
 tree_canopy,range,45,999,,100,60
+housing_affordability,range,0,3.5,,100,60
+housing_affordability,range,3.5,5.0,,88,60
+housing_affordability,range,5.0,7.0,,72,60
+housing_affordability,range,7.0,9.0,,55,60
+housing_affordability,range,9.0,12.0,,30,60
+housing_affordability,range,12.0,999,,10,60

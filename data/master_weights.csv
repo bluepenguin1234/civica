@@ -1,8 +1,8 @@
 pillar_id,pillar_name,weight,rationale
-schools,Schools,0.22,Primary homebuyer decision factor for families
-safety,Safety,0.18,Day-to-day quality of life and community feel
-taxes,Taxes,0.18,Direct out-of-pocket cost to the homebuyer
-fiscal_health,Fiscal Health,0.18,Predicts future tax stability and municipal services
-economic_vitality,Economic Vitality,0.12,Is the town growing and prosperous?
+schools,Schools,0.25,#1 stated homebuyer priority — district quality drives family location decisions
+safety,Safety,0.20,#2 stated priority — day-to-day quality of life and community feel
+fiscal_health,Fiscal Health,0.20,Predicts future tax stability; Civica's core competitive differentiator vs Zillow/Niche
+taxes,Taxes,0.15,Direct out-of-pocket cost to the homebuyer
+economic_vitality,Economic Vitality,0.10,Is the town growing? Supports property value appreciation and tax base stability
 quality_of_life,Quality of Life,0.07,Livability — transit, utilities, water
-climate,Climate Risk,0.05,Long-term risk to property value and insurance costs
+climate,Climate Risk,0.03,Long-term risk to property value and insurance costs

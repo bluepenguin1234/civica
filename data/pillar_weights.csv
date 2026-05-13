@@ -1,13 +1,14 @@
 pillar_id,submetric_id,submetric_name,weight,data_column
-schools,rank_percentile,School District State Rank,0.40,rank_percentile (calculated)
+schools,rank_percentile,School District State Rank,0.35,rank_percentile (calculated)
 schools,test_scores,MCAS Math Proficiency,0.25,test_scores_math_pct
 schools,graduation_rate,Graduation Rate,0.20,graduation_rate_pct
-schools,rank_trajectory,10-Year Rank Trend,0.15,district_rank_10yr_change
+schools,rank_trajectory,10-Year Rank Trend,0.20,district_rank_10yr_change
 safety,violent_crime,Violent Crime Rate,0.50,violent_crime_ratio (calculated)
 safety,property_crime,Property Crime Rate,0.35,property_crime_ratio (calculated)
 safety,crime_trajectory,Crime 5-Year Trend,0.15,crime_5yr_pct_change
-taxes,effective_tax_rate,Effective Tax Rate,0.55,effective_tax_rate_pct
-taxes,tax_burden_to_income,Tax Burden as % of Income,0.45,tax_burden_pct (calculated)
+taxes,effective_tax_rate,Effective Tax Rate,0.45,effective_tax_rate_pct
+taxes,tax_burden_to_income,Tax Burden as % of Income,0.35,tax_burden_pct (calculated)
+taxes,housing_affordability,Housing Affordability Ratio,0.20,housing_affordability_ratio (calculated)
 fiscal_health,bond_rating,Bond Rating,0.30,bond_rating_sp
 fiscal_health,free_cash_pct,Free Cash Reserve,0.25,free_cash_pct_of_budget
 fiscal_health,pension_funded,Pension Funded Ratio,0.25,pension_funded_ratio_pct

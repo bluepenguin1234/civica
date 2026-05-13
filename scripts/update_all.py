@@ -380,6 +380,8 @@ def score_town(td, pw, sw, ri, si, dists=None):
         "flood_risk":           fv("flood_risk_pct"),
         "flood_trajectory":     fv("flood_2050_growth_pts"),
         "wildfire":             fv("wildfire_risk"),
+        # Taxes — housing affordability ratio (home value / household income)
+        "housing_affordability": fv("housing_affordability_ratio"),
     }
     ss = {sm: score_submetric(sm, val, ri, dists) for sm, val in SM.items()}
     ps = {}
@@ -407,7 +409,8 @@ def score_town(td, pw, sw, ri, si, dists=None):
                      "violent_crime_per_100k","property_crime_per_100k","crime_5yr_pct_change",
                      "median_household_income","income_10yr_change_pct","population_10yr_change_pct",
                      "transit_access","electric_savings_vs_state_avg",
-                     "water_violations_5yr","flood_risk_pct","flood_2050_growth_pts","wildfire_risk"]
+                     "water_violations_5yr","flood_risk_pct","flood_2050_growth_pts","wildfire_risk",
+                     "housing_affordability_ratio"]
     gaps = sum(1 for f in scored_fields if not td.get(f))
     conf = "high" if gaps <= 3 else ("medium" if gaps <= 8 else "low")
 
@@ -470,6 +473,10 @@ for f in ["p_schools","p_safety","p_taxes","p_fiscal","p_econ","p_qol","p_climat
     if f not in fieldnames:
         fieldnames.append(f)
         for r in rows: r.setdefault(f, "50")
+for f in ["housing_affordability_ratio"]:
+    if f not in fieldnames:
+        fieldnames.append(f)
+        for r in rows: r.setdefault(f, "")
 
 def setf(row, field, value):
     """Set field only if value is not None and field is in CSV."""
@@ -516,7 +523,7 @@ ZHVI = {
     "Mansfield":530000,"Easton":610000,"North Attleborough":430000,
     "Medway":570000,"Millis":520000,
 }
-RATING_BANDS = [(60,"Great Value"),(50,"Good Value"),(40,"Fair Market"),(30,"Premium"),(0,"Luxury")]
+RATING_BANDS = [(60,"Hidden Gem"),(50,"Strong Value"),(40,"Market Rate"),(30,"Premium Town"),(0,"Luxury Market")]
 
 COUNTY_MAP = {
     "Danvers":"Essex","Beverly":"Essex","Marblehead":"Essex","Salem":"Essex",
@@ -594,6 +601,16 @@ for row in rows:
         setf(row, "violent_crime_per_100k", VIOLENT_CRIME_UPDATES[town])
     if town in PROPERTY_CRIME_UPDATES:
         setf(row, "property_crime_per_100k", PROPERTY_CRIME_UPDATES[town])
+
+    # 6. Housing affordability ratio (home value / household income) — derived
+    zhvi_val = ZHVI.get(town)
+    med_inc_str = row.get("median_household_income", "")
+    if zhvi_val and med_inc_str:
+        try:
+            ratio = round(zhvi_val / float(med_inc_str), 2)
+            if "housing_affordability_ratio" in fieldnames:
+                row["housing_affordability_ratio"] = str(ratio)
+        except: pass
 
 # ─── Phase 2: Build percentile distributions ──────────────────────────────────
 print("Phase 2: Building percentile distributions...")
@@ -742,9 +759,16 @@ for obj_start, obj_end in objects:
 
     def ensure_field(obj, field, val):
         """Update existing numeric field, or insert before closing } if absent."""
-        new_obj = re.sub(rf'({re.escape(field)}:)(?:-?[\d.]+|null)', rf'\g<1>{val}', obj)
-        if new_obj != obj:
-            return new_obj
+        pattern = rf'{re.escape(field)}:(?:-?[\d.]+|null)'
+        if re.search(pattern, obj):
+            return re.sub(rf'({re.escape(field)}:)(?:-?[\d.]+|null)', rf'\g<1>{val}', obj)
+        return obj[:-1].rstrip() + f',{field}:{val}' + '}'
+
+    def ensure_str_field(obj, field, val):
+        """Update existing string field, or insert before closing } if absent."""
+        pattern = rf'{re.escape(field)}:(?:"[^"]*"|null)'
+        if re.search(pattern, obj):
+            return re.sub(rf'({re.escape(field)}:)(?:"[^"]*"|null)', rf'\g<1>{val}', obj)
         return obj[:-1].rstrip() + f',{field}:{val}' + '}'
 
     def patch_any(obj, field, val):
@@ -795,6 +819,11 @@ for obj_start, obj_end in objects:
     obj = ensure_field(obj, 'p_econ',    row["p_econ"])
     obj = ensure_field(obj, 'p_qol',     row["p_qol"])
     obj = ensure_field(obj, 'p_climate', row["p_climate"])
+
+    if fv("value_rating"):
+        obj = ensure_str_field(obj, 'value_rating', js_str("value_rating"))
+    if fv("value_score"):
+        obj = ensure_field(obj, 'value_score', js_num("value_score"))
 
     html = html[:s] + obj + html[e:]
     delta += len(obj) - (obj_end - obj_start)
