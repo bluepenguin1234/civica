@@ -475,6 +475,9 @@ for row in rows:
         "Newton":1200000,"Waltham":720000,"Malden":545000,"Everett":530000,
         "Watertown":840000,"Framingham":575000,"Natick":775000,
         "Acton":840000,"Concord":1100000,"Stoneham":690000,
+        "Quincy":535000,"Braintree":640000,"Milton":970000,"Brookline":1450000,
+        "Dedham":690000,"Needham":1250000,"Wellesley":1750000,"Weymouth":530000,
+        "Canton":720000,"Norwood":580000,
     }
     RATING_BANDS = [(82,"Great Value"),(65,"Good Value"),(50,"Fair Market"),(35,"Premium"),(0,"Luxury")]
     zhvi = ZHVI.get(town)
