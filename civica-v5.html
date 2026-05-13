@@ -1498,7 +1498,7 @@ function computeScore(t){
     infra*0.06 + momentum*0.08 + safety*0.15 + climate*0.03
   );
 }
-TOWNS.forEach(t=>{t.score=computeScore(t);});
+
 
 function metricRow(key,label,display,g){
   if(display==null)return`<div class="metric-row"><div class="metric-dot" style="background:#e5e5ea"></div><span class="metric-key">${label}</span><span class="metric-na">Pending</span></div>`;
@@ -2350,7 +2350,7 @@ function computeScore(t){
   const clim=profPillarScore(t,[['flood',t.flood],['flood50',t.flood50]]);
   return Math.round(fisc*.30+tax*.15+sch*.15+50*.10+inf*.10+saf*.05+econ*.10+clim*.05);
 }
-TOWNS.forEach(t=>{t.score=computeScore(t);});
+
 const profBarColor=s=>s>=70?'#30d158':s>=45?'#ff9f0a':'#ff3b30';
 
 function buildPDFHTML(t){
