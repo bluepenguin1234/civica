@@ -806,9 +806,9 @@ The rubric uses the documented default (typically 50–70). A blank cell with a 
 
 | Tier | Gaps | Use |
 |---|---|---|
-| **high** | <5 | Safe to publish externally |
-| **medium** | 5–15 | Internal use only; not for press or public profile |
-| **low** | >15 | Not yet ready for any external use |
+| **high** | ≤3 | Safe to publish externally |
+| **medium** | 4–8 | Internal use only; not for press or public profile |
+| **low** | >8 | Not yet ready for any external use |
 
 **Only towns marked `high` confidence should be published externally.** Publishing a "medium" confidence score means defending estimates to a journalist or town manager — that conversation is unwinnable.
 

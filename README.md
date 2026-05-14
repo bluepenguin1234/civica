@@ -1,6 +1,6 @@
 # Civica
 
-Civic intelligence for MA home buyers. Scores 50 cities and towns on fiscal health, schools, taxes, safety, and infrastructure.
+Civic intelligence for MA home buyers. Scores 190 cities and towns on fiscal health, schools, taxes, safety, and infrastructure.
 
 **Live site:** https://bluepenguin1234.github.io/civica/civica-v5.html
 **GitHub:** https://github.com/bluepenguin1234/civica
@@ -12,10 +12,10 @@ Civic intelligence for MA home buyers. Scores 50 cities and towns on fiscal heal
 ### Root Files
 | File | What it is |
 |---|---|
-| `civica-v5.html` | The live website — all 50 towns, map, profiles, scoring |
+| `civica-v5.html` | The live website — all 190 towns, map, profiles, scoring |
 | `civica-privacy.html` | Privacy policy page |
 | `index.html` | Redirects to civica-v5.html |
-| `civica_value_scores.xlsx` | Private Excel — Civica Score + Value Score for all 50 towns |
+| `civica_value_scores.xlsx` | Private Excel — Civica Score + Value Score for all 190 towns |
 | `CLAUDE.md` | Instructions for Claude AI assistant |
 
 ---
@@ -23,7 +23,7 @@ Civic intelligence for MA home buyers. Scores 50 cities and towns on fiscal heal
 ### `data/` — All Data
 | File | What it is |
 |---|---|
-| `towns.csv` | **Single source of truth** — all 50 towns, every data field |
+| `towns.csv` | **Single source of truth** — all 190 towns, every data field |
 | `master_weights.csv` | The 7 pillar weights (Fiscal 28%, Schools 25%, etc.) |
 | `pillar_weights.csv` | Submetric weights within each pillar |
 | `scoring_rubrics.csv` | Rules that convert raw values → 0–100 scores |
@@ -63,13 +63,8 @@ Civic intelligence for MA home buyers. Scores 50 cities and towns on fiscal heal
 ### `docs/` — Reference Documents
 | File | What it is |
 |---|---|
-| `04-scoring-methodology.md` | Full scoring methodology write-up |
-| `05-citation-sop.md` | How to cite data sources |
-| `06-collection-playbook.md` | Playbook for researching a new town |
-| `07-ai-implementation-spec.md` | AI implementation notes |
 | `CIVICA_MARKETING_PLAN.md` | Full go-to-market strategy and 90-day plan |
 | `CIVICA_WEBSITE_BRIEF.md` | Website design brief |
-| `scoring-roadmap.md` | Planned scoring improvements |
 | `civica-methodology.html` | Methodology page (web version) |
 | `Civica Ads.html` | Ad copy and marketing materials |
 | `REMINDERS.md` | Pending tasks and reminders |
@@ -85,12 +80,12 @@ Previous HTML versions kept for reference. Do not edit.
 
 | Pillar | Weight |
 |---|---|
-| Fiscal Health | 28% |
 | Schools | 25% |
-| Tax Efficiency | 15% |
-| Safety | 15% |
-| Economic Momentum | 8% |
-| Infrastructure | 6% |
+| Safety | 20% |
+| Fiscal Health | 20% |
+| Taxes | 15% |
+| Economic Vitality | 10% |
+| Infrastructure & Utilities | 7% |
 | Climate Risk | 3% |
 
 **Value Score** = Civica Score ÷ (Town ZHVI / MA State ZHVI $613,049) — private, Excel only.

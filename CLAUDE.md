@@ -202,7 +202,7 @@ Open: http://localhost:8765/civica-v5.html
 - **Value Rating** = Civica Score ÷ (median home price ÷ MA median). Answers: "Is this town expensive relative to what it offers?"
 - **TMS (Town Momentum Score)** = weighted trajectory across schools, income, home appreciation, population, crime. Labels: Rising Town / Steady Growth / Hold Steady / Stagnating / Declining
 
-Full methodology: `docs/CIVICA_FOR_DUMMIES.md` and `docs/04-scoring-methodology.md`
+Full methodology: `CIVICA_FOR_DUMMIES.md`
 
 ---
 
@@ -386,7 +386,7 @@ These are calculated from the raw fields above. Set them to `null` when first ad
 | `glance` | string | 2–3 sentences: the honest buyer take. Shown in the "At a Glance" box on every profile. See Section 17 for the full writing guide. **Auto-generated** by `update_all.py` if missing; always refine manually — auto text is a starting point, not the final copy. |
 | `notes` | string | Internal compiler notes: data confidence flags, verification reminders, source citations. Not shown to users. |
 | `gaps` | integer | Count of missing/estimated fields. Honest self-assessment. |
-| `conf` | string | `"high"` (≤2 gaps, all key fields verified), `"medium"` (3–5 gaps or unverified key fields), `"low"` (>5 gaps or major fields missing) |
+| `conf` | string | `"high"` (≤3 gaps), `"medium"` (4–8 gaps), `"low"` (>8 gaps). Computed by `update_all.py` — do not set manually. |
 | `last_updated` | string | ISO date: `"2026-05-13"` |
 
 ---
