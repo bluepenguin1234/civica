@@ -1946,10 +1946,10 @@ function renderProf(idx){
       </div>
     </div>
 
-    <!-- KEY INSIGHT -->
+    <!-- AT A GLANCE -->
     <div style="padding:16px 32px;background:#f0f6ff;border-left:5px solid #0d2d52;border-bottom:1px solid #dce8fb">
-      <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0d2d52;margin-bottom:4px">Key Insight</div>
-      <div style="font-size:.88rem;line-height:1.65;color:#1d4ed8">${t.standout||''}</div>
+      <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0d2d52;margin-bottom:4px">At a Glance</div>
+      <div style="font-size:.88rem;line-height:1.65;color:#1d4ed8">${t.glance||''}</div>
     </div>
 
     ${t.conf==='low'?`
@@ -2032,9 +2032,9 @@ function renderProf(idx){
         <div class="ad-promote"><span>Sponsored</span><a href="mailto:hello@civica.com">Advertise here →</a></div>
       </div>
 
-      <!-- At a Glance -->
-      <div class="sec-label">At a Glance</div>
-      <div class="glance-card">${t.glance}</div>
+      <!-- Key Insight -->
+      <div class="sec-label">Key Insight</div>
+      <div class="glance-card" style="color:#1d4ed8;background:#f0f6ff;border-color:#dce8fb">${t.standout||''}</div>
 
       <!-- Pillars -->
       <div class="sec-label">Pillar Analysis — All Data Free</div>
