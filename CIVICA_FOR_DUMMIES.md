@@ -169,6 +169,31 @@ Percentile scores create three problems:
 
 **The right solution for state expansion:** When adding New Hampshire towns, create NH-calibrated rubric thresholds that reflect what's actually good or bad in that state (higher property taxes are normal there, different crime baselines, etc.). The 0–100 scale stays identical — only the band thresholds shift. The scoring engine already supports this: you'd add a `state` column to `scoring_rubrics.csv`.
 
+### Score Color Bands
+
+Every score is color-coded consistently across the map markers, profile score ring, directory cards, pillar bars, and compare table:
+
+| Score | Color | Label |
+|---|---|---|
+| 80–100 | Green `#30d158` | Excellent |
+| 70–79 | Yellow `#ffd60a` | Good |
+| 60–69 | Orange `#ff9f0a` | Fair |
+| Below 60 | Red `#ff3b30` | — |
+
+In code: `scoreColor(s)` and `profBarColor(s)` both use these thresholds. Update both functions in `civica-v5.html` if the bands ever change.
+
+### Map Score Filters
+
+The map page has filter pills that narrow markers to specific score bands. The filter logic lives in two places — `filteredTowns()` (directory view) and `mapFilteredTowns()` (map markers) — and both must be kept in sync with the color bands above:
+
+| Filter | Score range |
+|---|---|
+| 80+ Excellent | score ≥ 80 |
+| 70–79 Good | score ≥ 70 and < 80 |
+| 60–69 Fair | score ≥ 60 and < 70 |
+
+Good and Fair are **range** filters (not cumulative) — selecting "Good" shows only 70–79 towns, not everything above 70.
+
 ---
 
 ## 5. The 7 Pillars — Deep Dive
@@ -485,7 +510,7 @@ The file is one large HTML file with three main sections:
 | `grade(metric, value, town)` | Returns a 0–100 score for a raw data value using the rubric tables |
 | `computeScore(town)` | Returns all 7 pillar scores and the final Civica Score |
 | `computeTMS(town)` | Returns the Town Momentum Score and label |
-| `scoreColor(score)` | Returns a hex color: green (65+), navy (55–64), orange (45–54), red (<45) |
+| `scoreColor(score)` | Returns a hex color: green (80+), yellow (70–79), orange (60–69), red (<60) |
 | `renderGrid(towns, persona)` | Renders the directory list with current filters/sort |
 | `openProfile(town)` | Renders the full profile page for a town |
 | `setPersona(id)` | Switches active persona, re-renders grid |
