@@ -148,6 +148,11 @@ DISTRICT_MAP = {
     "Chatham":               "monomoy regional school district",
     "Brewster":              "nauset",
     "Orleans":               "nauset",
+    "Holden":               "wachusett",
+    "Southborough":         "northborough-southborough",
+    "Upton":                "mendon-upton",
+    "Raynham":              "bridgewater-raynham",
+    "Rehoboth":             "dighton-rehoboth",
 }
 
 def get_school(town):
@@ -285,6 +290,7 @@ MATH_OVERRIDES = {
     "Sudbury":  73.0,   # K-8 district MCAS; lincoln-sudbury HS has no district-level math pct
     "Wrentham": 66.0,   # K-8 district MCAS; King Philip Regional math (43%) covers 3 towns
     "Brewster":  60.0,   # Brewster Elementary K-5 MCAS math; Nauset Regional HS data used for grad/AP
+    "Southborough": 74.0,  # Southborough Elementary K-5 MCAS; Algonquin Regional HS data used for grad/AP
 }
 
 # ─── Load methodology ─────────────────────────────────────────────────────────
@@ -550,6 +556,12 @@ ZHVI = {
     "Barnstable":580000,"Falmouth":660000,"Sandwich":575000,"Yarmouth":490000,
     "Dennis":520000,"Harwich":640000,"Chatham":1400000,"Brewster":680000,
     "Orleans":780000,"Mashpee":560000,
+    "Worcester":310000,"Leominster":375000,"Fitchburg":310000,"Auburn":400000,
+    "Holden":490000,"Southborough":790000,"Sutton":610000,"Upton":640000,
+    "Millbury":430000,"Leicester":365000,
+    "Attleboro":435000,"Taunton":395000,"New Bedford":295000,"Fall River":270000,
+    "Dartmouth":465000,"Norton":545000,"Seekonk":445000,"Raynham":470000,
+    "Rehoboth":545000,"Swansea":420000,
 }
 RATING_BANDS = [(60,"Hidden Gem"),(50,"Strong Value"),(40,"Market Rate"),(30,"Premium Town"),(0,"Luxury Market")]
 
@@ -589,6 +601,12 @@ COUNTY_MAP = {
     "Barnstable":"Barnstable","Falmouth":"Barnstable","Sandwich":"Barnstable",
     "Yarmouth":"Barnstable","Dennis":"Barnstable","Harwich":"Barnstable",
     "Chatham":"Barnstable","Brewster":"Barnstable","Orleans":"Barnstable","Mashpee":"Barnstable",
+    "Worcester":"Worcester","Leominster":"Worcester","Fitchburg":"Worcester",
+    "Auburn":"Worcester","Holden":"Worcester","Southborough":"Worcester",
+    "Sutton":"Worcester","Upton":"Worcester","Millbury":"Worcester","Leicester":"Worcester",
+    "Attleboro":"Bristol","Taunton":"Bristol","New Bedford":"Bristol","Fall River":"Bristol",
+    "Dartmouth":"Bristol","Norton":"Bristol","Seekonk":"Bristol","Raynham":"Bristol",
+    "Rehoboth":"Bristol","Swansea":"Bristol",
 }
 
 # ─── Phase 1: Fill all data ───────────────────────────────────────────────────
