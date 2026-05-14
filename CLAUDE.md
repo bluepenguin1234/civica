@@ -9,11 +9,10 @@ This file is the standing context for every Claude Code session on this project.
 **Every single data field in every town object must come from a real, documented source. No estimates. No guesses. No placeholders dressed up as real values.**
 
 The correct workflow for adding any town is:
-1. Check `data/bulk/` files — Census, schools, free cash, debt are all there
-2. Web-source the remaining fields (bond rating, crime, pension, flood risk, etc.) — see Section 12 for sources
-3. Enter all verified values into `data/towns.csv`
-4. Run `py scripts\update_all.py` to compute scores and patch civica-v5.html
-5. Never hand-edit computed fields in the TOWNS array
+1. Run `py scripts\add_town.py "TownName" --lat X --lng X --zip X --zhvi X --county X` — auto-fills census, schools, free cash, debt, and district rank from bulk files
+2. Web-source the remaining flagged fields (bond rating, crime, pension, tax rates, flood risk) — see Section 12 for sources; enter them in `towns.csv` or pass as flags
+3. Run `py scripts\update_all.py` to compute scores and patch civica-v5.html
+4. Never hand-edit computed fields in the TOWNS array
 
 If a field value is genuinely unknown, set it to `null` — the scoring engine handles nulls gracefully. **`null` is honest; a made-up number is a lie.**
 
@@ -127,30 +126,33 @@ The Edit tool sometimes fails with "file modified since read" on the large civic
 towns.csv → scripts/update_all.py → patches TOWNS array in civica-v5.html → commit → push to main → live in ~2 min
 ```
 
-**To add new towns:**
-0. **Check bulk data first — before any web lookups.** Most of the data you need is already downloaded in `data/bulk/`. Use it. Only go to the web for fields not covered there (bond ratings, flood risk, pension ratios, GFOA).
+**To add a new town — use `add_town.py`:**
 
-   | File | What it covers |
-   |---|---|
-   | `data/bulk/census_acs_ma_towns.csv` | Population, median income, 10-yr income growth, bachelor's %, unemployment, poverty, median home value, owner-occupancy, vacancy, median age, commute time |
-   | `data/bulk/ma_schools_combined.csv` | District name, MCAS math %, graduation rate, AP participation % |
-   | `data/bulk/CFC_PerBudg.xlsx` | Free cash as % of operating budget (fiscal health) |
-   | `data/bulk/municipaldebt2022.xlsx` | Net municipal debt per capita |
+```powershell
+py scripts\add_town.py "TownName" ^
+    --lat 42.XXXX --lng -71.XXXX ^
+    --zip "0XXXX" --zhvi 500000 --county Essex ^
+    --transit "none"
+```
 
-1. Create a new batch script in `scripts/` following existing patterns (e.g., `add_batch6.py`)
-2. Run `py scripts\update_all.py` to score and patch
-3. Town count display is **fully dynamic** — all count displays use `class="js-town-count"` spans populated from `TOWNS.length` at runtime. No manual count updates needed.
+`add_town.py` auto-fills from bulk files: census (income, pop, education trends), schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), and **computed district rank** (derived from bulk composite — no manual lookup needed). It prints a list of which fields still require manual web lookup, then inserts the town into both `towns.csv` and `civica-v5.html`.
 
-**Batch scripts already run — do not re-run:**
-- `add_10_towns.py` — batch 1 (Shrewsbury, Westborough, Northborough, Grafton, Milford, Mansfield, Easton, North Attleborough, Medway, Millis)
-- `add_batch4.py` — batch 4 (Walpole, Sharon, Franklin, Foxborough, Medfield, Westford, Weston, Dracut, Littleton, Stoughton)
-- `add_batch5.py` — batch 5 (Sudbury, Westwood, Holliston, Bedford, Randolph, Pembroke, Northbridge, Wrentham, Maynard, Tyngsborough)
-- `add_middlesex.py`, `add_middlesex2.py`, `add_norfolk.py`, `add_plymouth.py`, `add_suffolk.py` — regional batches
-- `add_batch6.py` through `add_batch9.py` — additional towns added May 2026 (see towns.csv for full list)
+**After running `add_town.py`:**
+1. Look up the flagged manual fields (bond rating, pension, crime stats, tax rates, flood risk)
+2. Add them to `towns.csv` or pass them as flags to the script (see `--bond`, `--violent`, `--eff-rate`, etc.)
+3. Run `py scripts\update_all.py` to score and patch HTML
+4. Validate: run the Node.js syntax check (Section 15, Rule 6)
 
-**Next batch:** Create `add_worcester2.py` or `add_cape.py` etc. — check towns.csv for towns with real data not yet in HTML.
+**What still needs manual lookup** for each new town:
+- Bond rating → EMMA (emma.msrb.org) or MA MFOB
+- Pension funded ratio → MA PERAC annual report
+- Tax rates (eff_rate, res_rate, med_tax) → MA DLS Gateway (browser download)
+- Crime stats → ma.beyond2020.com (browser download)
+- Flood risk → RiskFactor.com or First Street Foundation
 
-**WARNING:** Any towns added to HTML that are NOT in towns.csv will have no real data. Always add to towns.csv first, run update_all.py second.
+**Town count:** Fully dynamic — `class="js-town-count"` spans auto-populate from `TOWNS.length`. No manual update ever needed.
+
+**WARNING:** Never add a town to the HTML without a matching row in `towns.csv` first. Bulk-file lookups are automatic; the manual fields above can be `null` initially and filled later.
 
 **Supporting scripts:**
 - `scripts/verify.py` — spot-check a town's score breakdown
@@ -257,7 +259,7 @@ Use these to make good UX and feature prioritization decisions.
 
 | Data | Source | Refresh cadence |
 |---|---|---|
-| School district rank (`d_rank`, `d_10yr`) | SchoolDigger or MA DESE profiles | Annual (Aug–Sep) |
+| School district rank (`d_rank`) | **Auto-computed** by `update_all.py` from bulk schools data (composite: math 50%/grad 30%/AP 20%). No manual lookup needed. `d_10yr` (rank change) still requires SchoolDigger or DESE. | Annual (Aug–Sep) |
 | Bond ratings (`bond`) | EMMA / MSRB (emma.msrb.org) | As published |
 | Pension funded % (`pension`) | MA PERAC annual report | Annual |
 | Crime rates (`violent`, `prop_crime`) | FBI UCR / MA EOPSS | Annual |
@@ -377,11 +379,11 @@ These are calculated from the raw fields above. Set them to `null` when first ad
 
 `score`, `ter`, `ter_r`, `p_schools`, `p_safety`, `p_taxes`, `p_fiscal`, `p_econ`, `p_qol`, `p_climate`, `value_score`, `value_rating`
 
-### Editorial Fields — Set These Manually
+### Editorial Fields
 | Field | Type | Notes |
 |---|---|---|
-| `standout` | string | 1–2 sentences: the single most important thing to know about this town. Used in map side panel only — not shown on profiles. Lead with the concrete stat. |
-| `glance` | string | 2–3 sentences: the honest buyer take. Shown in the "At a Glance" box on every profile. See Section 17 for the full writing guide. |
+| `standout` | string | 1–2 sentences: the single most important thing to know about this town. Used in map side panel only — not shown on profiles. Lead with the concrete stat. **Auto-generated** by `update_all.py` if missing; refine manually for quality. |
+| `glance` | string | 2–3 sentences: the honest buyer take. Shown in the "At a Glance" box on every profile. See Section 17 for the full writing guide. **Auto-generated** by `update_all.py` if missing; always refine manually — auto text is a starting point, not the final copy. |
 | `notes` | string | Internal compiler notes: data confidence flags, verification reminders, source citations. Not shown to users. |
 | `gaps` | integer | Count of missing/estimated fields. Honest self-assessment. |
 | `conf` | string | `"high"` (≤2 gaps, all key fields verified), `"medium"` (3–5 gaps or unverified key fields), `"low"` (>5 gaps or major fields missing) |
