@@ -258,7 +258,6 @@ flood_trajectory,range,5,10,,30,60
 flood_trajectory,range,10,999,,15,60
 wildfire,lookup,,,low,90,70
 wildfire,lookup,,,moderate,65,70
-wildfire,lookup,,,medium,60,70
 wildfire,lookup,,,high,35,70
 wildfire,lookup,,,very high,15,70
 wildfire,lookup,,,extreme,5,70

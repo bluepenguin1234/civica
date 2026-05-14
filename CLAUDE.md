@@ -58,7 +58,7 @@ Know what's real and what's placeholder before assuming anything is wired.
 **PLACEHOLDER / NOT WIRED:**
 - Formspree email capture ("Notify Me" form) — placeholder endpoint, signups are NOT being saved
 - Featured Agent ad unit — shows "Sarah Mitchell / Coldwell Banker" on all towns (not a real advertiser)
-- Featured Listings — only Beverly has real listing data; all other 109 towns show placeholder homes
+- Featured Listings — only Beverly has real listing data; all other towns show placeholder homes
 - Vendor Strip — all 4 slots (moving, inspection, mortgage, insurance) are placeholder businesses
 - GA4 — Google Analytics not integrated; zero visibility into traffic
 - OG social preview image — `civica-og.png` referenced in meta tags but file does not exist; shared links show no image
@@ -79,7 +79,7 @@ Work down this list in order. Pick the first unchecked item that isn't marked `[
 [ ] Push civica-og.png with next commit (after Brian creates it)
 [ ] [Brian] Google Search Console — go to search.google.com/search-console, add property bluepenguin1234.github.io/civica, choose HTML tag verification, give tag to Claude
 [ ] Wire Search Console verification meta tag into civica-v5.html <head>
-[ ] Ad structure review — audit all 3 ad units across all 110 towns; fix any render issues or unprofessional placeholder content
+[ ] Ad structure review — audit all 3 ad units across all towns; fix any render issues or unprofessional placeholder content
 [ ] Cloudflare setup — document exact DNS steps for Brian (free tier: HSTS, real CSP headers, WAF, DDoS protection)
 [ ] Blog post — write and publish "The 5 Essex County Towns with Strongest Fiscal Health in 2026" as a static HTML page in /blog/
 [ ] Compare feature UX — add "share this comparison" link that encodes selected towns in the URL (so comparisons are linkable)
@@ -129,9 +129,9 @@ towns.csv → scripts/update_all.py → patches TOWNS array in civica-v5.html �
 **To add a new town — use `add_town.py`:**
 
 ```powershell
-py scripts\add_town.py "TownName" ^
-    --lat 42.XXXX --lng -71.XXXX ^
-    --zip "0XXXX" --zhvi 500000 --county Essex ^
+py scripts\add_town.py "TownName" `
+    --lat 42.XXXX --lng -71.XXXX `
+    --zip "0XXXX" --zhvi 500000 --county Essex `
     --transit "none"
 ```
 
@@ -311,7 +311,7 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 | `debt_pc` | float | Net debt per capita $. Source: town ACFR or MA DLS. |
 | `gfoa` | integer or null | Consecutive years with GFOA Certificate of Achievement. Source: GFOA website. |
 | `tax_non_res` | float or null | Non-residential % of tax base. Source: MA DLS valuation report. High % = commercial subsidy for residents. |
-| `transp` | string | Financial transparency: `"Yes"` (posts ACFR online), `"Partial"`, `"No"` |
+| `transp` | string | Financial transparency: `"yes"` (posts ACFR online), `"partial"`, `"no"` — **must be lowercase**; scoring rubric matches on lowercase |
 
 ### Taxes
 | Field | Type | Notes |
@@ -385,8 +385,8 @@ These are calculated from the raw fields above. Set them to `null` when first ad
 | `standout` | string | 1–2 sentences: the single most important thing to know about this town. Used in map side panel only — not shown on profiles. Lead with the concrete stat. **Auto-generated** by `update_all.py` if missing; refine manually for quality. |
 | `glance` | string | 2–3 sentences: the honest buyer take. Shown in the "At a Glance" box on every profile. See Section 17 for the full writing guide. **Auto-generated** by `update_all.py` if missing; always refine manually — auto text is a starting point, not the final copy. |
 | `notes` | string | Internal compiler notes: data confidence flags, verification reminders, source citations. Not shown to users. |
-| `gaps` | integer | Count of missing/estimated fields. Honest self-assessment. |
-| `conf` | string | `"high"` (≤3 gaps), `"medium"` (4–8 gaps), `"low"` (>8 gaps). Computed by `update_all.py` — do not set manually. |
+| `data_gaps_count` | integer | Count of missing/estimated fields. Honest self-assessment. |
+| `data_confidence` | string | `"high"` (≤3 gaps), `"medium"` (4–8 gaps), `"low"` (>8 gaps). Computed by `update_all.py` — do not set manually. |
 | `last_updated` | string | ISO date: `"2026-05-13"` |
 
 ---
