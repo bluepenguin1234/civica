@@ -30,10 +30,10 @@
 
 Civica is a single-page web app that scores Massachusetts towns and cities on the things that actually matter when you're buying a home — fiscal health, schools, taxes, safety, and quality of life.
 
-Every town gets a **Civica Score** from 0 to 100. Higher is better. You can browse all 110 towns on a color-coded map, filter by what you care about (top schools, low crime, commuter rail access, etc.), and open any town's full profile to see every data point that went into its score.
+Every town gets a **Civica Score** from 0 to 100. Higher is better. You can browse all towns on a color-coded map, filter by what you care about (top schools, low crime, commuter rail access, etc.), and open any town's full profile to see every data point that went into its score.
 
 **Live site:** bluepenguin1234.github.io/civica  
-**Coverage:** 110 Massachusetts towns and cities (as of May 2026)  
+**Coverage:** 200 Massachusetts towns and cities (as of May 2026; count grows — `TOWNS.length` is authoritative)  
 **Tech stack:** Single HTML file, vanilla JavaScript, Leaflet.js for maps, hosted on GitHub Pages (free)
 
 ---
@@ -50,7 +50,7 @@ When you buy a home, you search Zillow for price and Redfin for comps. Maybe you
 
 Real estate agents don't know this. Zillow doesn't show it. Niche.com has it but buries it under ads and vague letter grades with no methodology. GreatSchools is static — it shows today's ranking but not whether the district is trending up or down.
 
-**Civica's answer:** One composite score, 7 data pillars, 23 scored metrics, full source citations, and a 10-year trajectory view for schools and crime. Built for buyers who do their homework.
+**Civica's answer:** One composite score, 7 data pillars, 23 scoring submetrics, full source citations, and a 10-year trajectory view for schools and crime. Built for buyers who do their homework.
 
 ---
 
@@ -449,7 +449,7 @@ Civica lets users select a **persona** that reweights the 7 pillars based on wha
 
 ```
 C:\Users\Brian\Desktop\Civica\data\
-  towns.csv                    ← all 110 towns, all fields, master record
+  towns.csv                    ← all towns (200+), all fields, master record
   master_weights.csv           ← pillar weights (7 rows)
   pillar_weights.csv           ← submetric weights (23 rows)
   scoring_rubrics.csv          ← range/lookup tables for all submetrics
@@ -471,11 +471,13 @@ C:\Users\Brian\Desktop\Civica\data\
 
 ```
 C:\Users\Brian\Desktop\Civica\
-  civica-v5.html       ← THE ACTIVE FILE. Everything lives here.
-  civica.html          ← v1, frozen forever, do not touch
-  civica-v2.html       ← old, ignore
-  civica-v3.html       ← old, ignore
-  civica-v4.html       ← old, ignore
+  civica-v5.html          ← THE ACTIVE FILE. Everything lives here.
+
+  archive/
+    civica-v3.html        ← old, ignore
+    civica-v4.html        ← old, ignore
+    civica-landing.html   ← old, ignore
+    civica-methodology.html ← old, ignore
 ```
 
 **Rule:** Never overwrite v5. If a major rewrite is ever needed, create `civica-v6.html`.
@@ -486,7 +488,7 @@ The file is one large HTML file with three main sections:
 
 **1. `<style>` block** — All CSS, minified, inline. Covers the full design system: nav, hero, map, directory, profiles, methodology page, responsive breakpoints.
 
-**2. `const TOWNS = [...]`** — A JavaScript array of 110 town objects. Each town is one long line with ~55 fields. This is the source of truth for what gets rendered. Example fields:
+**2. `const TOWNS = [...]`** — A JavaScript array of all town objects (200+ and growing). Each town is one long line with ~55 fields. This is the source of truth for what gets rendered. Example fields:
 
 ```javascript
 {name:"Needham", score:72, ter:6.8, ter_r:"Exceptional", bond:"AAA",
@@ -529,7 +531,7 @@ C:\Users\Brian\Desktop\Civica\scripts\
 
 ## 11. The Scoring Pipeline — How Data Becomes a Score
 
-When you update data and need to recompute all 110 town scores, you run:
+When you update data and need to recompute all town scores, you run:
 
 ```
 py scripts/update_all.py
@@ -538,31 +540,27 @@ py scripts/update_all.py
 Here's what it does, step by step:
 
 **Phase 1 — Fill Data**
-- Reads `towns.csv` (master record for all 110 towns)
+- Reads `towns.csv` (master record for all towns)
 - Pulls Census ACS data from `bulk/census_acs_ma_towns.csv` → updates income, population, demographics
 - Pulls DESE school data from `bulk/ma_schools_combined.csv` → updates test scores, grad rate
 - Pulls free cash from `bulk/CFC_PerBudg.xlsx` → overrides existing values (authoritative)
 - Pulls debt per capita from `bulk/municipaldebt2022.xlsx` → overrides existing values
-- Applies hardcoded agent updates (bond ratings, pension ratios, crime corrections, etc.)
+- Applies hardcoded updates (bond ratings, pension ratios, crime corrections, etc.)
 - Calculates derived fields: `housing_affordability_ratio` = ZHVI ÷ median income
 
-**Phase 2 — Build Distributions**
-- For metrics that use percentile scoring, collects all 110 towns' raw values and sorts them
-- This percentile list is used in Phase 3 to score each town relative to peers
-
-**Phase 3 — Score All Towns**
+**Phase 2 — Score All Towns**
 - For each town, calls `score_town()` which:
-  - Calculates all 23 submetric scores using rubric tables or percentile lookup
+  - Calculates all 23 submetric scores using **absolute rubric thresholds** from `scoring_rubrics.csv` (range and lookup rules only — no percentile comparisons)
   - Computes 7 pillar scores (weighted averages of submetrics)
   - Computes final Civica Score
   - Calculates TER and TER rating
   - Counts data gaps and sets confidence level
   - Calculates Value Score and Value Rating
 
-**Phase 4 — Save**
+**Phase 3 — Save**
 - Writes updated scores back to `towns.csv`
 - Opens `civica-v5.html`, finds the `TOWNS = [...]` array
-- For each of the 110 town objects, patches in the new scores using regex
+- For each town object, patches in the new scores using regex
 - Saves the HTML
 
 **When to run the pipeline:**
@@ -578,73 +576,61 @@ Here's what it does, step by step:
 
 ## 12. How to Add a New Town
 
-### Step 1: Add to towns.csv
+Use `add_town.py` — it handles the bulk of the work automatically.
 
-Add a new row to `C:\Users\Brian\Desktop\Civica\data\towns.csv`. The required fields are:
+### Step 1: Run add_town.py
 
-- `town_name` — exact name (must match what's in Census ACS data)
-- `state` — MA
-- `county` — county name
-- `bond_rating_sp` — S&P rating or "Not rated"
-- `pension_funded_ratio_pct` — pension funded % (check PERAC)
-- `effective_tax_rate_pct` — from MA DOR
-- `median_annual_tax_bill` — from MA DOR
-- `transit_access` — one of: `commuter_rail_in_town`, `commuter_rail_nearby`, `bus_only`, `limited`, `none`
-- `wildfire_risk` — one of: `low`, `moderate`, `high`, `very high`, `extreme`
-- `flood_risk_pct` — % of town in FEMA flood zone
-- `flood_2050_growth_pts` — projected increase in flood zone % by 2050
-
-Most other fields (school data, Census data, crime, free cash, debt) will be auto-filled by the pipeline if the town is in the bulk data files.
-
-### Step 2: Add to ZHVI dictionary in update_all.py
-
-In `scripts/update_all.py`, find the `ZHVI = {...}` dictionary and add the town's Zillow Home Value Index. Example:
-```python
-"Norwood": 580000,
+```powershell
+py scripts\add_town.py "TownName" ^
+    --lat 42.XXXX --lng -71.XXXX ^
+    --zip "0XXXX" --zhvi 500000 --county Essex ^
+    --transit "none" --pension 54.54
 ```
 
-### Step 3: Add to COUNTY_MAP in update_all.py
+This auto-fills from bulk files: Census ACS (income, pop, demographics), DESE schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), and computed district rank. It also inserts the town into both `towns.csv` and `civica-v5.html`.
 
-```python
-"Norwood": "Norfolk",
-```
+The script prints a list of fields still requiring manual web lookup.
 
-### Step 4: Add the town object to civica-v5.html
+### Step 2: Look up flagged fields
 
-Add a minimal town object to the `TOWNS = [...]` array in `civica-v5.html`. The pipeline will fill in most fields, but you need at least:
+After `add_town.py` runs, collect the remaining fields:
 
-```javascript
-{name:"Norwood", score:0, ter:null, ter_r:"N/A", bond:"AA", gaps:0, conf:"medium",
- glance:"...", good:[], bad:[], lat:42.1940, lng:-71.1995,
- zip:"02062", pop:30000, county:"Norfolk County, MA",
- transit:"bus_only", wildfire:"Low", ...},
-```
+| Field | Source |
+|---|---|
+| Bond rating | EMMA (emma.msrb.org) |
+| Pension funded ratio | MA PERAC annual report |
+| Tax rates (eff_rate, res_rate, med_tax) | MA DOR DLS Gateway |
+| Crime stats (violent, property, 5yr trend) | city-data.com → cross-check FBI UCR |
+| Flood risk (flood, flood50) | First Street Foundation (manual lookup — JS-rendered) |
+| Wildfire risk | First Street Foundation — almost always `"low"` for MA |
 
-### Step 5: Update the town count
+**Wildfire values must be lowercase:** `"low"`, `"moderate"`, `"high"`, `"very high"`, `"extreme"`.
 
-In `civica-v5.html`, update the three places that mention the town count:
-1. Hero badge: `Now live · Massachusetts · 111 towns and cities`
-2. Stats counter: `<span class="sn-num">111</span>`
-3. Map subtitle: `Civica scores 111 towns and cities across...`
+### Step 3: Patch the data
 
-Also update the landing page: `23 individual data points across seven categories` (if this hasn't changed).
+Create a patch script (copy `scripts/patch_batch2b.py` as a template) or add the fields directly to `towns.csv`. If the town shares a regional school district with a non-obvious name, add an entry to `DISTRICT_MAP` in `update_all.py`.
 
-### Step 6: Run the pipeline
+### Step 4: Run the pipeline
 
 ```
 py scripts/update_all.py
 ```
 
-Verify the new town appears in the output with a reasonable score (not 0 or 50 flat).
+Verify the new town appears in the output with a reasonable score (not stuck at 50 flat across all pillars — that usually means missing data).
 
-### Step 7: Commit and deploy
+### Step 5: Validate and deploy
 
-```
+```powershell
+# Quick JS syntax check (catches missing commas that break the page)
+node -e "const fs=require('fs');const h=fs.readFileSync('civica-v5.html','utf8');const s=h.slice(h.indexOf('const TOWNS = ['));eval(s.slice(0,s.indexOf('\n];')+3));console.log('OK:',TOWNS.length,'towns')"
+
 git add civica-v5.html data/towns.csv
 git commit -m "add: [Town Name]"
 git checkout main && git merge dev && git push origin main
 git checkout dev && git push origin dev
 ```
+
+**Note:** The town count in the UI is dynamic — `class="js-town-count"` spans auto-populate from `TOWNS.length`. No manual count update needed.
 
 ---
 
@@ -1070,7 +1056,7 @@ Primary: Census ACS5 → "Age and Sex". Range: 25–55 years.
 
 ---
 
-### PILLAR 6: INFRASTRUCTURE & UTILITIES
+### PILLAR 6: QUALITY OF LIFE
 
 **Field: `elec_save` — Electric Savings vs State Avg ($/yr)**
 

@@ -30,11 +30,11 @@ Civica is a free municipal intelligence tool for Massachusetts homebuyers. It sc
 
 ## 2. Product at a Glance
 
-- **~150 towns live** across MA (Essex, Middlesex, Norfolk, Plymouth, Suffolk, Worcester counties) — count is dynamic, see `TOWNS.length`
+- **~200 towns live** across MA (Essex, Middlesex, Norfolk, Plymouth, Suffolk, Worcester, Bristol, Hampshire, Barnstable counties) — count is dynamic, see `TOWNS.length`
 - **Hosted at:** bluepenguin1234.github.io/civica (GitHub Pages, auto-deploys on push to main)
 - **Architecture:** Single HTML file — `civica-v5.html` (380 KB) contains all HTML, CSS, JavaScript, and data inline. No build pipeline.
 - **6 views:** landing, map, town profile, methodology, compare, advertise
-- **7 scoring pillars:** Schools (25%), Safety (20%), Fiscal Health (20%), Taxes (15%), Economic Vitality (10%), Infrastructure & Utilities (7%), Climate Risk (3%)
+- **7 scoring pillars:** Schools (25%), Safety (20%), Fiscal Health (20%), Taxes (15%), Economic Vitality (10%), Quality of Life (7%), Climate Risk (3%)
 - **3 special indices:** TER (Tax Efficiency Ratio), Value Rating (bang-for-buck), TMS (Town Momentum Score)
 - **Revenue model:** Featured Agent ads, Featured Listings, Vendor Strip — all currently placeholder, not yet monetized
 
@@ -46,7 +46,7 @@ Know what's real and what's placeholder before assuming anything is wired.
 
 **REAL and working:**
 - Scoring engine (7 pillars, 23 submetrics, absolute rubric-based scoring)
-- ~150 town profiles with full data (count is dynamic; `TOWNS.length` is authoritative)
+- ~200 town profiles with full data (count is dynamic; `TOWNS.length` is authoritative)
 - Interactive Leaflet.js map with color-coded markers and filters
 - Multi-town compare view
 - Methodology page (complete and accurate)
@@ -111,7 +111,7 @@ These tasks require Brian's accounts and logins. Claude cannot do them. Prompt B
 - If a major structural change requires a new version: create `civica-v6.html`, never overwrite v5
 
 **Data file:**
-- `C:\Users\Brian\Desktop\Civica\data\towns.csv` — master data for all 110 towns (~55 fields per town)
+- `C:\Users\Brian\Desktop\Civica\data\towns.csv` — master data for all towns (~55 fields per town; count is dynamic)
 - After any data change, run `py scripts\update_all.py` to regenerate scores and patch the TOWNS array
 
 **Edit tool limitation:**
@@ -192,7 +192,7 @@ Open: http://localhost:8765/civica-v5.html
 | Fiscal Health | 20% | S&P bond rating (30%), free cash % of budget (25%), pension funded % (25%), debt per capita (20%) |
 | Taxes | 15% | Effective tax rate (45%), tax burden % of income (35%), housing affordability ratio (20%) |
 | Economic Vitality | 10% | Median income vs. MA (40%), 10-yr income growth (35%), 10-yr population growth (25%) |
-| Infrastructure & Utilities | 7% | Transit access (35%), municipal electric savings $/yr (35%), water quality violations (30%) |
+| Quality of Life | 7% | Transit access (35%), municipal electric savings $/yr (35%), water quality violations (30%) |
 | Climate Risk | 3% | Current flood risk % (50%), 2050 flood projection (30%), wildfire rating (20%) |
 
 **Scoring method:** Absolute rubric-based (fixed thresholds per metric). Adding new towns does not change existing town scores.
@@ -324,8 +324,8 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 | Field | Type | Notes |
 |---|---|---|
 | `d_rank` | integer | [required] DESE district rank out of 351. Source: SchoolDigger or DESE profiles. |
-| `d_total` | integer | Always `351` (total MA districts). |
-| `d_10yr` | float or null | District rank change over 10 years (negative = slipped). Source: SchoolDigger historical. |
+| `d_total` | integer | Total MA districts in the ranking (varies by data vintage — auto-filled by `add_town.py`; do not hardcode). |
+| `d_10yr` | float or null | District rank change over 10 years. **Negative = improved** (rank number decreased = better position). **Positive = declined** (rank number increased = worse position). Source: SchoolDigger historical. |
 | `math` | float | [required] MCAS math % proficient/advanced. Source: DESE. |
 | `grad` | float | [required] Graduation rate %. Source: DESE. |
 | `ap` | float | AP exam participation rate %. Source: DESE. |
@@ -336,7 +336,7 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 |---|---|---|
 | `violent` | float or null | Violent crime per 100,000 residents. Source: FBI UCR / MA EOPSS. |
 | `prop_crime` | float or null | Property crime per 100,000 residents. Source: FBI UCR / MA EOPSS. |
-| `crime5yr` | float or null | 5-year % change in total crime. Leave `null` if unavailable — not heavily weighted. |
+| `crime_5yr_pct_change` | float or null | 5-year % change in total crime index. Negative = crime fell; positive = crime rose. Leave `null` if unavailable — not heavily weighted. |
 | `sex_off` | float | Sex offender density per 1,000 residents. Source: MA Sex Offender Registry Board. |
 
 ### Economic Vitality
@@ -362,7 +362,7 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 |---|---|---|
 | `flood` | float or null | Current flood risk % of properties. Source: First Street Foundation. |
 | `flood50` | float or null | Additional flood risk growth by 2050 (percentage points). Source: First Street Foundation. |
-| `fire` | string | Wildfire risk: `"Low"`, `"Moderate"`, `"High"`. Source: First Street Foundation. Almost all MA towns = `"Low"`. |
+| `fire` | string | Wildfire risk: `"low"`, `"moderate"`, `"high"`, `"very high"`, `"extreme"`. **Must be lowercase** — the scoring rubric matches on lowercase. Source: First Street Foundation. Almost all MA towns = `"low"`. |
 
 ### Demographics & Housing
 | Field | Type | Notes |
