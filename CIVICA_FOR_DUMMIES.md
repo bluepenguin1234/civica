@@ -1,0 +1,746 @@
+# Civica for Dummies
+### The Complete Manual — How It Works, Why It Exists, and How to Run It
+
+---
+
+## Table of Contents
+
+1. [What Is Civica?](#1-what-is-civica)
+2. [The Problem Civica Solves](#2-the-problem-civica-solves)
+3. [Who Uses Civica and Why](#3-who-uses-civica-and-why)
+4. [How the Scoring Works](#4-how-the-scoring-works)
+5. [The 7 Pillars — Deep Dive](#5-the-7-pillars--deep-dive)
+6. [Special Scores: TER, Value Rating, and Momentum](#6-special-scores-ter-value-rating-and-momentum)
+7. [Buyer Personas](#7-buyer-personas)
+8. [How Civica Compares to the Competition](#8-how-civica-compares-to-the-competition)
+9. [Data Sources](#9-data-sources)
+10. [File Structure and Codebase](#10-file-structure-and-codebase)
+11. [The Scoring Pipeline — How Data Becomes a Score](#11-the-scoring-pipeline--how-data-becomes-a-score)
+12. [How to Add a New Town](#12-how-to-add-a-new-town)
+13. [Deployment and Git Workflow](#13-deployment-and-git-workflow)
+14. [Ads and Monetization](#14-ads-and-monetization)
+15. [Frequently Asked Questions](#15-frequently-asked-questions)
+
+---
+
+## 1. What Is Civica?
+
+Civica is a single-page web app that scores Massachusetts towns and cities on the things that actually matter when you're buying a home — fiscal health, schools, taxes, safety, and quality of life.
+
+Every town gets a **Civica Score** from 0 to 100. Higher is better. You can browse all 110 towns on a color-coded map, filter by what you care about (top schools, low crime, commuter rail access, etc.), and open any town's full profile to see every data point that went into its score.
+
+**Live site:** bluepenguin1234.github.io/civica  
+**Coverage:** 110 Massachusetts towns and cities (as of May 2026)  
+**Tech stack:** Single HTML file, vanilla JavaScript, Leaflet.js for maps, hosted on GitHub Pages (free)
+
+---
+
+## 2. The Problem Civica Solves
+
+When you buy a home, you search Zillow for price and Redfin for comps. Maybe you Google the schools. But nobody tells you:
+
+- Is this town fiscally solvent, or is it heading toward a tax crisis in 10 years?
+- Are the schools actually getting better or slowly declining?
+- Is the tax bill "high" because the town is well-run, or because it's mismanaged?
+- Will my flood risk double by 2050?
+- Does this town have municipal electric — and if so, how much does that save me per year?
+
+Real estate agents don't know this. Zillow doesn't show it. Niche.com has it but buries it under ads and vague letter grades with no methodology. GreatSchools is static — it shows today's ranking but not whether the district is trending up or down.
+
+**Civica's answer:** One composite score, 7 data pillars, 23 scored metrics, full source citations, and a 10-year trajectory view for schools and crime. Built for buyers who do their homework.
+
+---
+
+## 3. Who Uses Civica and Why
+
+### Primary User: The Serious Homebuyer
+Someone who is 3–12 months from buying, has a price range in mind, and is narrowing down towns. They've already done Zillow. They want to know which town is actually the better long-term bet — not just which house is prettier.
+
+**What they do with Civica:**
+- Open the map and scan colors to eliminate obvious low-scorers
+- Filter by "Top Schools" or "Commuter Rail" to narrow the list
+- Open 2–3 town profiles and compare them side by side
+- Look at the Key Insight paragraph to understand the tradeoffs in plain English
+- Check the TER (Tax Efficiency Ratio) to see which town gives more for the money
+
+### Secondary User: The Real Estate Agent
+An agent who wants to show clients data beyond the listing. Civica gives them a credible, cited source to point to when recommending a town.
+
+### Tertiary User: The Town Researcher / Policy Wonk
+Someone who just moved, is curious about their town's fiscal health, or is comparing commuter towns before choosing where to rent first.
+
+---
+
+## 4. How the Scoring Works
+
+### The Big Picture
+
+Every Civica Score is built in three layers:
+
+```
+Layer 1: Raw Data
+  (bond rating, crime rate, school rank, etc.)
+        ↓
+Layer 2: Submetric Scores (0–100)
+  (each raw data point converted to a 0–100 score)
+        ↓
+Layer 3: Pillar Scores (0–100)
+  (weighted average of submetric scores within each pillar)
+        ↓
+Final Civica Score (0–100)
+  (weighted average of the 7 pillar scores)
+```
+
+### Pillar Weights (v3)
+
+| Pillar | Weight | Why |
+|---|---|---|
+| Schools | 25% | #1 stated homebuyer priority |
+| Safety | 20% | #2 stated priority |
+| Fiscal Health | 20% | Predicts future tax stability — Civica's biggest differentiator |
+| Taxes | 15% | Direct out-of-pocket cost |
+| Economic Vitality | 10% | Is the town growing? Property value implications |
+| Quality of Life | 7% | Transit, utilities, water |
+| Climate Risk | 3% | Long-term property value and insurance risk |
+
+**Formula:**
+```
+Civica Score = (Schools × 0.25) + (Safety × 0.20) + (Fiscal × 0.20)
+             + (Taxes × 0.15) + (Econ × 0.10) + (QoL × 0.07) + (Climate × 0.03)
+```
+
+### How Raw Data Becomes a 0–100 Score
+
+There are two methods:
+
+**1. Range-based scoring** (most metrics)  
+Each metric has a table of bands. Your raw value falls into a band and gets that band's score.
+
+Example — Effective Tax Rate:
+| Tax Rate | Score |
+|---|---|
+| Under 0.6% | 100 |
+| 0.6–0.9% | 92 |
+| 0.9–1.1% | 80 |
+| 1.1–1.3% | 70 |
+| 1.3–1.5% | 55 |
+| 1.5–1.8% | 40 |
+| 1.8–2.2% | 25 |
+| Over 2.2% | 10 |
+
+**2. Lookup-based scoring** (categorical fields)  
+Some fields are categories, not numbers. The lookup table maps each category to a score.
+
+Example — Bond Rating:
+| Rating | Score |
+|---|---|
+| AAA | 100 |
+| AA+ | 92 |
+| AA | 85 |
+| AA- | 78 |
+| A+ | 70 |
+| Not rated | 50 (default) |
+
+**Missing data:** If a field is missing, the scoring uses a pre-set default (usually 50 — neutral). Towns with more missing data get a lower `data_confidence` rating (high / medium / low).
+
+### Absolute Scoring — Why Scores Don't Change When Towns Are Added
+
+Civica uses **absolute scoring**, not percentile scoring. Every score is computed against fixed thresholds in `scoring_rubrics.csv`. An effective tax rate of 1.1% always scores 80. A graduation rate of 95% always scores 95. Adding 50 new towns doesn't move existing town scores at all.
+
+**The exceptions — a few fields that compare to a fixed state baseline:**
+- `violent_crime_ratio` — town crime rate ÷ MA state average
+- `income_ratio` — town median income ÷ MA median income
+- `debt_ratio` — town debt per capita ÷ MA average
+- School district rank — already ranked among all 351 MA districts
+
+These ratios are baked into the raw data, not the rubric — so they're fixed unless you re-pull state averages.
+
+**What does change when you add towns:**
+- The sort order and rankings in the directory
+- The map pin distribution
+- Which towns appear as top results in filtered views
+
+**Why not percentile scoring?**
+
+Percentile scores create three problems:
+1. **Instability** — Needham scores 82 today, you add 50 Boston suburbs, Needham drops to 76. Nothing changed about Needham, only the dataset did. Confusing to users, erodes trust.
+2. **Interpretability** — "73rd percentile" explains rank but not reality. "73 because taxes are high but schools are excellent" is actionable. Absolute scores let you explain *why*.
+3. **Cross-state comparison breaks** — An 80th percentile MA town and an 80th percentile TX town mean completely different things. Absolute scores on a consistent 0–100 scale let you eventually compare across states.
+
+**The right solution for state expansion:** When adding New Hampshire towns, create NH-calibrated rubric thresholds that reflect what's actually good or bad in that state (higher property taxes are normal there, different crime baselines, etc.). The 0–100 scale stays identical — only the band thresholds shift. The scoring engine already supports this: you'd add a `state` column to `scoring_rubrics.csv`.
+
+---
+
+## 5. The 7 Pillars — Deep Dive
+
+### Pillar 1: Schools (25%)
+
+| Submetric | Weight | What It Measures |
+|---|---|---|
+| School District State Rank | 35% | Where the district ranks out of 351 MA districts |
+| MCAS Math Proficiency | 25% | % of students scoring Proficient or Advanced on state math test |
+| Graduation Rate | 20% | % of students who graduate on time |
+| 10-Year Rank Trend | 20% | Has the district improved or declined over 10 years? |
+
+**Key insight:** The rank trajectory submetric is Civica's biggest competitive differentiator in schools. A district ranked #50 that was #120 ten years ago is a fundamentally different buy than one ranked #50 that was #20. No competitor tracks this.
+
+**Data source:** MA DESE (Dept. of Elementary & Secondary Education) district profiles
+
+---
+
+### Pillar 2: Safety (20%)
+
+| Submetric | Weight | What It Measures |
+|---|---|---|
+| Violent Crime Rate | 50% | Town's violent crimes per 100k vs. MA state average |
+| Property Crime Rate | 35% | Town's property crimes per 100k vs. MA state average |
+| Crime 5-Year Trend | 15% | Is crime going up or down? |
+
+**Important:** Crime rates are expressed as a **ratio to the state average**, not raw numbers. A ratio of 0.5 means half the state average. A ratio of 2.0 means twice the state average. This lets the scoring work across towns of very different sizes.
+
+**MA state averages (2023):**
+- Violent crime: 314.7 per 100k
+- Property crime: 1,112.1 per 100k
+
+**Data source:** FBI UCR / MA EOPSS
+
+---
+
+### Pillar 3: Fiscal Health (20%)
+
+| Submetric | Weight | What It Measures |
+|---|---|---|
+| Bond Rating | 30% | S&P credit rating — the financial world's opinion of the town |
+| Free Cash Reserve | 25% | % of budget held as unrestricted cash (fiscal cushion) |
+| Pension Funded Ratio | 25% | How funded is the town's pension obligation? |
+| Debt Per Capita | 20% | Town's per-person debt vs. state median |
+
+**Why this pillar matters so much:** A town with poor fiscal health will eventually raise taxes, cut services, or both. Bond ratings and pension funding are leading indicators of future tax pressure — things you won't see on a listing but will feel in 10 years.
+
+**Pension note:** Most Essex County towns are covered by the Essex Regional Retirement System (53.8% funded as of latest PERAC data). Cities like Lynn, Haverhill, and Lawrence have their own systems with varying funded ratios.
+
+**Data sources:** EMMA/MSRB (bond ratings), MA DOR DLS (free cash), MA PERAC (pension)
+
+---
+
+### Pillar 4: Taxes (15%)
+
+| Submetric | Weight | What It Measures |
+|---|---|---|
+| Effective Tax Rate | 45% | Annual tax bill ÷ assessed home value (as %) |
+| Tax Burden as % of Income | 35% | Annual tax bill ÷ median household income (as %) |
+| Housing Affordability Ratio | 20% | Median home value ÷ median household income |
+
+**Why two different tax metrics?** A $10,000 tax bill means something very different in a $200k income household vs. a $60k income household. Tax burden as % of income captures real affordability. The effective tax rate captures the raw rate.
+
+**Housing Affordability Ratio:** Calculated as `median home value ÷ median household income`. A ratio of 5× means the typical home costs 5 years of the typical household's gross income. National guideline: under 3× is affordable, over 6× is stretched.
+
+**Data source:** MA DOR DLS (residential tax rates), Census ACS 2023 (income), Zillow ZHVI (home values)
+
+---
+
+### Pillar 5: Economic Vitality (10%)
+
+| Submetric | Weight | What It Measures |
+|---|---|---|
+| Median Income vs. State | 40% | Town's median income as a ratio to MA median ($103,960) |
+| Median Income 10-Year Growth | 35% | How much has income grown over 10 years? |
+| Population 10-Year Growth | 25% | Is the town gaining or losing residents? |
+
+**Why this matters for homebuyers:** A growing, increasingly prosperous town has a strengthening tax base — which means less future pressure on your property taxes and stronger property value appreciation.
+
+**Data source:** Census ACS 2023 and 2013 (for 10-year comparisons)
+
+---
+
+### Pillar 6: Quality of Life (7%)
+
+| Submetric | Weight | What It Measures |
+|---|---|---|
+| Transit Access | 35% | Commuter rail in town / nearby / bus only / none |
+| Electric Utility Savings | 35% | Annual savings vs. Eversource avg if on a Municipal Light Dept |
+| Water Quality | 30% | EPA drinking water violations in the past 5 years |
+
+**Municipal electric (MLD) towns:** Danvers, Ipswich, Georgetown, Middleton, Merrimac, Groveland, Rowley, Marblehead (MMLD), and Peabody (PMLP). These towns have their own electric utilities and historically charge significantly less than Eversource. The savings figure is calculated against the MA average electric rate (33.61¢/kWh as of 2024 EIA data).
+
+**Transit categories:**
+- `commuter_rail_in_town` — MBTA station within the town boundary
+- `commuter_rail_nearby` — station within ~5 miles
+- `bus_only` — MBTA bus service only
+- `limited` — minimal transit
+- `none` — no public transit
+
+**Data sources:** MBTA, EPA SDWIS, EIA Form 861
+
+---
+
+### Pillar 7: Climate Risk (3%)
+
+| Submetric | Weight | What It Measures |
+|---|---|---|
+| Flood Risk | 50% | % of town land area in FEMA flood zone today |
+| Flood Risk Growth to 2050 | 30% | How much will flood risk expand by 2050? (percentage points) |
+| Wildfire Risk | 20% | USFS/First Street wildfire risk classification |
+
+**Why only 3%?** Climate risk is real but relatively uniform across Massachusetts coastal towns. The big spread in Civica scores comes from schools, fiscal health, and safety — not climate. Weighted too high, it would unfairly penalize coastal communities with excellent schools and fiscal health. Weighted at 3%, it still penalizes towns like Gloucester (20% flood zone) meaningfully without dominating the score.
+
+**Data sources:** FEMA NFIP, First Street Foundation, USFS
+
+---
+
+## 6. Special Scores: TER, Value Rating, and Momentum
+
+### Tax Efficiency Ratio (TER)
+
+**What it answers:** "Am I getting a good deal for my tax dollar?"
+
+```
+TER = Civica Score ÷ (Town Residential Tax Rate ÷ MA Average Residential Rate)
+```
+
+A TER of 6.8 (like Needham) means you're getting 6.8 units of Civica quality per unit of relative tax cost. Higher is better.
+
+**TER Ratings:**
+| TER | Rating |
+|---|---|
+| 6.5+ | Exceptional |
+| 5.5–6.4 | Strong |
+| 4.0–5.4 | Average |
+| 3.0–3.9 | Below Average |
+| Under 3.0 | Poor |
+
+**Example:** A town charging a low tax rate but with mediocre schools and poor fiscal health might have a lower TER than a town with a high tax rate but excellent schools and AAA bond rating. The TER cuts through sticker shock.
+
+---
+
+### Value Rating (Bang-for-Buck Tier)
+
+**What it answers:** "Is this town expensive relative to what you get?"
+
+```
+Value Score = Civica Score ÷ (Town Median Home Price ÷ MA Median Home Price)
+```
+
+Uses Zillow ZHVI for home prices. MA median home price: $613,049.
+
+**Rating bands:**
+| Value Score | Rating |
+|---|---|
+| 60+ | Hidden Gem |
+| 50–59 | Strong Value |
+| 40–49 | Market Rate |
+| 30–39 | Premium Town |
+| Under 30 | Luxury Market |
+
+**Example:** Wellesley scores 70 on Civica but costs nearly 3× the MA median. Value Score ≈ 24 → Luxury Market. A high-quality but affordable town might score 58 on Civica but cost 0.8× the median, giving a Value Score of 72 → Hidden Gem.
+
+---
+
+### Town Momentum Score (TMS)
+
+**What it answers:** "Where is this town headed over the next 10 years?"
+
+Shown as a badge on every town profile (e.g., "Rising Town ↑").
+
+```
+TMS = (School Trajectory × 0.30) + (Income Trend × 0.25)
+    + (Home Appreciation × 0.20) + (Population Trend × 0.15)
+    + (Crime Trajectory × 0.10)
+```
+
+All inputs are already-computed 0–100 pillar submetric scores.
+
+**TMS Labels:**
+| TMS | Label |
+|---|---|
+| 75–100 | Rising Town ↑ |
+| 60–74 | Steady Growth |
+| 45–59 | Hold Steady |
+| 30–44 | Stagnating |
+| 0–29 | Declining |
+
+**Why this matters:** A town ranked #80 statewide but improving fast is a fundamentally different buy than a town ranked #30 but declining. The TMS is the only score of its kind among Civica's competitors.
+
+---
+
+## 7. Buyer Personas
+
+Civica lets users select a **persona** that reweights the 7 pillars based on what matters most to them. The town list re-sorts by their personalized score.
+
+| Persona | Schools | Safety | Fiscal | Taxes | Econ | QoL | Climate |
+|---|---|---|---|---|---|---|---|
+| Balanced Buyer (default) | 25% | 20% | 20% | 15% | 10% | 7% | 3% |
+| Schools First | 40% | 20% | 15% | 12% | 8% | 3% | 2% |
+| Tax Sensitive | 10% | 18% | 28% | 30% | 8% | 4% | 2% |
+| Long-Term Investor | 20% | 15% | 20% | 10% | 25% | 5% | 5% |
+| First-Time Buyer | 15% | 25% | 18% | 22% | 12% | 5% | 3% |
+
+**No new data is needed** — it's just a recalculation using different weights on the same 7 pillar scores. Pure JavaScript, instant.
+
+---
+
+## 8. How Civica Compares to the Competition
+
+| Feature | Civica | Zillow | GreatSchools | Niche | City-Data |
+|---|---|---|---|---|---|
+| Composite town score | ✅ | ❌ | ❌ | ✅ (letter grade) | ❌ |
+| Fiscal health data | ✅ | ❌ | ❌ | ❌ | ❌ |
+| School trajectory (trend) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Pension liability scored | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Tax efficiency ratio | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Municipal electric scored | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Town momentum score | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Buyer persona reweighting | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Scoring methodology public | ✅ | ❌ | Partial | ❌ | ❌ |
+| Free | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+**Civica's moat:** No competitor combines fiscal health, school trajectory, and a personalized score in one place with a transparent, cited methodology.
+
+---
+
+## 9. Data Sources
+
+| Data | Source | Update Frequency |
+|---|---|---|
+| School rank, test scores, graduation rate | MA DESE district profiles | Annual (fall) |
+| Bond ratings | EMMA/MSRB | As rated/updated |
+| Free cash % of budget | MA DOR DLS Gateway (`CFC_PerBudg.xlsx`) | Annual (after DLS certification) |
+| Municipal debt per capita | MA DOR DLS (`municipaldebt2022.xlsx`) | Periodic |
+| Pension funded ratio | MA PERAC annual report | Annual |
+| Crime rates | FBI UCR / MA EOPSS | Annual |
+| Census data (income, population, demographics) | Census ACS 5-year estimates | Annual (December) |
+| Home values | Zillow ZHVI (Zillow Home Value Index) | Monthly |
+| Flood risk | FEMA NFIP flood maps | Periodic |
+| Flood 2050 projection | First Street Foundation | Periodic |
+| Wildfire risk | USFS / First Street Foundation | Periodic |
+| Electric savings | EIA Form 861 | Annual |
+| Water quality violations | EPA SDWIS | As reported |
+| Transit access | MBTA GTFS | As updated |
+
+### Where Data Lives Locally
+
+```
+C:\Users\Brian\Desktop\Civica\data\
+  towns.csv                    ← all 110 towns, all fields, master record
+  master_weights.csv           ← pillar weights (7 rows)
+  pillar_weights.csv           ← submetric weights (23 rows)
+  scoring_rubrics.csv          ← range/lookup tables for all submetrics
+  state_context.csv            ← MA state averages used in ratio calculations
+  source_dictionary.csv        ← data source metadata
+
+  bulk/
+    census_acs_ma_towns.csv    ← Census ACS data for all 351 MA towns
+    ma_schools_combined.csv    ← DESE school data for all 397 districts
+    CFC_PerBudg.xlsx           ← MA DOR free cash data (all 351 municipalities)
+    municipaldebt2022.xlsx     ← MA DOR municipal debt data
+```
+
+---
+
+## 10. File Structure and Codebase
+
+### The One File That Matters
+
+```
+C:\Users\Brian\Desktop\Civica\
+  civica-v5.html       ← THE ACTIVE FILE. Everything lives here.
+  civica.html          ← v1, frozen forever, do not touch
+  civica-v2.html       ← old, ignore
+  civica-v3.html       ← old, ignore
+  civica-v4.html       ← old, ignore
+```
+
+**Rule:** Never overwrite v5. If a major rewrite is ever needed, create `civica-v6.html`.
+
+### What's Inside civica-v5.html
+
+The file is one large HTML file with three main sections:
+
+**1. `<style>` block** — All CSS, minified, inline. Covers the full design system: nav, hero, map, directory, profiles, methodology page, responsive breakpoints.
+
+**2. `const TOWNS = [...]`** — A JavaScript array of 110 town objects. Each town is one long line with ~55 fields. This is the source of truth for what gets rendered. Example fields:
+
+```javascript
+{name:"Needham", score:72, ter:6.8, ter_r:"Exceptional", bond:"AAA",
+ free_cash:7.02, pens:78, d_10yr:5, math:71, grad:97.9,
+ p_schools:80, p_safety:74, p_taxes:62, p_fiscal:69,
+ p_econ:88, p_qol:46, p_climate:79,
+ value_score:38.5, value_rating:"Premium Town", ...}
+```
+
+**3. `<script>` block** — All application logic:
+- `grade()` — converts raw data to 0–100 submetric scores
+- `computeScore()` — weighted average of submetrics into pillar scores, then into Civica Score
+- `computeTMS()` — calculates Town Momentum Score
+- `renderMap()` — Leaflet.js map with color-coded score markers
+- `renderGrid()` — directory list view with filtering and sorting
+- `openProfile()` — renders full town profile
+- `renderMethodology()` — the methodology page
+- `setPersona()` — applies persona reweighting and re-sorts the grid
+
+### Key JavaScript Functions
+
+| Function | What It Does |
+|---|---|
+| `grade(metric, value, town)` | Returns a 0–100 score for a raw data value using the rubric tables |
+| `computeScore(town)` | Returns all 7 pillar scores and the final Civica Score |
+| `computeTMS(town)` | Returns the Town Momentum Score and label |
+| `scoreColor(score)` | Returns a hex color: green (65+), navy (55–64), orange (45–54), red (<45) |
+| `renderGrid(towns, persona)` | Renders the directory list with current filters/sort |
+| `openProfile(town)` | Renders the full profile page for a town |
+| `setPersona(id)` | Switches active persona, re-renders grid |
+
+### Scripts
+
+```
+C:\Users\Brian\Desktop\Civica\scripts\
+  update_all.py    ← master scoring pipeline (run this when data changes)
+```
+
+---
+
+## 11. The Scoring Pipeline — How Data Becomes a Score
+
+When you update data and need to recompute all 110 town scores, you run:
+
+```
+py scripts/update_all.py
+```
+
+Here's what it does, step by step:
+
+**Phase 1 — Fill Data**
+- Reads `towns.csv` (master record for all 110 towns)
+- Pulls Census ACS data from `bulk/census_acs_ma_towns.csv` → updates income, population, demographics
+- Pulls DESE school data from `bulk/ma_schools_combined.csv` → updates test scores, grad rate
+- Pulls free cash from `bulk/CFC_PerBudg.xlsx` → overrides existing values (authoritative)
+- Pulls debt per capita from `bulk/municipaldebt2022.xlsx` → overrides existing values
+- Applies hardcoded agent updates (bond ratings, pension ratios, crime corrections, etc.)
+- Calculates derived fields: `housing_affordability_ratio` = ZHVI ÷ median income
+
+**Phase 2 — Build Distributions**
+- For metrics that use percentile scoring, collects all 110 towns' raw values and sorts them
+- This percentile list is used in Phase 3 to score each town relative to peers
+
+**Phase 3 — Score All Towns**
+- For each town, calls `score_town()` which:
+  - Calculates all 23 submetric scores using rubric tables or percentile lookup
+  - Computes 7 pillar scores (weighted averages of submetrics)
+  - Computes final Civica Score
+  - Calculates TER and TER rating
+  - Counts data gaps and sets confidence level
+  - Calculates Value Score and Value Rating
+
+**Phase 4 — Save**
+- Writes updated scores back to `towns.csv`
+- Opens `civica-v5.html`, finds the `TOWNS = [...]` array
+- For each of the 110 town objects, patches in the new scores using regex
+- Saves the HTML
+
+**When to run the pipeline:**
+- When you update any CSV in the `data/` or `data/bulk/` folders
+- When you add a new town
+- When you change weights in `master_weights.csv` or `pillar_weights.csv`
+- When you change scoring bands in `scoring_rubrics.csv`
+- After adding new hardcoded data updates in `update_all.py` itself
+
+**Important:** Use `py` not `python3`. PowerShell does not have `python3` aliased.
+
+---
+
+## 12. How to Add a New Town
+
+### Step 1: Add to towns.csv
+
+Add a new row to `C:\Users\Brian\Desktop\Civica\data\towns.csv`. The required fields are:
+
+- `town_name` — exact name (must match what's in Census ACS data)
+- `state` — MA
+- `county` — county name
+- `bond_rating_sp` — S&P rating or "Not rated"
+- `pension_funded_ratio_pct` — pension funded % (check PERAC)
+- `effective_tax_rate_pct` — from MA DOR
+- `median_annual_tax_bill` — from MA DOR
+- `transit_access` — one of: `commuter_rail_in_town`, `commuter_rail_nearby`, `bus_only`, `limited`, `none`
+- `wildfire_risk` — one of: `low`, `moderate`, `high`, `very high`, `extreme`
+- `flood_risk_pct` — % of town in FEMA flood zone
+- `flood_2050_growth_pts` — projected increase in flood zone % by 2050
+
+Most other fields (school data, Census data, crime, free cash, debt) will be auto-filled by the pipeline if the town is in the bulk data files.
+
+### Step 2: Add to ZHVI dictionary in update_all.py
+
+In `scripts/update_all.py`, find the `ZHVI = {...}` dictionary and add the town's Zillow Home Value Index. Example:
+```python
+"Norwood": 580000,
+```
+
+### Step 3: Add to COUNTY_MAP in update_all.py
+
+```python
+"Norwood": "Norfolk",
+```
+
+### Step 4: Add the town object to civica-v5.html
+
+Add a minimal town object to the `TOWNS = [...]` array in `civica-v5.html`. The pipeline will fill in most fields, but you need at least:
+
+```javascript
+{name:"Norwood", score:0, ter:null, ter_r:"N/A", bond:"AA", gaps:0, conf:"medium",
+ glance:"...", good:[], bad:[], lat:42.1940, lng:-71.1995,
+ zip:"02062", pop:30000, county:"Norfolk County, MA",
+ transit:"bus_only", wildfire:"Low", ...},
+```
+
+### Step 5: Update the town count
+
+In `civica-v5.html`, update the three places that mention the town count:
+1. Hero badge: `Now live · Massachusetts · 111 towns and cities`
+2. Stats counter: `<span class="sn-num">111</span>`
+3. Map subtitle: `Civica scores 111 towns and cities across...`
+
+Also update the landing page: `23 individual data points across seven categories` (if this hasn't changed).
+
+### Step 6: Run the pipeline
+
+```
+py scripts/update_all.py
+```
+
+Verify the new town appears in the output with a reasonable score (not 0 or 50 flat).
+
+### Step 7: Commit and deploy
+
+```
+git add civica-v5.html data/towns.csv
+git commit -m "add: [Town Name]"
+git checkout main && git merge dev && git push origin main
+git checkout dev && git push origin dev
+```
+
+---
+
+## 13. Deployment and Git Workflow
+
+### Live Site
+
+The site is hosted on **GitHub Pages** — free, automatic, no server required. Every push to `main` triggers a deployment. The site typically updates within 2–3 minutes of a push.
+
+**Live URL:** https://bluepenguin1234.github.io/civica  
+**GitHub repo:** https://github.com/bluepenguin1234/civica
+
+### Branch Structure
+
+| Branch | Purpose |
+|---|---|
+| `main` | Production — what the live site serves |
+| `dev` | Working branch — make all changes here |
+
+### The Standard Workflow
+
+Every change follows this sequence:
+
+```bash
+# 1. Make changes on dev (already on dev branch)
+git add civica-v5.html
+git commit -m "description of change"
+
+# 2. Merge to main and push
+git checkout main
+git merge dev
+git push origin main
+
+# 3. Push dev too (keeps remote dev in sync)
+git checkout dev
+git push origin dev
+```
+
+**Rules:**
+- Never force-push to main
+- Never commit directly to main
+- Never edit old version files (v1–v4)
+
+### Local Preview
+
+To preview the current local file without waiting for GitHub Pages:
+
+```bash
+py -m http.server 8765 --directory "C:\Users\Brian\Desktop\Civica"
+```
+
+Then open: `http://localhost:8765/civica-v5.html`
+
+This is essential when making layout or JS changes — GitHub Pages can take 2–3 minutes to update, but the local server shows changes instantly on refresh.
+
+---
+
+## 14. Ads and Monetization
+
+Civica has three ad unit types built into every town profile. Currently all are placeholder/demo data.
+
+### Ad Unit 1: Featured Agent
+
+A real estate agent card shown on every profile. Currently shows "Sarah Mitchell" as a placeholder.
+
+**Object in JS:** `AD_AGENT`  
+**Fields:** name, photo, phone, email, brokerage, tagline, specialty towns
+
+### Ad Unit 2: Featured Listings
+
+A small listings card showing 1–3 homes for sale in the town. Currently only Beverly has real listing data; all others use the default placeholder.
+
+**Object in JS:** `AD_LISTINGS_MAP` (keyed by town name)
+
+### Ad Unit 3: Vendor Strip
+
+Four vendor slots across the bottom of each profile. Currently all placeholders.
+
+**Array in JS:** `AD_VENDORS`  
+**Slots:** Moving company, home inspection, mortgage, homeowners insurance
+
+### Mortgage Calculator
+
+An unsponsored, unsold mortgage calculator appears on every profile. Inputs: home price, down payment, interest rate. Outputs: monthly payment estimate. This is a UX feature, not an ad slot.
+
+### Monetization Path
+
+1. **Agent advertising** — sell the Featured Agent slot to buyer's agents by town/county
+2. **Vendor sponsorship** — sell the 4 vendor strip slots to moving companies, inspectors, mortgage brokers, insurers
+3. **Listings integration** — partner with an MLS or IDX feed to show live listings
+4. **Premium tier** — export reports, saved comparisons, email alerts when a town's score changes
+
+---
+
+## 15. Frequently Asked Questions
+
+**Q: Why is my town's score lower than I expected?**  
+A: The most common reasons are: pension funding (many MA towns are significantly underfunded), high effective tax rate, or a school district that's declining in state rank. Open the town profile and look at which pillar scores are lowest — that tells you exactly why.
+
+**Q: Why do so many towns score in the 40s–60s instead of 80s–90s?**  
+A: Because the scoring is honest. Pension underfunding is a systemic problem across Massachusetts (and most of the US). Even well-run towns carry significant unfunded liability. A score of 70+ is genuinely excellent. Needham at 72 is the top of the current dataset.
+
+**Q: Can I trust the data?**  
+A: Every metric links to a cited source. The methodology page in the app lists every data source. The data is as current as the source allows — some fields (like municipal debt) use 2022 data because that's the latest MA DOR has published. Missing or stale data is flagged with the `data_confidence` field.
+
+**Q: How often does the scoring change?**  
+A: Scores can change when: (1) new source data is published (Census, DESE, FBI UCR are all annual), (2) pillar weights are updated, or (3) new metrics are added. The `last_updated` field on each town record shows the last time that town's data was refreshed.
+
+**Q: Does the map work on mobile?**  
+A: Yes. The map, directory, and all town profiles are mobile-responsive. Horizontal scrolling is disabled. The persona selector, filter chips, and sort dropdown all work on touch screens.
+
+**Q: What does "Not rated" mean for bond rating?**  
+A: Many smaller MA towns (especially rural ones) have never issued enough municipal debt to bother getting a bond rating. "Not rated" defaults to a score of 50 (neutral) — it doesn't penalize the town, but it also doesn't reward it.
+
+**Q: Will a town's score change as Civica adds more towns and states?**  
+A: No. Scores are absolute — built against fixed rubric thresholds, not relative to other towns in the dataset. Adding 50 new towns doesn't move any existing town's score. The only things that change with more towns are the sort order in the directory and which towns appear at the top of filtered views. When Civica expands to new states, each state will get its own rubric thresholds calibrated to that state's context (e.g., property tax norms in NH are different from MA). The 0–100 scale stays the same — only the band cutoffs shift per state.
+
+**Q: What's the difference between TER and Value Rating?**  
+A: TER measures quality vs. tax rate (annual cost to own). Value Rating measures quality vs. home price (purchase cost). A town can have a great TER (low taxes, high score) but a poor Value Rating (very expensive to buy in). Both matter depending on your situation.
+
+**Q: How do I know if the live site is updated after a push?**  
+A: Wait 2–3 minutes, then hard-refresh (Ctrl+Shift+R). If you need to verify instantly, use the local server on port 8765.
+
+---
+
+*Last updated: May 2026*  
+*Civica — Know Before You Buy*
