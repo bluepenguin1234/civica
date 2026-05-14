@@ -285,6 +285,7 @@ a{text-decoration:none;color:inherit}
 
 /* ── PROFILE VIEW ── */
 #prof-view{background:var(--bg)}
+#prof-inner{max-width:960px;margin:0 auto}
 .prof-nav{display:flex;align-items:center;gap:10px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
 .back-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;border-radius:7px;font-size:.8rem;font-weight:500;color:var(--blue);background:#e8eef6;transition:background .15s}
 .back-btn:hover{background:#d1e8ff}
@@ -310,9 +311,19 @@ a{text-decoration:none;color:inherit}
 .stat-pill:last-child{border-right:none}
 .stat-pill .spv{font-size:1rem;font-weight:700}
 .stat-pill .spk{font-size:.66rem;color:var(--ter);margin-top:2px}
-.prof-body{max-width:780px;margin:0 auto;padding:20px 24px 60px}
+.prof-body{max-width:960px;margin:0 auto;padding:20px 24px 60px}
+.prof-kstat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.prof-pillar-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 32px}
+.prof-metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .sec-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ter);margin:20px 0 8px;padding:0 2px}
 .glance-card{background:var(--surface);border-radius:var(--r-sm);border:1px solid var(--border);padding:16px;margin-bottom:8px;font-size:.85rem;line-height:1.7;color:#374151}
+@media(max-width:640px){
+  #prof-inner>div{padding-left:16px!important;padding-right:16px!important}
+  .prof-kstat-grid{grid-template-columns:repeat(2,1fr)!important}
+  .prof-pillar-grid{grid-template-columns:1fr!important}
+  .prof-metric-grid{grid-template-columns:1fr!important}
+  .prof-body{padding:16px 16px 48px}
+}
 
 /* Ad slots */
 .ad-agent{background:var(--surface);border-radius:var(--r);border:1.5px solid #fde68a;box-shadow:var(--shadow-sm);padding:20px;margin-bottom:10px;position:relative}
@@ -1925,7 +1936,7 @@ function renderProf(idx){
     <!-- KEY STATS -->
     <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:12px">Key Stats</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div class="prof-kstat-grid">
         ${profKstat('Bond Rating',t.bond||'—','Municipal credit rating from S&P or Moody\'s. AAA is the highest — it signals strong fiscal management and lowers the town\'s borrowing costs. Unrated towns are typically smaller communities that haven\'t issued public debt.')}
         ${profKstat('Median Tax',t.med_tax?'$'+t.med_tax.toLocaleString():'—','Median annual property tax bill for a single-family home. Reflects both the residential tax rate and the assessed value of homes in this municipality.')}
         ${profKstat('School Rank',t.d_rank?'#'+t.d_rank+' / '+t.d_total:'—','District ranking by MCAS performance across all Massachusetts school districts. Lower number = stronger academic performance. Based on DESE district profiles.')}
@@ -1950,7 +1961,7 @@ function renderProf(idx){
     <!-- PILLAR SCORES -->
     <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:14px">Pillar Scores</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 32px">
+      <div class="prof-pillar-grid">
         ${profHbar('Schools'+schoolTrend(t.d_10yr),schScore,profBarColor(schScore),schScore)}
         ${profHbar('Safety',safScore,profBarColor(safScore),safScore)}
         ${profHbar('Taxes',taxScore,profBarColor(taxScore),taxScore)}
@@ -1964,7 +1975,7 @@ function renderProf(idx){
     <!-- ALL METRICS -->
     <div style="padding:22px 32px 18px;background:#fafafa;border-bottom:1px solid #efefef">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:12px">All Metrics</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+      <div class="prof-metric-grid">
         ${profMrow('S&P Bond Rating',t.bond,grade('bond',t.bond,t))}
         ${profMrow('Free Cash %',t.free_cash!=null?t.free_cash+'%':null,grade('free_cash',t.free_cash,t))}
         ${profMrow('Debt Per Capita',t.debt_pc!=null?'$'+t.debt_pc.toLocaleString():null,grade('debt_pc',t.debt_pc,t))}
