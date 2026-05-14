@@ -14,7 +14,7 @@ Before approaching real advertisers, do a full pass on the three ad units:
 - **Featured Agent** — currently shows placeholder "Sarah Mitchell / Coldwell Banker"
 - **Featured Listings** — only Beverly has real listing data, all others use defaults
 - **Vendor Strip** — all 4 slots are placeholder businesses
-Review: does each unit render well on all 36 towns? Are the placeholder names/prices professional-looking? Does the advertiser onboarding flow make sense?
+Review: does each unit render well on all 200 towns? Are the placeholder names/prices professional-looking? Does the advertiser onboarding flow make sense?
 
 ## 4. Google Analytics 4 (GA4) — You need to do this
 - Go to analytics.google.com → create a new property for bluepenguin1234.github.io/civica

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Civica is a free municipal intelligence tool for homebuyers, scoring towns and cities on fiscal health, schools, taxes, safety, and infrastructure. Currently live with 36 Essex County (MA) municipalities. The product solves a real, expensive problem — buyers spend $500k–$1.5M on a home without understanding whether the underlying city or town is fiscally healthy, safe, or well-run.
+Civica is a free municipal intelligence tool for homebuyers, scoring towns and cities on fiscal health, schools, taxes, safety, and infrastructure. Currently live with 200 Massachusetts towns and cities. The product solves a real, expensive problem — buyers spend $500k–$1.5M on a home without understanding whether the underlying city or town is fiscally healthy, safe, or well-run.
 
 **The market**: ~56,000 home sales per year in Massachusetts. Even 0.5% market penetration = ~280 buyers/month using Civica actively. The real opportunity is becoming the data layer that every Massachusetts homebuyer touches before they close.
 
@@ -48,7 +48,7 @@ Civica is a free municipal intelligence tool for homebuyers, scoring towns and c
 | City-Data.com | Raw stats, ugly, hard to use | No synthesis, no score, no UX |
 | DOGE / MA DLS | Raw government data | Not built for consumers at all |
 
-**Civica's moat**: The synthesis. Anyone can link to MA DLS. Nobody has turned 67 data points into a single comparable score with pillar breakdowns, trend data, and a plain-English "Honest Buyer Take." That is the product.
+**Civica's moat**: The synthesis. Anyone can link to MA DLS. Nobody has turned 23+ submetrics into a single comparable score with pillar breakdowns, trend data, and a plain-English "Honest Buyer Take." That is the product.
 
 ---
 
@@ -107,7 +107,7 @@ License the model to other states. Build a SaaS layer for real estate agents and
 
 **Tactics**:
 - Answer questions authentically — when someone asks "Beverly vs Marblehead for schools?" drop Civica as a resource, not a promo
-- Post original data insights: "I analyzed 36 Essex County towns — here's which have the best fiscal health per tax dollar" (with a Civica link)
+- Post original data insights: "I analyzed 200 Massachusetts towns — here's which have the best fiscal health per tax dollar" (with a Civica link)
 - "OC" (original content) data posts perform very well on Reddit and often go viral within subreddits
 
 ### 3. Local Media & PR
@@ -197,7 +197,7 @@ The "Notify Me" form on the landing page is already capturing leads. Build this 
 |---|---|---|---|
 | Monthly unique visitors | Unknown | 1,000 | 10,000 |
 | Email list size | Unknown | 500 | 5,000 |
-| Town profiles covered | 36 | 36 | 351 (all MA) |
+| Town profiles covered | 200 | 200 | 351 (all MA) |
 | Paying ad clients | 0 | 2 | 15 |
 | MRR | $0 | $500 | $8,000 |
 | Agent partnerships | 0 | 5 | 50 |
@@ -233,7 +233,7 @@ The "Notify Me" form on the landing page is already capturing leads. Build this 
 
 ## Competitive Moat — How to Defend It
 
-1. **Data depth**: Keep adding data points. At 67/town, nobody is close. Get to 100+.
+1. **Data depth**: Keep adding data points. Nobody else is close. Get to 100+ fields/town.
 2. **Trust / citations**: Every number has a source. This is what separates Civica from Niche.
 3. **Coverage**: Be the first to all 351 MA municipalities. Once you own the map, it's very hard to displace.
 4. **Agent network**: Agents who use Civica become advocates. They share it with clients. Word of mouth within the real estate community compounds.
