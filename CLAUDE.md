@@ -4,6 +4,23 @@ This file is the standing context for every Claude Code session on this project.
 
 ---
 
+## 0. DATA INTEGRITY — NON-NEGOTIABLE
+
+**Every single data field in every town object must come from a real, documented source. No estimates. No guesses. No placeholders dressed up as real values.**
+
+The correct workflow for adding any town is:
+1. Check `data/bulk/` files — Census, schools, free cash, debt are all there
+2. Web-source the remaining fields (bond rating, crime, pension, flood risk, etc.) — see Section 12 for sources
+3. Enter all verified values into `data/towns.csv`
+4. Run `py scripts\update_all.py` to compute scores and patch civica-v5.html
+5. Never hand-edit computed fields in the TOWNS array
+
+If a field value is genuinely unknown, set it to `null` — the scoring engine handles nulls gracefully. **`null` is honest; a made-up number is a lie.**
+
+Towns with fabricated data must be removed from the site and re-added only after real data is sourced.
+
+---
+
 ## 1. Mission
 
 Civica is a free municipal intelligence tool for Massachusetts homebuyers. It scores towns and cities on the factors that actually determine quality of life and long-term value — fiscal health, schools, taxes, safety, economic vitality, infrastructure, and climate risk — and synthesizes them into a single comparable score. The product solves a real, expensive problem: buyers spend $500k–$1.5M on a home without understanding whether the underlying city or town is fiscally healthy, well-run, or on a trajectory worth betting on. Civica gives them the intelligence layer their agent doesn't have.
@@ -14,7 +31,7 @@ Civica is a free municipal intelligence tool for Massachusetts homebuyers. It sc
 
 ## 2. Product at a Glance
 
-- **110 towns live** across MA (Essex, Middlesex, Norfolk, Plymouth, Suffolk, Worcester counties)
+- **~150 towns live** across MA (Essex, Middlesex, Norfolk, Plymouth, Suffolk, Worcester counties) — count is dynamic, see `TOWNS.length`
 - **Hosted at:** bluepenguin1234.github.io/civica (GitHub Pages, auto-deploys on push to main)
 - **Architecture:** Single HTML file — `civica-v5.html` (380 KB) contains all HTML, CSS, JavaScript, and data inline. No build pipeline.
 - **6 views:** landing, map, town profile, methodology, compare, advertise
@@ -30,7 +47,7 @@ Know what's real and what's placeholder before assuming anything is wired.
 
 **REAL and working:**
 - Scoring engine (7 pillars, 23 submetrics, absolute rubric-based scoring)
-- 110 town profiles with full data
+- ~150 town profiles with full data (count is dynamic; `TOWNS.length` is authoritative)
 - Interactive Leaflet.js map with color-coded markers and filters
 - Multi-town compare view
 - Methodology page (complete and accurate)
@@ -122,18 +139,18 @@ towns.csv → scripts/update_all.py → patches TOWNS array in civica-v5.html �
 
 1. Create a new batch script in `scripts/` following existing patterns (e.g., `add_batch6.py`)
 2. Run `py scripts\update_all.py` to score and patch
-3. Update the two hardcoded town count strings in civica-v5.html:
-   - Hero badge: `Now live · Massachusetts · X towns and cities`
-   - Map subtitle: `Civica scores X towns and cities across...`
-   - (The stats strip `sn-num` is dynamic and updates automatically)
+3. Town count display is **fully dynamic** — all count displays use `class="js-town-count"` spans populated from `TOWNS.length` at runtime. No manual count updates needed.
 
 **Batch scripts already run — do not re-run:**
 - `add_10_towns.py` — batch 1 (Shrewsbury, Westborough, Northborough, Grafton, Milford, Mansfield, Easton, North Attleborough, Medway, Millis)
 - `add_batch4.py` — batch 4 (Walpole, Sharon, Franklin, Foxborough, Medfield, Westford, Weston, Dracut, Littleton, Stoughton)
 - `add_batch5.py` — batch 5 (Sudbury, Westwood, Holliston, Bedford, Randolph, Pembroke, Northbridge, Wrentham, Maynard, Tyngsborough)
 - `add_middlesex.py`, `add_middlesex2.py`, `add_norfolk.py`, `add_plymouth.py`, `add_suffolk.py` — regional batches
+- `add_batch6.py` through `add_batch9.py` — additional towns added May 2026 (see towns.csv for full list)
 
-**Next batch:** Create `add_batch6.py` or name by region (e.g., `add_worcester2.py`)
+**Next batch:** Create `add_worcester2.py` or `add_cape.py` etc. — check towns.csv for towns with real data not yet in HTML.
+
+**WARNING:** Any towns added to HTML that are NOT in towns.csv will have no real data. Always add to towns.csv first, run update_all.py second.
 
 **Supporting scripts:**
 - `scripts/verify.py` — spot-check a town's score breakdown
@@ -222,6 +239,8 @@ Use these to make good UX and feature prioritization decisions.
 ---
 
 ## 12. Data Sources
+
+**RULE: Every field must have a real source. If you cannot verify a value, use `null`. Never estimate, round, or infer. See Section 0.**
 
 **Always check local bulk files before going to the web.** The four files in `data/bulk/` cover the majority of fields for every MA town. Only use web sources for the fields that aren't in the bulk files.
 
