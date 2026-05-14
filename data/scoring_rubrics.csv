@@ -157,8 +157,12 @@ transit,lookup,,,bus_only,50,40
 transit,lookup,,,limited,30,40
 transit,lookup,,,none,15,40
 transit,lookup,,,yes,100,40
-transit,lookup,,,no,25,40
-transit,lookup,,,nearby,75,40
+transit,lookup,,,no,15,40
+transit,lookup,,,nearby,80,40
+transit,lookup,,,subway,100,40
+transit,lookup,,,commuter rail (in town),100,40
+transit,lookup,,,commuter rail (nearby),80,40
+transit,lookup,,,bus only,50,40
 walkability,range,0,25,,25,40
 walkability,range,25,50,,50,40
 walkability,range,50,70,,75,40

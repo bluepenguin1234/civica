@@ -245,7 +245,7 @@ Good and Fair are **range** filters (not cumulative) — selecting "Good" shows 
 
 **Why this pillar matters so much:** A town with poor fiscal health will eventually raise taxes, cut services, or both. Bond ratings and pension funding are leading indicators of future tax pressure — things you won't see on a listing but will feel in 10 years.
 
-**Pension note:** Most Essex County towns are covered by the Essex Regional Retirement System (53.8% funded as of latest PERAC data). Cities like Lynn, Haverhill, and Lawrence have their own systems with varying funded ratios.
+**Pension note:** Most MA towns belong to a regional or county retirement system. In northeastern MA, the Essex Regional Retirement System (53.8% funded as of latest PERAC data) covers many towns. Cities like Boston, Worcester, Springfield, Lynn, Haverhill, and Lawrence have their own standalone systems with varying funded ratios. Always check PERAC to identify which system a given town belongs to.
 
 **Data sources:** EMMA/MSRB (bond ratings), MA DOR DLS (free cash), MA PERAC (pension)
 
@@ -500,6 +500,13 @@ The file is one large HTML file with three main sections:
  value_score:38.5, value_rating:"Premium Town", ...}
 ```
 
+**Note on `p_qol`:** The Infrastructure & Utilities pillar is stored as `p_qol` in both `towns.csv` and the TOWNS array — this is a legacy field name from when the pillar was called "Quality of Life." The internal code key is `quality_of_life` in `master_weights.csv` and `update_all.py`. The display name "Infrastructure & Utilities" is what users see. Do not rename `p_qol` to `p_infra` — it would break the scoring pipeline.
+
+**The `glance` field:** Every town has a `glance` field — a 2–3 sentence "Honest Buyer Take" displayed prominently on the town card and profile. It is **editorial copy written by Claude or Brian**, not sourced from external data. When adding a new town, the `glance` must be written after all data is collected and scored. Guidelines are in `CLAUDE.md` §17 (glance writing rules). The `agents-to-install/glance-writer.md` agent spec automates this.
+
+```
+```
+
 **3. `<script>` block** — All application logic:
 - `grade()` — converts raw data to 0–100 submetric scores
 - `computeScore()` — weighted average of submetrics into pillar scores, then into Civica Score
@@ -583,9 +590,9 @@ Use `add_town.py` — it handles the bulk of the work automatically.
 ### Step 1: Run add_town.py
 
 ```powershell
-py scripts\add_town.py "TownName" ^
-    --lat 42.XXXX --lng -71.XXXX ^
-    --zip "0XXXX" --zhvi 500000 --county Essex ^
+py scripts\add_town.py "TownName" `
+    --lat 42.XXXX --lng -71.XXXX `
+    --zip "0XXXX" --zhvi 500000 --county Essex `
     --transit "none" --pension 54.54
 ```
 
@@ -739,7 +746,7 @@ An unsponsored, unsold mortgage calculator appears on every profile. Inputs: hom
 A: The most common reasons are: pension funding (many MA towns are significantly underfunded), high effective tax rate, or a school district that's declining in state rank. Open the town profile and look at which pillar scores are lowest — that tells you exactly why.
 
 **Q: Why do so many towns score in the 40s–60s instead of 80s–90s?**  
-A: Because the scoring is honest. Pension underfunding is a systemic problem across Massachusetts (and most of the US). Even well-run towns carry significant unfunded liability. A score of 70+ is genuinely excellent. Needham at 72 is the top of the current dataset.
+A: Because the scoring is honest. Pension underfunding is a systemic problem across Massachusetts (and most of the US). Even well-run towns carry significant unfunded liability. A score of 70+ is genuinely excellent. The top of the current dataset is Newton at 86 — check `TOWNS.length` and sort by score for the current leaders.
 
 **Q: Can I trust the data?**  
 A: Every metric links to a cited source. The methodology page in the app lists every data source. The data is as current as the source allows — some fields (like municipal debt) use 2022 data because that's the latest MA DOR has published. Missing or stale data is flagged with the `data_confidence` field.
@@ -1026,6 +1033,13 @@ Gotcha: If the 5-year-ago baseline is near zero (e.g., index < 1), the % change 
 
 ### PILLAR 5: ECONOMIC VITALITY
 
+**Field: `bach` — Bachelor's Degree Attainment %**
+
+Primary: Census ACS5 → "Educational Attainment" → % of adults 25+ with bachelor's degree or higher.  
+Range: 20–80%. Note: This field is stored in towns.csv as `bachelors_degree_pct` but is not currently a scored submetric — it is collected for display and future use.
+
+---
+
 **Field: `inc10yr` — Income Growth (10yr) %**
 
 Primary: Census ACS5 current + Census ACS5 ~10 years prior.  
@@ -1096,7 +1110,8 @@ Range: 0–10. Gotcha: Some towns have multiple PWSIDs. Sum across all systems.
 **Field: `transit` — Transit Access**
 
 Primary: MBTA website + town website.  
-Values: `"Commuter Rail (in town)"` / `"Commuter Rail (nearby)"` / `"Bus only"` / `"None"`.
+Values (use exactly): `"Commuter Rail (in town)"` / `"Commuter Rail (nearby)"` / `"Bus only"` / `"Subway"` / `"Limited"` / `"None"`.  
+Note: These Title Case values are the canonical format. Old snake_case values (`commuter_rail_in_town`, etc.) also score correctly but should be updated to Title Case for display consistency.
 
 ---
 
