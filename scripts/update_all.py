@@ -142,6 +142,12 @@ DISTRICT_MAP = {
     "Kingston":             "silver lake",
     "Northborough":         "northborough-southborough",
     "North Attleborough":   "north attleborough",
+    "Yarmouth":              "dennis-yarmouth",
+    "Dennis":                "dennis-yarmouth",
+    "Harwich":               "monomoy regional school district",
+    "Chatham":               "monomoy regional school district",
+    "Brewster":              "nauset",
+    "Orleans":               "nauset",
 }
 
 def get_school(town):
@@ -278,6 +284,7 @@ WILDFIRE_UPDATES = {t: "Low" for t in [
 MATH_OVERRIDES = {
     "Sudbury":  73.0,   # K-8 district MCAS; lincoln-sudbury HS has no district-level math pct
     "Wrentham": 66.0,   # K-8 district MCAS; King Philip Regional math (43%) covers 3 towns
+    "Brewster":  60.0,   # Brewster Elementary K-5 MCAS math; Nauset Regional HS data used for grad/AP
 }
 
 # ─── Load methodology ─────────────────────────────────────────────────────────
@@ -540,6 +547,9 @@ ZHVI = {
     "Sudbury":1050000,"Westwood":1050000,"Holliston":580000,"Bedford":750000,
     "Randolph":450000,"Pembroke":510000,"Northbridge":420000,"Wrentham":590000,
     "Maynard":490000,"Tyngsborough":480000,
+    "Barnstable":580000,"Falmouth":660000,"Sandwich":575000,"Yarmouth":490000,
+    "Dennis":520000,"Harwich":640000,"Chatham":1400000,"Brewster":680000,
+    "Orleans":780000,"Mashpee":560000,
 }
 RATING_BANDS = [(60,"Hidden Gem"),(50,"Strong Value"),(40,"Market Rate"),(30,"Premium Town"),(0,"Luxury Market")]
 
@@ -576,6 +586,9 @@ COUNTY_MAP = {
     "Bedford":"Middlesex","Randolph":"Norfolk","Pembroke":"Plymouth",
     "Northbridge":"Worcester","Wrentham":"Norfolk","Maynard":"Middlesex",
     "Tyngsborough":"Middlesex",
+    "Barnstable":"Barnstable","Falmouth":"Barnstable","Sandwich":"Barnstable",
+    "Yarmouth":"Barnstable","Dennis":"Barnstable","Harwich":"Barnstable",
+    "Chatham":"Barnstable","Brewster":"Barnstable","Orleans":"Barnstable","Mashpee":"Barnstable",
 }
 
 # ─── Phase 1: Fill all data ───────────────────────────────────────────────────
