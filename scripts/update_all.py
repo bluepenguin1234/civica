@@ -153,6 +153,9 @@ DISTRICT_MAP = {
     "Upton":                "mendon-upton",
     "Raynham":              "bridgewater-raynham",
     "Rehoboth":             "dighton-rehoboth",
+    "Whitman":              "whitman-hanson",
+    "Bridgewater":          "bridgewater-raynham",
+    "Marion":               "old rochester",
 }
 
 def get_school(town):
@@ -291,6 +294,7 @@ MATH_OVERRIDES = {
     "Wrentham": 66.0,   # K-8 district MCAS; King Philip Regional math (43%) covers 3 towns
     "Brewster":  60.0,   # Brewster Elementary K-5 MCAS math; Nauset Regional HS data used for grad/AP
     "Southborough": 74.0,  # Southborough Elementary K-5 MCAS; Algonquin Regional HS data used for grad/AP
+    "Marion":       55.0,  # Marion Elementary K-6 MCAS; Old Rochester Regional HS data used for grad/AP
 }
 
 # ─── Load methodology ─────────────────────────────────────────────────────────
@@ -562,6 +566,12 @@ ZHVI = {
     "Attleboro":435000,"Taunton":395000,"New Bedford":295000,"Fall River":270000,
     "Dartmouth":465000,"Norton":545000,"Seekonk":445000,"Raynham":470000,
     "Rehoboth":545000,"Swansea":420000,
+    "Springfield":245000,"Northampton":470000,"Amherst":545000,"Westfield":340000,
+    "Chicopee":300000,"Holyoke":265000,"Agawam":360000,"West Springfield":315000,
+    "Longmeadow":480000,"Easthampton":375000,
+    "Abington":510000,"Whitman":455000,"Rockland":465000,"Middleborough":430000,
+    "Wareham":370000,"Bridgewater":450000,"East Bridgewater":475000,
+    "West Bridgewater":485000,"Carver":400000,"Marion":650000,
 }
 RATING_BANDS = [(60,"Hidden Gem"),(50,"Strong Value"),(40,"Market Rate"),(30,"Premium Town"),(0,"Luxury Market")]
 
@@ -607,6 +617,12 @@ COUNTY_MAP = {
     "Attleboro":"Bristol","Taunton":"Bristol","New Bedford":"Bristol","Fall River":"Bristol",
     "Dartmouth":"Bristol","Norton":"Bristol","Seekonk":"Bristol","Raynham":"Bristol",
     "Rehoboth":"Bristol","Swansea":"Bristol",
+    "Springfield":"Hampden","Northampton":"Hampshire","Amherst":"Hampshire",
+    "Westfield":"Hampden","Chicopee":"Hampden","Holyoke":"Hampden",
+    "Agawam":"Hampden","West Springfield":"Hampden","Longmeadow":"Hampden","Easthampton":"Hampshire",
+    "Abington":"Plymouth","Whitman":"Plymouth","Rockland":"Plymouth",
+    "Middleborough":"Plymouth","Wareham":"Plymouth","Bridgewater":"Plymouth",
+    "East Bridgewater":"Plymouth","West Bridgewater":"Plymouth","Carver":"Plymouth","Marion":"Plymouth",
 }
 
 # ─── Phase 1: Fill all data ───────────────────────────────────────────────────
