@@ -41,5 +41,6 @@ AGG_OWNWELL,3,Ownwell Property Tax Aggregator,Ownwell,https://www.ownwell.com/,,
 AGG_NHSCOUT,3,NeighborhoodScout (FBI UCR derivative),"Location, Inc.",https://www.neighborhoodscout.com/,,Commercial,Annual,Most recent,FBI UCR data presented; verify with primary
 AGG_TAPWATER,3,TapWaterData (EWG-derived),TapWaterData,https://www.tapwaterdata.com/,,Free,Periodic,Current,Water utility quality summaries; cross-check with EPA
 AGG_NICHE,3,Niche.com,Niche,https://www.niche.com/,,Commercial,Annual,Most recent,Place rankings; compare but don't rely on as primary
+MA_SORB,1,Massachusetts Sex Offender Registry Board,Commonwealth of MA SORB,https://www.mass.gov/sex-offender-registry-board,,Public,Continuous,Current,"Sex offender counts by municipality; used to compute sex_off (density per 1,000 residents)"
 PRESS_LOCAL,4,Local newspaper (specific publication varies),Various,(specific publication),,Editorial,Daily,Specific articles cited per row,Used when primary unavailable; always cross-reference
 PRESS_PATCH,4,Patch.com Local News,Patch Media,https://patch.com/,,Editorial,Daily,Specific articles,Hyperlocal news; verify with primary sources

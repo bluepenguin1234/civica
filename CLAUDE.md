@@ -347,9 +347,9 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 | `med_inc` | float | [required] Median household income $. Source: Census ACS 2023. |
 | `inc10yr` | float | 10-year income growth %. Source: Census ACS (compare 2013 vs 2023). |
 | `pop10yr` | float | 10-year population growth %. Source: Census. |
-| `bach` | float | Bachelor's degree attainment % (25+). Source: Census ACS. |
-| `unemp` | float | Unemployment %. Source: Census ACS or MA DLT. |
-| `pov` | float | Poverty rate %. Source: Census ACS. |
+| `bach` | float | Bachelor's degree attainment % (25+). Source: Census ACS. **Display only — not a scored submetric.** |
+| `unemp` | float | Unemployment %. Source: Census ACS or MA DLT. **Display only — not a scored submetric.** |
+| `pov` | float | Poverty rate %. Source: Census ACS. **Display only — not a scored submetric.** |
 
 ### Infrastructure & Utilities
 | Field | Type | Notes |
