@@ -184,6 +184,10 @@ DISTRICT_MAP = {
     "Upton": "mendon-upton", "Raynham": "bridgewater-raynham",
     "Rehoboth": "dighton-rehoboth", "Whitman": "whitman-hanson",
     "Bridgewater": "bridgewater-raynham", "Marion": "old rochester",
+    "Dover": "dover-sherborn", "Sherborn": "dover-sherborn",
+    "Lincoln": "lincoln-sudbury", "Carlisle": "concord-carlisle",
+    "Stow": "nashoba", "Groton": "groton-dunstable",
+    "Plainville": "king philip",
 }
 
 def get_school(t):
