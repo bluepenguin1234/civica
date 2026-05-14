@@ -184,6 +184,11 @@ DISTRICT_MAP = {
     "Spencer":              "spencer-e brookfield",
     "Charlton":             "dudley-charlton reg",
     "Norfolk":              "king philip",
+    "Townsend":             "north middlesex",
+    "Lancaster":            "nashoba",
+    "Sterling":             "wachusett",
+    "Sturbridge":           "tantasqua",
+    "Somerset":             "somerset berkley",
 }
 
 def get_school(town):
