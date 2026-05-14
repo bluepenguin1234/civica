@@ -464,3 +464,14 @@ Whenever a task has independent sub-parts, deploy parallel agents rather than wo
 3. **Auditable outputs required.** After any modification to civica-v5.html, verify: (a) `TOWNS.length` is correct, (b) the modified town renders at localhost:8765, (c) `git diff` shows only the intended change.
 4. **Data changes go through update_all.py.** Never hand-edit the TOWNS array for data changes — run the pipeline. Verify the script succeeded before committing.
 5. **Commit scope = one logical change.** Parallel agents can work simultaneously but their outputs get committed separately.
+6. **Always validate JS syntax before committing.** After any change that touches the TOWNS array, run `node _test_towns.js` (or extract the array inline) to catch syntax errors before they break the site. A single missing comma will prevent the entire page from loading. If the map or page isn't working after a change, run Node first — it will point directly to the broken line.
+
+   Quick syntax check:
+   ```powershell
+   py -c "
+   with open('civica-v5.html', encoding='utf-8') as f: c = f.read()
+   s = c[c.index('const TOWNS = ['):c.index('\n];\ndocument.querySelectorAll')+3]
+   open('_t.js','w').write(s+'\nconsole.log(TOWNS.length)')
+   " && node _t.js && del _t.js
+   ```
+   If Node prints a line number and `SyntaxError`, that's the broken town. Fix the issue in civica-v5.html, re-run the check, then commit.
