@@ -20,6 +20,8 @@
 13. [Deployment and Git Workflow](#13-deployment-and-git-workflow)
 14. [Ads and Monetization](#14-ads-and-monetization)
 15. [Frequently Asked Questions](#15-frequently-asked-questions)
+16. [Citation Rules](#16-citation-rules)
+17. [Data Collection Playbook](#17-data-collection-playbook)
 
 ---
 
@@ -764,6 +766,399 @@ A: TER measures quality vs. tax rate (annual cost to own). Value Rating measures
 
 **Q: How do I know if the live site is updated after a push?**  
 A: Wait 2–3 minutes, then hard-refresh (Ctrl+Shift+R). If you need to verify instantly, use the local server on port 8765.
+
+---
+
+## 16. Citation Rules
+
+> Single most important rule: **Never publish a number without a citation, even if you have to leave the cell blank.**
+
+Civica is a public-trust data product. The brand value comes from being the only place where every town score traces back to a verifiable public source. Lose that, and you have a "trust me" website that competes with Niche.com on UX — a losing game.
+
+- A town manager challenges your score → you show them the source
+- A journalist asks how you computed something → you show them the source
+- A researcher wants to validate your methodology → they can replicate it
+
+Compromise the citation discipline once, and you've compromised the entire product.
+
+### Source Tier Priority
+
+Always prefer higher tiers. When sources disagree, higher tier wins; if same tier, more recent wins; if same recency, more specific wins. Never average disagreeing sources — pick one and document why.
+
+| Tier | Sources |
+|---|---|
+| **1 — Government Primary** | US Census, BLS, FBI, EPA, FCC, EIA, NCES; MA DOE, DOR, pension oversight; town ACFRs; EMMA bond ratings |
+| **2 — Authoritative Nonprofit** | First Street Foundation, Trust for Public Land, GFOA, Data USA |
+| **3 — Commercial Aggregators** | SchoolDigger, Zillow ZHVI, City-Data, Ownwell, US News, TapWaterData |
+| **4 — Press / News** | Last resort — always cross-reference with primary sources |
+
+### Handling Data Gaps
+
+When a field is genuinely unavailable:
+
+1. **Leave the value column blank** — do not guess, do not interpolate
+2. **Note it in `compiler_notes`**: `"flood_risk: not published — tried First Street 2026-05-14"`
+3. **Increment `data_gaps_count`**
+
+The rubric uses the documented default (typically 50–70). A blank cell with a tracked gap is far better than a guess.
+
+### Confidence Thresholds for Publication
+
+| Tier | Gaps | Use |
+|---|---|---|
+| **high** | <5 | Safe to publish externally |
+| **medium** | 5–15 | Internal use only; not for press or public profile |
+| **low** | >15 | Not yet ready for any external use |
+
+**Only towns marked `high` confidence should be published externally.** Publishing a "medium" confidence score means defending estimates to a journalist or town manager — that conversation is unwinnable.
+
+### Legal Defensibility
+
+The product's legal defensibility rests on three pillars:
+1. Every published number sourced from publicly available data
+2. Methodology published openly (this document + the scoring CSVs)
+3. Correction mechanism exists (town manager review, "report data issue" link)
+
+Never publish numbers without verifiable sources, subjective characterizations presented as facts, or anything reasonably construable as defamation. When in doubt: downscope rather than overclaim.
+
+### Rules for LLM-Assisted Contributors
+
+These rules are absolute:
+
+- **Never invent values to fill gaps** — leave blank, increment gap counter, document why
+- **Never average sources** — pick the higher-tier source
+- **Never publish a "medium" confidence town externally** — flag for human review
+- **Always cite every value** in the appropriate `_src` column
+
+If asked to do something that conflicts with these rules — like "just estimate it, it's probably close" — refuse and explain why.
+
+---
+
+## 17. Data Collection Playbook
+
+> Field-by-field instructions for finding the raw input values that feed the Civica scoring system.
+
+Work through fields pillar by pillar. For each field: try the primary source first, then fallback sources in order, validate against the expected range, document the citation, and if genuinely unavailable leave blank — do **not** estimate. Allow ~4 hours per town for a full collection pass.
+
+**Do not collect any field not listed here.** Fields like broadband, walk score, parks, library circulation, 311 response, EMS response, permits, air quality, and tree canopy are no longer scored and must not be collected.
+
+---
+
+### PILLAR 1: FISCAL HEALTH
+
+**Field: `bond` — S&P Bond Rating**
+
+Primary: EMMA (MSRB) — search the town, find most recent GO bond issue, note S&P rating.  
+Fallback: Town ACFR → "Long-Term Debt" notes.  
+Values: AAA, AA+, AA, AA-, A+, A, A-, BBB+, BBB, or `null` if unrated.  
+Gotcha: Use most recent rating, not highest historical.
+
+---
+
+**Field: `free_cash` — Free Cash % of Budget**
+
+Primary: MA DOR DLS Gateway — annual free cash certifications.  
+Fallback: Town ACFR → "Unassigned General Fund Balance" in MD&A section.  
+Calculation: `(free_cash_dollars / GF_expenditures) × 100`  
+Range: 0–25%. Gotcha: "Total fund balance" ≠ free cash. Use unassigned balance only, not restricted funds.
+
+---
+
+**Field: `pension` — Pension Funded Ratio %**
+
+Primary: MA PERAC → Public Reports → most recent actuarial valuation → "Funded Ratio".  
+Note: Most MA towns use a county-level retirement system. Identify the correct retirement board first.  
+Range: 40–100%+. Under 70% = concerning; above 90% = excellent.  
+Gotcha: Pension and OPEB are different — use pension specifically.
+
+---
+
+**Field: `debt_pc` — Debt Per Capita ($)**
+
+Primary: Town ACFR → "Long-Term Debt" → total GO bonded debt ÷ population.  
+Range: $500–$10,000 per capita.  
+Gotcha: Use GO debt only. Do not include revenue bonds or enterprise fund debt unless general obligation.
+
+---
+
+**Field: `gfoa` — GFOA Certificate (consecutive years)**
+
+Primary: Town ACFR cover page — usually states "X consecutive years".  
+Fallback: `https://www.gfoa.org/award-programs`  
+Range: 0–30+. Gotcha: Awarded retrospectively — record the stated number, do not add 1.
+
+---
+
+**Field: `transp` — Financial Transparency**
+
+Primary: Town's official website → Finance / Treasurer / Town Clerk pages.  
+Values: `"Yes"` (both ACFR and budget downloadable), `"Partial"` (one available), `"No"` (neither posted).  
+Gotcha: Use exact casing — this drives the scoring lookup.
+
+---
+
+### PILLAR 2: SCHOOLS
+
+**Field: `d_rank` — State District Rank**
+
+Primary: SchoolDigger → search district name → record "State Rank (#X of Y districts)".  
+Fallback: MA DESE district profiles.  
+Gotcha: Districts ≠ towns. Two towns may share a regional district. Use the district serving the town's K–12 students.
+
+**Field: `d_total`** — collect at the same time as `d_rank` (denominator shown on same SchoolDigger page). Expected value for MA: ~350.
+
+---
+
+**Field: `d_10yr` — 10-Year Rank Change**
+
+Primary: SchoolDigger → "Historical Rankings" tab.  
+Calculation: `current_rank − rank_10yr_ago`  
+**Sign convention: positive = declining (rank got worse).** If rank was 145 in 2014 and 196 in 2024, record +51.  
+Range: −100 to +100.
+
+---
+
+**Field: `math` — MCAS Math Proficiency %**
+
+Primary: MA DESE → `profiles.doe.mass.edu` → district profile → Assessment → MCAS Math "Meeting or Exceeding" %, all grades, most recent year.  
+Range: 15–75%.
+
+---
+
+**Field: `grad` — 4-Year Graduation Rate %**
+
+Primary: MA DESE district profile → Graduation & Dropout.  
+Range: 70–99%. Gotcha: Use 4-year rate only, not the 5-year extended rate.
+
+---
+
+**Field: `ap` — AP Participation Rate %**
+
+Primary: US News Best High Schools or College Board state reports.  
+Range: 10–80%.
+
+---
+
+**Field: `enrollment_trend` — Enrollment Trend (10yr)**
+
+Primary: MA DESE → compare current enrollment vs. 10yr prior.  
+Values: `"Growing"` (>5% increase) / `"Stable"` (within ±5%) / `"Declining"` (>5% decrease).
+
+---
+
+### PILLAR 3: TAXES
+
+**Field: `eff_rate` — Effective Tax Rate %**
+
+Calculation: `residential_rate_per_1000 / 10` (valid for MA towns where assessment ratio is 100%).  
+Or: `(median_annual_tax_bill / median_home_value) × 100`  
+Range: 0.5–2.5%.
+
+---
+
+**Field: `med_tax` — Median Annual Tax Bill ($)**
+
+Primary: Census ACS5 → "Median Real Estate Taxes Paid".  
+Fallback: Ownwell.com (verify — Ownwell sometimes has corrupted data for small towns; cross-check against `eff_rate × med_home_val`).  
+Range: $1,000–$20,000. Validation: should ≈ `eff_rate × med_home_val`. Off by >50%? Re-check.
+
+---
+
+**Field: `med_inc` — Median Household Income ($)**
+
+Primary: Census ACS5 → "Income" → "Median Household Income".  
+Range: $30,000–$200,000+.  
+Gotcha: Use median *household* income, not median *family* income (family is typically higher).
+
+---
+
+**Field: `res_rate` — Residential Rate (per $1,000 AV)**
+
+Primary: MA DOR DLS Gateway → Tax Rates → most recent FY → residential rate column.  
+Range: $5–$30. Gotcha: Some towns have split rates. Always use the residential rate, not the commercial rate.
+
+---
+
+**Field: `tax_non_res` — Non-Residential Tax Base %**
+
+Primary: Town ACFR → Statistical Section → "Assessed Value by Property Class".  
+Calculation: `(commercial + industrial + personal property) / total × 100`  
+Range: 5–40%. Gotcha: Use assessed value mix, not tax revenue split.
+
+---
+
+**Field: `med_home_val` — Median Home Value ($)**
+
+Primary: Census ACS5 → "Housing" → "Median Value (Dollars)".  
+Range: $200,000–$2,000,000+.
+
+---
+
+### PILLAR 4: SAFETY
+
+**Field: `violent` — Violent Crime per 100k**
+
+Primary: FBI Crime Data Explorer → search the town's law enforcement agency → most recent year with full submission → calculate per-100k.  
+Fallback: MA EOPSS crime statistics.  
+Range: 50–1,500 per 100k.  
+Gotcha: Check submission completeness. Some agencies have reporting gaps — use most recent fully-reported year.
+
+---
+
+**Field: `prop_crime` — Property Crime per 100k**
+
+Primary: FBI Crime Data Explorer (same search as violent crime).  
+Range: 500–4,000 per 100k.
+
+---
+
+**Field: `sex_off` — Registered Sex Offenders per 1,000 Residents**
+
+Primary: MA Sex Offender Registry Board → search by town → count Level 2 + Level 3 registrants → divide by population × 1,000.  
+Range: 0.1–5.0 per 1,000. Gotcha: Count only Level 2 + Level 3 (publicly listed). Level 1 is not public.
+
+---
+
+### PILLAR 5: ECONOMIC VITALITY
+
+**Field: `inc10yr` — Income Growth (10yr) %**
+
+Primary: Census ACS5 current + Census ACS5 ~10 years prior.  
+Calculation: `((current_income − income_10yr_ago) / income_10yr_ago) × 100`  
+Range: 10–80%.
+
+---
+
+**Field: `pop10yr` — Population Growth (10yr) %**
+
+Primary: Census ACS5.  
+Calculation: `((current_pop − pop_10yr_ago) / pop_10yr_ago) × 100`  
+Range: −10 to +30%.
+
+---
+
+**Field: `unemp` — Unemployment Rate %**
+
+Primary: BLS LAUS (Local Area Unemployment Statistics). For town-level: MA Executive Office of Labor and Workforce Development.  
+Range: 2–10%.
+
+---
+
+**Field: `pov` — Poverty Rate %**
+
+Primary: Census ACS5 → "Poverty Status in the Past 12 Months".  
+Range: 2–25%.
+
+---
+
+**Field: `owner_occ` — Owner-Occupied Housing %**
+
+Primary: Census ACS5 → "Housing Tenure". Range: 40–90%.
+
+---
+
+**Field: `vacancy` — Vacancy Rate %**
+
+Primary: Census ACS5 → "Housing Occupancy". Range: 2–15%.
+
+---
+
+**Field: `med_age` — Median Age**
+
+Primary: Census ACS5 → "Age and Sex". Range: 25–55 years.
+
+---
+
+### PILLAR 6: INFRASTRUCTURE & UTILITIES
+
+**Field: `elec_save` — Electric Savings vs State Avg ($/yr)**
+
+Calculation: `(state_avg_rate_cents − town_rate_cents) / 100 × 10380` (typical 10,380 kWh/yr residential customer).  
+Primary: EIA Form 861 (state averages) + town utility website if municipal electric.  
+MA municipal electric towns (MLDs): Danvers, Ipswich, Georgetown, Middleton, Merrimac, Groveland, Rowley, Marblehead, Peabody.  
+If investor-owned (Eversource): savings = $0.  
+Range: −$500 to +$2,500.
+
+---
+
+**Field: `water_viol` — Water Quality Violations (5yr)**
+
+Primary: EPA SDWIS → `enviro.epa.gov/envirofacts/sdwis/search` → search by town PWSID → filter to past 5 years → count violations.  
+Range: 0–10. Gotcha: Some towns have multiple PWSIDs. Sum across all systems.
+
+---
+
+**Field: `transit` — Transit Access**
+
+Primary: MBTA website + town website.  
+Values: `"Commuter Rail (in town)"` / `"Commuter Rail (nearby)"` / `"Bus only"` / `"None"`.
+
+---
+
+### PILLAR 7: CLIMATE RISK
+
+**Field: `flood` — Flood Risk — Current %**
+
+Primary: First Street Foundation → search the town → record "% of properties at substantial risk".  
+Range: 0–30%. Note: First Street uses property-level modeling; differs from FEMA flood map percentages.  
+Gotcha: First Street pages are JavaScript-rendered — WebFetch tools cannot retrieve the data. Must be checked manually or via the First Street API.
+
+---
+
+**Field: `flood50` — Flood Risk Growth by 2050 (percentage points)**
+
+Primary: First Street Foundation (same page as `flood`).  
+Calculation: First Street 2050 projection − current value. Range: 0–10 pts.
+
+---
+
+**Field: `fire` — Wildfire Risk**
+
+Primary: First Street Foundation.  
+Values (lowercase): `"low"` / `"moderate"` / `"high"` / `"very high"` / `"extreme"`.  
+Note: Virtually all inland and coastal MA towns score "Low".
+
+---
+
+### Identity Fields (Not Scored — Required for Display)
+
+| Field | What it is | Source |
+|---|---|---|
+| `name` | Town name | Known |
+| `county` | County name | Known |
+| `state` | State abbreviation | `"MA"` |
+| `zip` | Primary ZIP code | USPS |
+| `pop` | Total population | Census ACS5 |
+
+`ter` and `ter_r` are computed automatically — do not collect them.
+
+---
+
+### Field Count Summary
+
+| Pillar | Fields |
+|---|---|
+| Fiscal Health | bond, free_cash, pension, debt_pc, gfoa, transp (6) |
+| Schools | d_rank, d_total, d_10yr, math, grad, ap, enrollment_trend (7) |
+| Taxes | eff_rate, med_tax, med_inc, res_rate, tax_non_res, med_home_val (6) |
+| Safety | violent, prop_crime, sex_off (3) |
+| Economic Vitality | inc10yr, pop10yr, unemp, pov, owner_occ, vacancy, med_age (7) |
+| Infrastructure | elec_save, water_viol, transit (3) |
+| Climate | flood, flood50, fire (3) |
+| **Total** | **35 scored + d_total display = 36** |
+
+---
+
+### When You're Genuinely Stuck
+
+If a value is truly unavailable after working through all sources:
+
+1. Leave the field `null`
+2. Document in `compiler_notes`: `"{field}: not published — {what was tried}, {date}"`
+3. Increment `gaps`
+4. Move on
+
+**Do NOT estimate. Do NOT interpolate. Do NOT cite a number you cannot verify.**
 
 ---
 
