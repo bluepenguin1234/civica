@@ -27,6 +27,21 @@ census  = load_csv_index(BULK / "census_acs_ma_towns.csv", "town_name", str.lowe
 schools = load_csv_index(BULK / "ma_schools_combined.csv", "district_name", str.lower)
 print(f"Loaded: {len(census)} Census towns, {len(schools)} school districts")
 
+# Compute district ranks from bulk data (composite: math 50%, grad 30%, AP 20%)
+_rank_scored = []
+for _dname, _d in schools.items():
+    try:
+        _m = float(_d.get('mcas_math_pct') or 0)
+        _g = float(_d.get('graduation_rate_pct') or 0)
+        _a = float(_d.get('ap_participation_pct') or 0)
+        if _m > 0 or _g > 0:
+            _rank_scored.append((_dname, _m * 0.5 + _g * 0.3 + _a * 0.2))
+    except: pass
+_rank_scored.sort(key=lambda x: x[1], reverse=True)
+RANK_TOTAL = len(_rank_scored)
+DISTRICT_RANKS = {name: rank + 1 for rank, (name, _) in enumerate(_rank_scored)}
+print(f"  Computed ranks for {RANK_TOTAL} school districts")
+
 # ─── Load Excel bulk data ─────────────────────────────────────────────────────
 def _find_col(headers, *keywords):
     """Find column index where all keywords appear in the header (case-insensitive)."""
@@ -160,14 +175,22 @@ DISTRICT_MAP = {
 
 def get_school(town):
     district = DISTRICT_MAP.get(town, town).lower()
-    # Try exact match first
     if district in schools:
         return schools[district]
-    # Fuzzy: first match containing key word
     for k, v in schools.items():
         if district.split()[0] in k:
             return v
     return None
+
+def get_school_rank(town):
+    """Return (rank, total) for a town's school district, or (None, None) if not found."""
+    district = DISTRICT_MAP.get(town, town).lower()
+    if district in DISTRICT_RANKS:
+        return DISTRICT_RANKS[district], RANK_TOTAL
+    for k in DISTRICT_RANKS:
+        if district.split()[0] in k:
+            return DISTRICT_RANKS[k], RANK_TOTAL
+    return None, None
 
 # ─── Agent data ───────────────────────────────────────────────────────────────
 # Bond ratings confirmed by MA DLS fiscal agent
@@ -625,6 +648,151 @@ COUNTY_MAP = {
     "East Bridgewater":"Plymouth","West Bridgewater":"Plymouth","Carver":"Plymouth","Marion":"Plymouth",
 }
 
+# ─── Auto-generate glance/standout text ──────────────────────────────────────
+def _auto_glance(town, row, civica, ter, ter_r, ps):
+    """Return a 2-3 sentence glance description auto-generated from scores."""
+    bond     = row.get("bond_rating_sp", "")
+    d_rank   = row.get("district_state_rank", "")
+    d_total  = row.get("district_state_rank_total", "") or "351"
+    violent  = row.get("violent_crime_per_100k", "")
+    med_tax  = row.get("median_annual_tax_bill", "")
+    med_inc  = row.get("median_household_income", "")
+    eff_rate = row.get("effective_tax_rate_pct", "")
+    transit  = row.get("transit_access", "none").lower().strip()
+    math     = row.get("test_scores_math_pct", "")
+    grad     = row.get("graduation_rate_pct", "")
+
+    pillars = sorted([
+        ("schools",           ps.get("schools", 50)),
+        ("safety",            ps.get("safety", 50)),
+        ("taxes",             ps.get("taxes", 50)),
+        ("fiscal_health",     ps.get("fiscal_health", 50)),
+        ("economic_vitality", ps.get("economic_vitality", 50)),
+        ("quality_of_life",   ps.get("quality_of_life", 50)),
+        ("climate",           ps.get("climate", 50)),
+    ], key=lambda x: x[1], reverse=True)
+
+    # Opening sentence
+    if civica >= 75:
+        intro = f"{town} is a high-performing town with a Civica score of {civica}."
+    elif civica >= 63:
+        intro = f"{town} scores {civica} on the Civica index — above the statewide median."
+    elif civica >= 50:
+        intro = f"{town} scores {civica} on the Civica index, near the statewide average."
+    else:
+        intro = f"{town} scores {civica} on the Civica index, reflecting notable tradeoffs."
+
+    # Top 2 strengths
+    strengths = []
+    for pillar, score in pillars[:3]:
+        if score < 58: break
+        if pillar == "schools":
+            if d_rank and math and grad:
+                strengths.append(f"schools ranked #{int(float(d_rank))} of {d_total} (math {math}%, grad {float(grad):.1f}%)")
+            elif d_rank:
+                strengths.append(f"schools ranked #{int(float(d_rank))} of {d_total}")
+            else:
+                strengths.append("strong school district")
+        elif pillar == "safety":
+            if violent:
+                strengths.append(f"low crime ({float(violent):.0f} violent per 100k)")
+            else:
+                strengths.append("low crime rates")
+        elif pillar == "fiscal_health":
+            if bond and bond not in ("Not Rated", "NR", ""):
+                strengths.append(f"{bond} bond rating")
+            else:
+                strengths.append("sound fiscal health")
+        elif pillar == "taxes":
+            if eff_rate:
+                strengths.append(f"low effective tax rate ({float(eff_rate):.3f}%)")
+            elif med_tax:
+                strengths.append(f"competitive taxes (${int(float(med_tax)):,}/yr median bill)")
+            else:
+                strengths.append("competitive tax burden")
+        elif pillar == "economic_vitality":
+            if med_inc:
+                strengths.append(f"strong household incomes (${int(float(med_inc)):,} median)")
+            else:
+                strengths.append("strong economic vitality")
+        elif pillar == "quality_of_life":
+            if transit and transit not in ("none", "no"):
+                strengths.append("good transit access")
+    strength_sent = ("Strengths: " + ", ".join(strengths[:2]) + ".") if strengths else ""
+
+    # Bottom weakness
+    weakness = ""
+    for pillar, score in reversed(pillars):
+        if score > 44: break
+        if pillar == "taxes" and med_tax:
+            weakness = f"high median tax bill (${int(float(med_tax)):,}/yr)"
+        elif pillar == "safety" and violent:
+            weakness = f"above-average crime ({float(violent):.0f} violent per 100k)"
+        elif pillar == "schools":
+            weakness = "below-average school performance"
+        elif pillar == "climate":
+            weakness = "elevated flood or climate risk"
+        elif pillar == "fiscal_health":
+            weakness = "below-average fiscal health"
+        if weakness: break
+    weak_sent = (f"Key tradeoff: {weakness}.") if weakness else ""
+
+    ter_sent = ""
+    if ter and ter_r not in ("N/A", "Poor", "Below Average"):
+        ter_sent = f"{ter_r} value at {ter}x TER."
+
+    parts = [p for p in [intro, strength_sent, weak_sent or ter_sent] if p]
+    return " ".join(parts)
+
+
+def _auto_standout(town, row, civica, ter, ter_r, ps):
+    """Return a 1-2 sentence standout bullet auto-generated from scores."""
+    bond    = row.get("bond_rating_sp", "")
+    d_rank  = row.get("district_state_rank", "")
+    d_total = row.get("district_state_rank_total", "") or "351"
+    violent = row.get("violent_crime_per_100k", "")
+    math    = row.get("test_scores_math_pct", "")
+    grad    = row.get("graduation_rate_pct", "")
+    elec    = row.get("electric_savings_vs_state_avg", "")
+    transit = row.get("transit_access", "none").lower()
+
+    highlights = []
+    if bond and bond in ("AAA", "AA+", "AA"):
+        highlights.append(f"{bond} bond rating")
+    if d_rank:
+        ri = int(float(d_rank))
+        label = f"top-{ri}" if ri <= 10 else (f"top-quartile" if ri <= 90 else f"#{ri}")
+        hl = f"{label} school district (#{ri} of {d_total})"
+        if math: hl += f", MCAS math {math}%"
+        highlights.append(hl)
+    if violent:
+        vf = float(violent)
+        if vf < 60:
+            highlights.append(f"low crime ({vf:.0f} violent/100k)")
+    if elec:
+        try: highlights.append(f"municipal electric saves ~${int(float(elec)):,}/yr vs MA avg")
+        except: pass
+    if transit and transit not in ("none", "no", ""):
+        if "in_town" in transit or "in town" in transit:
+            highlights.append("commuter rail in town")
+        elif "nearby" in transit:
+            highlights.append("commuter rail nearby")
+    if ter and ter_r in ("Exceptional", "Strong"):
+        highlights.append(f"{ter_r.lower()} value ({ter}x TER)")
+
+    if not highlights:
+        return f"{town}: Civica score {civica}."
+    return f"{town}: {'; '.join(highlights[:4])}."
+
+
+def _auto_insert_str(obj, field, val):
+    """Insert a string field into a JS object only if the field is not already present."""
+    if re.search(rf'{re.escape(field)}:"[^"]*"', obj):
+        return obj
+    safe = val.replace('"', "'").replace('\n', ' ')
+    return obj[:-1].rstrip() + f',{field}:"{safe}"' + '}'
+
+
 # ─── Phase 1: Fill all data ───────────────────────────────────────────────────
 print("\nPhase 1: Filling data for all towns...")
 for row in rows:
@@ -650,6 +818,13 @@ for row in rows:
     # K-8 MCAS math override for towns with split K-8/HS districts
     if town in MATH_OVERRIDES:
         setf(row, "test_scores_math_pct", MATH_OVERRIDES[town])
+
+    # Auto-fill district rank from bulk composite (only if not already set)
+    if not row.get("district_state_rank"):
+        auto_rank, auto_total = get_school_rank(town)
+        if auto_rank:
+            setf_if_empty(row, "district_state_rank", auto_rank)
+            setf_if_empty(row, "district_state_rank_total", auto_total)
 
     # 3. Excel bulk data (authoritative — override existing values)
     fc = free_cash_bulk.get(town.lower())
@@ -703,7 +878,7 @@ for row in rows:
     row["ter_rating"]       = ter_r
     row["data_gaps_count"]  = str(gaps)
     row["data_confidence"]  = conf
-    row["last_updated"]     = "2026-05-13"
+    row["last_updated"]     = "2026-05-14"
     row["p_schools"] = str(round(ps.get("schools",           50)))
     row["p_safety"]  = str(round(ps.get("safety",            50)))
     row["p_taxes"]   = str(round(ps.get("taxes",             50)))
@@ -897,6 +1072,25 @@ for obj_start, obj_end in objects:
         obj = ensure_str_field(obj, 'value_rating', js_str("value_rating"))
     if fv("value_score"):
         obj = ensure_field(obj, 'value_score', js_num("value_score"))
+
+    # Auto-generate glance/standout only if missing from this town's JS object
+    _ps = {
+        "schools":           float(row.get("p_schools") or 50),
+        "safety":            float(row.get("p_safety") or 50),
+        "taxes":             float(row.get("p_taxes") or 50),
+        "fiscal_health":     float(row.get("p_fiscal") or 50),
+        "economic_vitality": float(row.get("p_econ") or 50),
+        "quality_of_life":   float(row.get("p_qol") or 50),
+        "climate":           float(row.get("p_climate") or 50),
+    }
+    _cv = int(score) if score and str(score).lstrip("-").isdigit() else 0
+    try:   _ter_f = float(ter) if ter and ter != "null" else None
+    except: _ter_f = None
+    _ter_r_s = ter_r.strip('"') if ter_r else "N/A"
+    if not re.search(r'glance:"[^"]+"', obj):
+        obj = _auto_insert_str(obj, "glance", _auto_glance(name, row, _cv, _ter_f, _ter_r_s, _ps))
+    if not re.search(r'standout:"[^"]+"', obj):
+        obj = _auto_insert_str(obj, "standout", _auto_standout(name, row, _cv, _ter_f, _ter_r_s, _ps))
 
     html = html[:s] + obj + html[e:]
     delta += len(obj) - (obj_end - obj_start)
