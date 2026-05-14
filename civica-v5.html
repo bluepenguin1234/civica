@@ -1950,36 +1950,23 @@ function renderProf(idx){
     <!-- SCORE EXPLAINED -->
     ${(()=>{
       const pillars=[
-        {label:'Schools',        icon:'🎓', score:schScore,  note:schScore>=80?`Ranked #${t.d_rank||'?'} of ${t.d_total||351} statewide`:schScore>=65?'Above-average district ranking':schScore>=50?'Mid-tier school district':'Below-average school performance'},
-        {label:'Safety',         icon:'🛡️', score:safScore,  note:safScore>=80?'Very low crime, well below state average':safScore>=65?'Below-average crime rates':safScore>=50?'Near-average crime levels':'Above-average crime rates'},
-        {label:'Fiscal Health',  icon:'🏦', score:fiscScore, note:fiscScore>=80?`${t.bond||'Strong'} bond rating, healthy reserves`:fiscScore>=65?'Above-average fiscal position':fiscScore>=50?'Average fiscal health':'Fiscal stress indicators present'},
-        {label:'Taxes',          icon:'💰', score:taxScore,  note:taxScore>=80?'Low effective rate and affordable homes':taxScore>=65?'Below-average tax burden':taxScore>=50?'Average tax load':'High taxes relative to income and home value'},
-        {label:'Economic Vitality',icon:'📈',score:econScore, note:econScore>=80?'Strong income growth and population gains':econScore>=65?'Growing town, rising incomes':econScore>=50?'Moderate economic momentum':'Slow growth or stagnation'},
-        {label:'Infra & Utilities',icon:'⚡',score:qolScore,  note:qolScore>=80?'Municipal electric and strong transit access':qolScore>=65?'Good transit or utility advantage':qolScore>=50?'Average transit and utility access':'Limited transit; on Eversource grid'},
-        {label:'Climate Risk',   icon:'🌿', score:climScore, note:climScore>=80?'Minimal flood and fire exposure':climScore>=65?'Low climate risk overall':climScore>=50?'Moderate flood or fire exposure':'Elevated flood or wildfire risk'},
+        {label:'Schools',          score:schScore},
+        {label:'Safety',           score:safScore},
+        {label:'Fiscal Health',    score:fiscScore},
+        {label:'Taxes',            score:taxScore},
+        {label:'Economic Vitality',score:econScore},
+        {label:'Infra & Utilities',score:qolScore},
+        {label:'Climate Risk',     score:climScore},
       ];
       const sorted=[...pillars].sort((a,b)=>b.score-a.score);
-      const strengths=sorted.filter(p=>p.score>=60).slice(0,3);
-      const drags=sorted.filter(p=>p.score<60);
-      const scColor=s=>s>=65?'#1a8a3c':s>=55?'#0d2d52':s>=45?'#b25a00':'#c0392b';
-      const scBg=s=>s>=65?'#e4faea':s>=55?'#e8eef6':s>=45?'#fff4e0':'#fff0ee';
-      const row=(p)=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f2f2f2">
-        <div style="font-size:.78rem;flex:1;font-weight:500;color:#1d1d1f">${p.icon} ${p.label}</div>
-        <div style="font-size:.75rem;color:#6e6e73;flex:2">${p.note}</div>
-        <div style="font-size:.78rem;font-weight:700;background:${scBg(p.score)};color:${scColor(p.score)};padding:2px 8px;border-radius:20px;flex-shrink:0">${p.score}</div>
-      </div>`;
-      return`<div style="padding:20px 32px;background:#fff;border-bottom:1px solid #efefef">
-        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:14px">Score Explained</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px">
-          <div>
-            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1a8a3c;margin-bottom:4px">Working for you</div>
-            ${strengths.map(row).join('')}
-          </div>
-          <div>
-            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:${drags.length?'#b25a00':'#98989d'};margin-bottom:4px">${drags.length?'Holding it back':'No major weaknesses'}</div>
-            ${drags.length?drags.map(row).join(''):`<div style="font-size:.78rem;color:#6e6e73;padding:7px 0">All pillars score 60 or above.</div>`}
-          </div>
-        </div>
+      const top=sorted[0];
+      const second=sorted[1];
+      const bottom=sorted[sorted.length-1];
+      const scoreWord=t.score>=65?'one of the stronger towns in this dataset':t.score>=55?'a solid mid-tier option':t.score>=45?'a below-average score overall':'among the lower-scoring towns in this dataset';
+      const drag=bottom.score<60?` The biggest drag is <strong>${bottom.label} (${bottom.score})</strong>.`:'';
+      return`<div style="padding:12px 32px;background:#fafafa;border-bottom:1px solid #efefef">
+        <span style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#98989d;margin-right:10px">Score Explained</span>
+        <span style="font-size:.82rem;color:#3a3a3c;line-height:1.6">${t.name}'s ${t.score} reflects ${scoreWord}, led by <strong>${top.label} (${top.score})</strong> and <strong>${second.label} (${second.score})</strong>.${drag}</span>
       </div>`;
     })()}
 
