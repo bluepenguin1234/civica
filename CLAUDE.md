@@ -27,6 +27,14 @@ Civica is a single-page web app that scores towns and cities on fiscal health, s
 - Whenever town data changes in the HTML, update the CSV to match
 - CSV has 1 header row + 36 data rows (one per town)
 
+## Batch add scripts
+Scripts for adding towns live in `scripts/`. Each batch has already run — do not re-run old ones:
+- `add_10_towns.py` — batch 1 (Shrewsbury, Westborough, Northborough, Grafton, Milford, Mansfield, Easton, North Attleborough, Medway, Millis) — **already run**
+- `add_batch4.py` — batch 4 (Walpole, Sharon, Franklin, Foxborough, Medfield, Westford, Weston, Dracut, Littleton, Stoughton) — **already run**
+- `add_batch5.py` — batch 5 (Sudbury, Westwood, Holliston, Bedford, Randolph, Pembroke, Northbridge, Wrentham, Maynard, Tyngsborough) — **already run**
+
+For the next batch: create `add_batch6.py` following the same pattern, then run `py scripts/update_all.py`.
+
 ## TOWNS array — how it works
 - All town data lives in a JavaScript `const TOWNS = [...]` array in civica-v5.html
 - Each town is one long object on a single line with ~50 fields
@@ -34,10 +42,11 @@ Civica is a single-page web app that scores towns and cities on fiscal health, s
 - The Edit tool sometimes fails with "file modified since read" — if this happens, use a Python script to do the replacement atomically (read + write in one operation). `py script.py` works; `python3` does not.
 
 ## Town count branding
-When adding new towns, update all three of these in civica-v5.html:
+When adding new towns, update these two hardcoded strings in civica-v5.html:
 1. Hero badge: `Now live · Massachusetts · X towns and cities`
-2. Stats counter: `<span class="sn-num">X</span>`
-3. Map subtitle: `Civica scores X towns and cities across...`
+2. Map subtitle: `Civica scores X towns and cities across...`
+
+The stats strip number (`sn-num`) is rendered dynamically from `TOWNS.length` in JavaScript — it updates automatically and does not need a manual edit.
 
 ## Data sources
 - Pension: MA PERAC — Essex Regional Retirement System covers most Essex County towns (~53.8% funded)
