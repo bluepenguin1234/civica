@@ -291,12 +291,13 @@ Good and Fair are **range** filters (not cumulative) — selecting "Good" shows 
 
 **Municipal electric (MLD) towns:** Danvers, Ipswich, Georgetown, Middleton, Merrimac, Groveland, Rowley, Marblehead (MMLD), and Peabody (PMLP). These towns have their own electric utilities and historically charge significantly less than Eversource. The savings figure is calculated against the MA average electric rate (33.61¢/kWh as of 2024 EIA data).
 
-**Transit categories:**
-- `commuter_rail_in_town` — MBTA station within the town boundary
-- `commuter_rail_nearby` — station within ~5 miles
-- `bus_only` — MBTA bus service only
-- `limited` — minimal transit
-- `none` — no public transit
+**Transit categories (canonical Title Case):**
+- `"Commuter Rail (in town)"` — MBTA station within the town boundary
+- `"Commuter Rail (nearby)"` — station within ~5 miles
+- `"Bus only"` — MBTA bus service only
+- `"Subway"` — subway service (Boston, Cambridge, Somerville, etc.)
+- `"Limited"` — minimal transit
+- `"None"` — no public transit
 
 **Data sources:** MBTA, EPA SDWIS, EIA Form 861
 
@@ -894,8 +895,8 @@ Range: 0–30+. Gotcha: Awarded retrospectively — record the stated number, do
 **Field: `transp` — Financial Transparency**
 
 Primary: Town's official website → Finance / Treasurer / Town Clerk pages.  
-Values: `"Yes"` (both ACFR and budget downloadable), `"Partial"` (one available), `"No"` (neither posted).  
-Gotcha: Use exact casing — this drives the scoring lookup.
+Values: `"yes"` (both ACFR and budget downloadable), `"partial"` (one available), `"no"` (neither posted).  
+Gotcha: **Must be lowercase** — the scoring rubric matches on lowercase. Title Case will still score correctly (grade function uses `.lower()`) but lowercase is canonical.
 
 ---
 
@@ -943,8 +944,8 @@ Range: 10–80%.
 
 **Field: `enrollment_trend` — Enrollment Trend (10yr)**
 
-Primary: MA DESE → compare current enrollment vs. 10yr prior.  
-Values: `"Growing"` (>5% increase) / `"Stable"` (within ±5%) / `"Declining"` (>5% decrease).
+**NOT in the scoring pipeline — leave `null`.** Do not collect.  
+(Documented here for completeness; may be activated in a future scoring update.)
 
 ---
 
@@ -1059,14 +1060,16 @@ Range: −10 to +30%.
 **Field: `unemp` — Unemployment Rate %**
 
 Primary: BLS LAUS (Local Area Unemployment Statistics). For town-level: MA Executive Office of Labor and Workforce Development.  
-Range: 2–10%.
+Range: 2–10%.  
+Note: **Not currently a scored submetric** — collected for display and future use.
 
 ---
 
 **Field: `pov` — Poverty Rate %**
 
 Primary: Census ACS5 → "Poverty Status in the Past 12 Months".  
-Range: 2–25%.
+Range: 2–25%.  
+Note: **Not currently a scored submetric** — collected for display and future use.
 
 ---
 
