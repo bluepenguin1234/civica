@@ -165,6 +165,14 @@ BOND_UPDATES = {
     "North Andover":"AAA",
     "Swampscott":   "AA+",
     "Burlington":   "AAA",
+    # Batch 5 — confirmed S&P ratings (May 2026)
+    "Sudbury":      "AAA",   # S&P Jan 2024
+    "Westwood":     "AAA",   # S&P Oct 2025
+    "Holliston":    "AAA",   # S&P Nov 2021 upgrade
+    "Bedford":      "AAA",   # S&P May 2023, held since 2007
+    "Pembroke":     "AA",    # S&P 2025
+    "Northbridge":  "AA+",   # S&P Jul 2021 upgrade
+    "Tyngsborough": "AA+",   # S&P 2024, 8th consecutive year
 }
 
 # Pension funded ratios (PERAC data)
