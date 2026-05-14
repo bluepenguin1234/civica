@@ -2042,10 +2042,6 @@ function renderProf(idx){
         <div class="ad-promote"><span>Sponsored</span><a href="mailto:hello@civica.com">Advertise here →</a></div>
       </div>
 
-      <!-- Key Insight -->
-      <div class="sec-label">Key Insight</div>
-      <div class="glance-card" style="color:#1d4ed8;background:#f0f6ff;border-color:#dce8fb">${t.standout||''}</div>
-
       <!-- Pillars -->
       <div class="sec-label">Pillar Analysis — All Data Free</div>
       ${pillarsHtml}
@@ -2622,11 +2618,6 @@ function buildPDFHTML(t){
         ${kstat('Violent Crime /100k',t.violent!=null?String(t.violent):'—')}
       </div>
     </div>
-  </div>
-
-  <div style="padding:18px 48px;background:#f0f6ff;border-left:5px solid #0d2d52">
-    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0d2d52;margin-bottom:5px">Key Insight</div>
-    <div style="font-size:12px;line-height:1.65;color:#1d1d1f">${t.standout||''}</div>
   </div>
 
   <div style="padding:28px 48px 22px;border-bottom:1px solid #f0f0f0">

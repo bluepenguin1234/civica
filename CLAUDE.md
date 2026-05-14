@@ -1,72 +1,424 @@
-# Civica — Project Instructions for Claude
+# Civica — Director's Brief
 
-## What this project is
-Civica is a single-page web app that scores towns and cities on fiscal health, schools, taxes, safety, and infrastructure to help homebuyers make better decisions. Currently live at bluepenguin1234.github.io/civica covering 36 Essex County (MA) towns and cities.
+This file is the standing context for every Claude Code session on this project. Read it before doing anything. It tells you what Civica is, what success looks like, what's done, what's next, and what the rules are. With this context you should be able to pick up the next priority and execute without re-briefing.
 
-## File rules — read this first
+---
 
-**The one active file is:**
-- `C:\Users\Brian\Desktop\Civica\civica-v5.html` — GitHub repo source (authoritative). Edit only this file.
+## 1. Mission
+
+Civica is a free municipal intelligence tool for Massachusetts homebuyers. It scores towns and cities on the factors that actually determine quality of life and long-term value — fiscal health, schools, taxes, safety, economic vitality, infrastructure, and climate risk — and synthesizes them into a single comparable score. The product solves a real, expensive problem: buyers spend $500k–$1.5M on a home without understanding whether the underlying city or town is fiscally healthy, well-run, or on a trajectory worth betting on. Civica gives them the intelligence layer their agent doesn't have.
+
+**What winning looks like:** Civica becomes the default pre-purchase research tool that every Massachusetts homebuyer touches before they close. Short-term: dominate Essex County search results. Medium-term: cover all 351 MA municipalities. Long-term: license the model nationally.
+
+---
+
+## 2. Product at a Glance
+
+- **110 towns live** across MA (Essex, Middlesex, Norfolk, Plymouth, Suffolk, Worcester counties)
+- **Hosted at:** bluepenguin1234.github.io/civica (GitHub Pages, auto-deploys on push to main)
+- **Architecture:** Single HTML file — `civica-v5.html` (380 KB) contains all HTML, CSS, JavaScript, and data inline. No build pipeline.
+- **6 views:** landing, map, town profile, methodology, compare, advertise
+- **7 scoring pillars:** Schools (25%), Safety (20%), Fiscal Health (20%), Taxes (15%), Economic Vitality (10%), Infrastructure & Utilities (7%), Climate Risk (3%)
+- **3 special indices:** TER (Tax Efficiency Ratio), Value Rating (bang-for-buck), TMS (Town Momentum Score)
+- **Revenue model:** Featured Agent ads, Featured Listings, Vendor Strip — all currently placeholder, not yet monetized
+
+---
+
+## 3. Current State (May 2026)
+
+Know what's real and what's placeholder before assuming anything is wired.
+
+**REAL and working:**
+- Scoring engine (7 pillars, 23 submetrics, absolute rubric-based scoring)
+- 110 town profiles with full data
+- Interactive Leaflet.js map with color-coded markers and filters
+- Multi-town compare view
+- Methodology page (complete and accurate)
+- PDF export (html2canvas + jsPDF)
+- Mortgage calculator on every profile
+- Similar towns recommendations
+- Buyer persona reweighting (5 personas)
+
+**PLACEHOLDER / NOT WIRED:**
+- Formspree email capture ("Notify Me" form) — placeholder endpoint, signups are NOT being saved
+- Featured Agent ad unit — shows "Sarah Mitchell / Coldwell Banker" on all towns (not a real advertiser)
+- Featured Listings — only Beverly has real listing data; all other 109 towns show placeholder homes
+- Vendor Strip — all 4 slots (moving, inspection, mortgage, insurance) are placeholder businesses
+- GA4 — Google Analytics not integrated; zero visibility into traffic
+- OG social preview image — `civica-og.png` referenced in meta tags but file does not exist; shared links show no image
+- Google Search Console — not verified; can't see organic search keywords
+
+---
+
+## 4. Priority Queue
+
+Work down this list in order. Pick the first unchecked item that isn't marked `[Brian]` and execute it. Items marked `[Brian]` require account access Claude doesn't have — flag them to Brian and move to the next executable item.
+
+```
+[ ] [Brian] Formspree — create account at formspree.io, get form ID, give it to Claude
+[ ] Wire Formspree form ID into civica-v5.html (one-line edit to the action= attribute on the Notify Me form)
+[ ] [Brian] GA4 — go to analytics.google.com, create property for bluepenguin1234.github.io/civica, get Measurement ID (G-XXXXXXXX)
+[ ] Wire GA4 Measurement ID into civica-v5.html <head> (two-snippet insert after Brian provides ID)
+[ ] [Brian] Create civica-og.png — 1200×630 PNG, Civica logo + tagline on clean background — drop in C:\Users\Brian\Desktop\Civica\
+[ ] Push civica-og.png with next commit (after Brian creates it)
+[ ] [Brian] Google Search Console — go to search.google.com/search-console, add property bluepenguin1234.github.io/civica, choose HTML tag verification, give tag to Claude
+[ ] Wire Search Console verification meta tag into civica-v5.html <head>
+[ ] Ad structure review — audit all 3 ad units across all 110 towns; fix any render issues or unprofessional placeholder content
+[ ] Cloudflare setup — document exact DNS steps for Brian (free tier: HSTS, real CSP headers, WAF, DDoS protection)
+[ ] Blog post — write and publish "The 5 Essex County Towns with Strongest Fiscal Health in 2026" as a static HTML page in /blog/
+[ ] Compare feature UX — add "share this comparison" link that encodes selected towns in the URL (so comparisons are linkable)
+[ ] SEO — add per-town og:description meta tags to each profile (currently set globally; needs per-town override with town name + score + key stat)
+```
+
+---
+
+## 5. What Only Brian Can Do
+
+These tasks require Brian's accounts and logins. Claude cannot do them. Prompt Brian when they're blocking.
+
+- Create Formspree account and form → get form ID
+- Create GA4 property → get Measurement ID
+- Create civica-og.png image file
+- Add site to Google Search Console and verify domain
+- Point DNS to Cloudflare (requires domain registrar access)
+
+---
+
+## 6. File Rules
+
+**The one active file:**
+- `C:\Users\Brian\Desktop\Civica\civica-v5.html` — edit only this file for all site changes
 
 **Version history — never touch these:**
-- `civica.html` = v1, locked forever, do not edit
-- `civica-v2.html` through `civica-v4.html` = old versions, ignore
+- `civica.html` = v1, locked forever
+- `civica-v2.html` through `civica-v4.html` = old versions, in archive/, ignore
+- If a major structural change requires a new version: create `civica-v6.html`, never overwrite v5
 
-**If a new version is ever needed**, create `civica-v6.html` — never overwrite v5.
+**Data file:**
+- `C:\Users\Brian\Desktop\Civica\data\towns.csv` — master data for all 110 towns (~55 fields per town)
+- After any data change, run `py scripts\update_all.py` to regenerate scores and patch the TOWNS array
 
-## Git workflow
-1. Make changes on the `dev` branch
-2. Commit to dev
-3. `git checkout main && git merge dev && git push origin main`
-4. `git checkout dev && git push origin dev`
+**Edit tool limitation:**
+The Edit tool sometimes fails with "file modified since read" on the large civica-v5.html. For TOWNS array changes, use a Python read+write script instead (atomic replacement). `py script.py` works; `python3` does not.
+
+---
+
+## 7. Architecture
+
+**Data pipeline:**
+```
+towns.csv → scripts/update_all.py → patches TOWNS array in civica-v5.html → commit → push to main → live in ~2 min
+```
+
+**To add new towns:**
+1. Create a new batch script in `scripts/` following existing patterns (e.g., `add_batch6.py`)
+2. Run `py scripts\update_all.py` to score and patch
+3. Update the two hardcoded town count strings in civica-v5.html:
+   - Hero badge: `Now live · Massachusetts · X towns and cities`
+   - Map subtitle: `Civica scores X towns and cities across...`
+   - (The stats strip `sn-num` is dynamic and updates automatically)
+
+**Batch scripts already run — do not re-run:**
+- `add_10_towns.py` — batch 1 (Shrewsbury, Westborough, Northborough, Grafton, Milford, Mansfield, Easton, North Attleborough, Medway, Millis)
+- `add_batch4.py` — batch 4 (Walpole, Sharon, Franklin, Foxborough, Medfield, Westford, Weston, Dracut, Littleton, Stoughton)
+- `add_batch5.py` — batch 5 (Sudbury, Westwood, Holliston, Bedford, Randolph, Pembroke, Northbridge, Wrentham, Maynard, Tyngsborough)
+- `add_middlesex.py`, `add_middlesex2.py`, `add_norfolk.py`, `add_plymouth.py`, `add_suffolk.py` — regional batches
+
+**Next batch:** Create `add_batch6.py` or name by region (e.g., `add_worcester2.py`)
+
+**Supporting scripts:**
+- `scripts/verify.py` — spot-check a town's score breakdown
+- `scripts/gen_excel.py` — generate civica_value_scores.xlsx after score changes
+- `scripts/fetch_census.py` / `fetch_dese.py` — refresh bulk data (annual)
+
+---
+
+## 8. Git Workflow
+
+```
+1. Work on dev branch
+2. git add <files> && git commit -m "description"
+3. git checkout main && git merge dev && git push origin main
+4. git checkout dev && git push origin dev
+```
+
 - Live site: bluepenguin1234.github.io/civica
 - Never force-push to main
+- One logical change per commit (keeps diffs reviewable)
 
-## Data file
-- Towns CSV lives at: `C:\Users\Brian\Desktop\files\towns.csv`
-- Whenever town data changes in the HTML, update the CSV to match
-- CSV has 1 header row + 36 data rows (one per town)
+**Local preview:**
+```
+py -m http.server 8765 --directory "C:\Users\Brian\Desktop\Civica"
+Open: http://localhost:8765/civica-v5.html
+```
 
-## Batch add scripts
-Scripts for adding towns live in `scripts/`. Each batch has already run — do not re-run old ones:
-- `add_10_towns.py` — batch 1 (Shrewsbury, Westborough, Northborough, Grafton, Milford, Mansfield, Easton, North Attleborough, Medway, Millis) — **already run**
-- `add_batch4.py` — batch 4 (Walpole, Sharon, Franklin, Foxborough, Medfield, Westford, Weston, Dracut, Littleton, Stoughton) — **already run**
-- `add_batch5.py` — batch 5 (Sudbury, Westwood, Holliston, Bedford, Randolph, Pembroke, Northbridge, Wrentham, Maynard, Tyngsborough) — **already run**
+---
 
-For the next batch: create `add_batch6.py` following the same pattern, then run `py scripts/update_all.py`.
+## 9. Scoring System
 
-## TOWNS array — how it works
-- All town data lives in a JavaScript `const TOWNS = [...]` array in civica-v5.html
-- Each town is one long object on a single line with ~50 fields
-- Insertion point for new towns: after the last existing town entry, before `];`
-- The Edit tool sometimes fails with "file modified since read" — if this happens, use a Python script to do the replacement atomically (read + write in one operation). `py script.py` works; `python3` does not.
+**7 pillars and weights:**
+| Pillar | Weight | Key submetrics |
+|---|---|---|
+| Schools | 25% | District rank (35%), MCAS math % (25%), grad rate (20%), 10-yr rank trend (20%) |
+| Safety | 20% | Violent crime /100k (50%), property crime /100k (35%), 5-yr crime trend (15%) |
+| Fiscal Health | 20% | S&P bond rating (30%), free cash % of budget (25%), pension funded % (25%), debt per capita (20%) |
+| Taxes | 15% | Effective tax rate (45%), tax burden % of income (35%), housing affordability ratio (20%) |
+| Economic Vitality | 10% | Median income vs. MA (40%), 10-yr income growth (35%), 10-yr population growth (25%) |
+| Infrastructure & Utilities | 7% | Transit access (35%), municipal electric savings $/yr (35%), water quality violations (30%) |
+| Climate Risk | 3% | Current flood risk % (50%), 2050 flood projection (30%), wildfire rating (20%) |
 
-## Town count branding
-When adding new towns, update these two hardcoded strings in civica-v5.html:
-1. Hero badge: `Now live · Massachusetts · X towns and cities`
-2. Map subtitle: `Civica scores X towns and cities across...`
+**Scoring method:** Absolute rubric-based (fixed thresholds per metric). Adding new towns does not change existing town scores.
 
-The stats strip number (`sn-num`) is rendered dynamically from `TOWNS.length` in JavaScript — it updates automatically and does not need a manual edit.
+**Special indices:**
+- **TER (Tax Efficiency Ratio)** = Civica Score ÷ (town tax rate ÷ MA average). Answers: "Am I getting value for my tax dollar?"
+- **Value Rating** = Civica Score ÷ (median home price ÷ MA median). Answers: "Is this town expensive relative to what it offers?"
+- **TMS (Town Momentum Score)** = weighted trajectory across schools, income, home appreciation, population, crime. Labels: Rising Town / Steady Growth / Hold Steady / Stagnating / Declining
 
-## Data sources
-- Pension: MA PERAC — Essex Regional Retirement System covers most Essex County towns (~53.8% funded)
-- Bond ratings: EMMA/MSRB
-- School rankings: DESE district profiles / SchoolDigger
-- Crime: FBI UCR / MA EOPSS
-- Demographics: Census ACS 2023
-- Municipal electric savings: confirmed MLDs in Essex County — Danvers, Ipswich, Georgetown, Middleton, Merrimac, Groveland, Rowley, Marblehead (MMLD), Peabody (PMLP)
+Full methodology: `docs/CIVICA_FOR_DUMMIES.md` and `docs/04-scoring-methodology.md`
 
-## Logo spec (use on every page)
-30×30 blue SVG icon + logotype: `civi` in dark + `ca` in blue (#0071e3). Never change this.
+---
 
-## Ad structure
-Three ad units render on every town profile:
-1. Featured Agent — `AD_AGENT` object (currently placeholder: Sarah Mitchell)
-2. Featured Listings — `AD_LISTINGS_MAP` (only Beverly has real data; others use defaults)
-3. Vendor Strip — `AD_VENDORS` array (4 slots: moving, inspection, mortgage, insurance)
-Mortgage calculator on every profile is unsold/unsponsored.
+## 10. Ad Structure & Monetization
 
-## Key contacts / config
-- Email shown in UI: hello@civica.com
-- GitHub repo: bluepenguin1234/civica
-- User email: rxbw5d7www@privaterelay.appleid.com
+**3 ad units on every town profile:**
+1. **Featured Agent** — `AD_AGENT` object in JS. Currently: Sarah Mitchell / Coldwell Banker (placeholder). Target: $800/month per market zone.
+2. **Featured Listings** — `AD_LISTINGS_MAP` in JS. Currently: only Beverly has real data; all others use defaults. Target: $200–400/month per town.
+3. **Vendor Strip** — `AD_VENDORS` array. 4 slots: moving company, home inspector, mortgage broker, insurance agent. All placeholder. Target: $1,200–$2,100/month total.
+
+**Revenue targets (near-term):**
+- 5 paying Featured Agents × $800/month = $4,000 MRR
+- Vendor Strip filled = $1,200–$2,100 MRR
+- 10 Featured Listing towns = $2,000–$4,000 MRR
+
+**Medium-term:**
+- Civica Pro for Agents: $49–99/month subscription for white-labeled reports (target: 50 agents)
+- Sponsored research reports: $5,000–$15,000 per report (e.g., "2026 Essex County Fiscal Health Report" sponsored by a mortgage company)
+
+**When building features:** Ask whether it helps convert ad clients or agent subscribers. The compare feature, for example, is a natural agent tool — agents use it with clients to justify recommendations.
+
+---
+
+## 11. Buyer Personas
+
+Use these to make good UX and feature prioritization decisions.
+
+1. **The Researcher** — 32–45, dual income, data-driven, first or second home. Uses Zillow, Redfin, Reddit (r/FirstTimeHomeBuyer, r/personalfinance). Needs comparable objective data across towns they're considering.
+
+2. **The Mover** — Relocating from out of state or out of county. No local knowledge. High anxiety, high stakes. Needs a fast way to compare towns they've never heard of. Completely dependent on whatever tool they find first.
+
+3. **The Advisor** (real estate agent) — Wants to be a trusted advisor, not just a door-opener. Lacks data to back up recommendations. Becomes a Civica champion if they use it as a client tool. The compare view is built for them.
+
+4. **The Civic Wonk** — Town meeting regulars, local journalists, municipal finance nerds. Will share Civica organically if they find the data interesting. Source of earned media and local credibility.
+
+---
+
+## 12. Data Sources
+
+| Data | Source | Refresh cadence |
+|---|---|---|
+| School district rank, MCAS, grad rate | MA DESE district profiles / SchoolDigger | Annual (Aug–Sep) |
+| Bond ratings | EMMA / MSRB | As published |
+| Pension funded % | MA PERAC annual report | Annual |
+| Free cash % of budget | MA DLS certified free cash | Annual (Oct–Dec) |
+| Municipal debt per capita | MA DLS / town ACFRs | Annual |
+| Crime rates | FBI UCR / MA EOPSS | Annual |
+| Demographics, income, population | Census ACS 2023 | Annual |
+| Home values | Zillow ZHVI | Monthly |
+| Flood risk | FEMA / First Street Foundation | Periodic |
+| Municipal electric savings | Confirmed MLDs: Danvers, Ipswich, Georgetown, Middleton, Merrimac, Groveland, Rowley, Marblehead (MMLD), Peabody (PMLP) | Periodic |
+
+Bulk data files live in `data/bulk/`. Field-level source metadata is in `data/source_dictionary.csv`.
+
+---
+
+## 13. Constraints — Never Change
+
+These are locked. Do not modify without an explicit override from Brian.
+
+- **Logo:** 30×30 blue SVG icon + logotype `civi` (dark) + `ca` (blue #0071e3). Every page. Never change.
+- **Versioning:** civica.html (v1) through civica-v5.html are frozen. Next version = civica-v6.html. Never overwrite.
+- **Git:** Never force-push to main.
+- **CSP meta tag:** Must stay in the `<head>`. It's imperfect (uses `unsafe-inline`) but it's the only security layer until Cloudflare is set up. Do not remove it.
+- **Contact email in UI:** hello@civica.com
+- **GitHub repo:** bluepenguin1234/civica
+
+---
+
+## 16. Town Data Fields — Complete Spec
+
+Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. These are all the fields, grouped by category. Fields marked **[auto]** are computed by `update_all.py` — do not set them manually. Fields marked **[required]** must have a real value; others can be `null` if genuinely unknown.
+
+### Identity
+| Field | Type | Notes |
+|---|---|---|
+| `name` | string | Official town/city name |
+| `lat` / `lng` | float | Decimal degrees. Look up via Google Maps or Census geocoder |
+| `state` | string | Always `"MA"` |
+| `county` | string | e.g., `"Essex"`, `"Middlesex"`, `"Norfolk"`, `"Plymouth"`, `"Worcester"`, `"Suffolk"` |
+| `zip` | string | One or more ZIP codes, slash-separated: `"01923 / 01937"` |
+| `pop` | integer | [required] Census ACS 2023 total population |
+
+### Fiscal Health
+| Field | Type | Notes |
+|---|---|---|
+| `bond` | string or null | S&P rating: `"AAA"`, `"AA+"`, `"AA"`, `"AA-"`, `"A+"`, `"A"`, `"A-"`, `"BBB+"`. Use `null` if unconfirmed — scores as 50. Verify via EMMA (emma.msrb.org). |
+| `free_cash` | float | Free cash as % of operating budget. Source: MA DLS certified free cash. Healthy = 5–10%. |
+| `pension` | float | Pension funded ratio %. Source: MA PERAC. Essex County towns on Essex Regional = 53.8%. |
+| `debt_pc` | float | Net debt per capita $. Source: town ACFR or MA DLS. |
+| `gfoa` | integer or null | Consecutive years with GFOA Certificate of Achievement. Source: GFOA website. |
+| `tax_non_res` | float or null | Non-residential % of tax base. Source: MA DLS valuation report. High % = commercial subsidy for residents. |
+| `transp` | string | Financial transparency: `"Yes"` (posts ACFR online), `"Partial"`, `"No"` |
+
+### Taxes
+| Field | Type | Notes |
+|---|---|---|
+| `eff_rate` | float | [required] Effective residential tax rate (%). Source: MA DLS. |
+| `med_tax` | integer or null | Median annual residential tax bill $. Source: MA DLS or Census ACS. |
+| `res_rate` | float | Residential rate per $1,000 assessed value. Source: MA DLS. |
+
+### Schools
+| Field | Type | Notes |
+|---|---|---|
+| `d_rank` | integer | [required] DESE district rank out of 351. Source: SchoolDigger or DESE profiles. |
+| `d_total` | integer | Always `351` (total MA districts). |
+| `d_10yr` | float or null | District rank change over 10 years (negative = slipped). Source: SchoolDigger historical. |
+| `math` | float | [required] MCAS math % proficient/advanced. Source: DESE. |
+| `grad` | float | [required] Graduation rate %. Source: DESE. |
+| `ap` | float | AP exam participation rate %. Source: DESE. |
+| `enrollment_trend` | float or null | Leave `null` — not yet in scoring pipeline. |
+
+### Safety
+| Field | Type | Notes |
+|---|---|---|
+| `violent` | float or null | Violent crime per 100,000 residents. Source: FBI UCR / MA EOPSS. |
+| `prop_crime` | float or null | Property crime per 100,000 residents. Source: FBI UCR / MA EOPSS. |
+| `crime5yr` | float or null | 5-year % change in total crime. Leave `null` if unavailable — not heavily weighted. |
+| `sex_off` | float | Sex offender density per 1,000 residents. Source: MA Sex Offender Registry Board. |
+
+### Economic Vitality
+| Field | Type | Notes |
+|---|---|---|
+| `med_inc` | float | [required] Median household income $. Source: Census ACS 2023. |
+| `inc10yr` | float | 10-year income growth %. Source: Census ACS (compare 2013 vs 2023). |
+| `pop10yr` | float | 10-year population growth %. Source: Census. |
+| `bach` | float | Bachelor's degree attainment % (25+). Source: Census ACS. |
+| `unemp` | float | Unemployment %. Source: Census ACS or MA DLT. |
+| `pov` | float | Poverty rate %. Source: Census ACS. |
+
+### Infrastructure & Utilities
+| Field | Type | Notes |
+|---|---|---|
+| `transit` | string | Accepted values: `"Commuter Rail (in town)"`, `"Commuter Rail (nearby)"`, `"Bus only"`, `"None"` (or descriptive note like `"None (Beverly / Salem nearest)"`). |
+| `elec_save` | integer | Annual $ savings vs MA average rate (33.61¢/kWh). Municipal light dept towns: Danvers (~$2,036), Ipswich, Georgetown, Middleton, Merrimac, Groveland, Rowley, Marblehead (~$1,931), Peabody (~$1,850). Non-MLD towns = `0`. Negative if MLD rate is worse than state avg. |
+| `water_viol` | integer | Water quality violations in past 5 years. Source: EPA SDWIS. Most towns = 0. |
+| `commute` | integer | Average commute time (minutes). Source: Census ACS. |
+
+### Climate Risk
+| Field | Type | Notes |
+|---|---|---|
+| `flood` | float or null | Current flood risk % of properties. Source: First Street Foundation. |
+| `flood50` | float or null | Additional flood risk growth by 2050 (percentage points). Source: First Street Foundation. |
+| `fire` | string | Wildfire risk: `"Low"`, `"Moderate"`, `"High"`. Source: First Street Foundation. Almost all MA towns = `"Low"`. |
+
+### Demographics & Housing
+| Field | Type | Notes |
+|---|---|---|
+| `med_home_val` | integer | Median home value $. Source: Zillow ZHVI or Census ACS. |
+| `owner_occ` | float | Owner-occupancy rate %. Source: Census ACS. |
+| `vacancy` | float | Vacancy rate %. Source: Census ACS. |
+| `med_age` | float | Median resident age. Source: Census ACS. |
+| `low_income_pct` | float | % of students from low-income households. Source: DESE. |
+| `ell_pct` | float | English Language Learner % of school enrollment. Source: DESE. |
+
+### Computed by update_all.py — Do Not Set Manually
+These are calculated from the raw fields above. Set them to `null` when first adding a town; `update_all.py` will fill them in.
+
+`score`, `ter`, `ter_r`, `p_schools`, `p_safety`, `p_taxes`, `p_fiscal`, `p_econ`, `p_qol`, `p_climate`, `value_score`, `value_rating`
+
+### Editorial Fields — Set These Manually
+| Field | Type | Notes |
+|---|---|---|
+| `standout` | string | 1–2 sentences: the single most important thing to know about this town. Used in map side panel only — not shown on profiles. Lead with the concrete stat. |
+| `glance` | string | 2–3 sentences: the honest buyer take. Shown in the "At a Glance" box on every profile. See Section 17 for the full writing guide. |
+| `notes` | string | Internal compiler notes: data confidence flags, verification reminders, source citations. Not shown to users. |
+| `gaps` | integer | Count of missing/estimated fields. Honest self-assessment. |
+| `conf` | string | `"high"` (≤2 gaps, all key fields verified), `"medium"` (3–5 gaps or unverified key fields), `"low"` (>5 gaps or major fields missing) |
+| `last_updated` | string | ISO date: `"2026-05-13"` |
+
+---
+
+## 17. At a Glance Writing Guide
+
+The `glance` field is the 2–3 sentence "Honest Buyer Take" shown on every town profile. It's the most editorial part of Civica — it's what a smart local would tell you over coffee, not what a real estate brochure would say.
+
+### The Pattern (from real profiles)
+
+**Sentence 1 — Identity + defining characteristics**
+Open with: `"[Town] is a [size/character descriptor] [town/city] [location anchor] with [2–3 concrete defining traits]."`
+- Always include a location anchor (north of Boston, South Shore, etc.)
+- Name 2–3 defining traits backed by actual data
+- If commuter rail is in town, say so here — it's always relevant to buyers
+
+**Sentence 2 — The honest caveat**
+The thing that explains the score, limits the upside, or is the key tradeoff. Lead with "The key caveat:", "The main tradeoff:", or just state it directly.
+- If schools are declining, say the rank and direction
+- If flood risk is elevated, say it
+- If the score is suppressed by data gaps, say so explicitly ("Score is suppressed by X data gaps — true fundamentals are likely stronger")
+- If the tax bill is high, frame it: "The high median tax bill ($X) reflects premium property values and top-tier services"
+
+**Sentence 3 (optional) — Transit note or differentiator**
+Only include if transit is notable and wasn't covered in sentence 1, or if there's a third important dimension.
+
+### Real Examples
+
+**Andover (score 65) — Premium town, strong across the board:**
+> "Andover is one of Essex County's most coveted communities — excellent schools, strong fiscal reserves, MBTA commuter rail, and very low crime. The high median tax bill ($10,542) reflects premium property values and top-tier municipal services."
+
+**Burlington (score 62) — Fiscal standout, no rail:**
+> "Burlington is one of Middlesex County's strongest fiscal stories. A massive commercial tax base funds solid schools and low-crime safety while keeping residential taxes unusually low. No MBTA station in town; nearest is Mishawum (Lowell line) in Woburn."
+
+**Danvers (score 46) — Value story with school caveat:**
+> "Danvers is an 18-mile-north-of-Boston town with a long fiscal track record, a municipal electric utility that shaves ~$2,000/year off the typical electric bill, and very low violent crime. The key caveat: the school district has slipped roughly 50 spots over the past decade and sits mid-table statewide."
+
+**Newburyport (score 60) — Score suppressed by data gaps:**
+> "Newburyport is one of the most desirable small cities on the North Shore — top schools, very low crime, commuter rail, and a celebrated downtown. Score is suppressed by data gaps — true fundamentals are likely stronger."
+
+**Salem (score 40) — Urban, walkable, trade-offs explicit:**
+> "Salem is the most urban and walkable town in the cohort — commuter rail, walkability, and a distinct cultural identity as a tourism destination. High crime rates and a high flood risk trajectory are the main trade-offs."
+
+### Rules
+
+1. **Use real numbers.** School rank X of 351, tax bill $X, crime X/100k, electric savings $X/yr. Never vague ("strong schools" → "schools ranked #75 of 351 statewide").
+2. **One town, one voice.** Don't compare to other towns by name. Anchor to statewide ("top quartile"), not to peers.
+3. **The caveat is mandatory.** Every glance must have one honest limitation or trade-off. No town gets a pure sell job.
+4. **No marketing language.** Never: "great place to live," "vibrant community," "something for everyone," "hidden gem" (that's the Value Rating's job). State facts.
+5. **No score in the glance.** The score is displayed separately. Don't repeat it.
+6. **Transit is always worth noting.** Commuter rail in town = mention in sentence 1. Nearby = mention if transit-accessible buyers are a likely persona. No transit = mention if it's a notable limitation for the market.
+7. **MLD electric savings ≥$500/yr = mention it.** It's one of Civica's most differentiated data points and buyers consistently undervalue it.
+8. **Flood risk ≥15% or flood50 ≥5 = mention it.** Coastal towns especially.
+9. **Length: 2 sentences is the target. 3 is the max. Never 1. Never 4.**
+
+### What Bad Looks Like
+
+- "Weston is a beautiful town with excellent schools and strong property values." → No numbers, pure marketing, no caveat.
+- "A great community for families looking for top schools and low crime." → No town identity, no specificity, sounds like Niche.com copy.
+- "Weston ranks #12 of 351 in schools, has an AA+ bond rating, a 92% graduation rate, a median tax bill of $18,400, low crime at 45/100k violent..." → Listing raw data instead of synthesizing it. That's what the data table is for.
+
+---
+
+## 15. How to Work on This Project (Agent Orchestration)
+
+Whenever a task has independent sub-parts, deploy parallel agents rather than working sequentially. The goal is maximum throughput per session.
+
+**Orchestration examples:**
+- **"Audit all ad units"** → Spawn 3 agents in parallel: one audits Featured Agent rendering, one audits Featured Listings, one audits Vendor Strip. Synthesize results.
+- **"Add 10 new towns"** → One agent researches raw data for all 10 towns. A second agent runs the scoring pipeline. A third verifies output against towns.csv. All overlap where possible.
+- **"SEO pass"** → One agent writes per-town meta descriptions. A second audits `<head>` tags and schema markup. Both run in parallel.
+- **"Blog post + push"** → One agent drafts the HTML. Another pre-checks git status. Merge outputs, then push.
+
+**Rules:**
+1. **Explore first, in parallel.** Before writing code on any unfamiliar task, spawn Explore agents to read relevant sections of civica-v5.html and towns.csv simultaneously.
+2. **Never let sequential tasks block parallel ones.** If step A must precede step B, run step C (unrelated) in parallel with step A.
+3. **Auditable outputs required.** After any modification to civica-v5.html, verify: (a) `TOWNS.length` is correct, (b) the modified town renders at localhost:8765, (c) `git diff` shows only the intended change.
+4. **Data changes go through update_all.py.** Never hand-edit the TOWNS array for data changes — run the pipeline. Verify the script succeeded before committing.
+5. **Commit scope = one logical change.** Parallel agents can work simultaneously but their outputs get committed separately.
