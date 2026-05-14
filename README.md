@@ -85,7 +85,7 @@ Previous HTML versions kept for reference. Do not edit.
 | Fiscal Health | 20% |
 | Taxes | 15% |
 | Economic Vitality | 10% |
-| Quality of Life | 7% |
+| Infrastructure & Utilities | 7% |
 | Climate Risk | 3% |
 
 **Value Score** = Civica Score ÷ (Town ZHVI / MA State ZHVI $613,049) — private, Excel only.

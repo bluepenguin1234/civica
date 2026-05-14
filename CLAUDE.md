@@ -34,7 +34,7 @@ Civica is a free municipal intelligence tool for Massachusetts homebuyers. It sc
 - **Hosted at:** bluepenguin1234.github.io/civica (GitHub Pages, auto-deploys on push to main)
 - **Architecture:** Single HTML file — `civica-v5.html` (380 KB) contains all HTML, CSS, JavaScript, and data inline. No build pipeline.
 - **6 views:** landing, map, town profile, methodology, compare, advertise
-- **7 scoring pillars:** Schools (25%), Safety (20%), Fiscal Health (20%), Taxes (15%), Economic Vitality (10%), Quality of Life (7%), Climate Risk (3%)
+- **7 scoring pillars:** Schools (25%), Safety (20%), Fiscal Health (20%), Taxes (15%), Economic Vitality (10%), Infrastructure & Utilities (7%), Climate Risk (3%)
 - **3 special indices:** TER (Tax Efficiency Ratio), Value Rating (bang-for-buck), TMS (Town Momentum Score)
 - **Revenue model:** Featured Agent ads, Featured Listings, Vendor Strip — all currently placeholder, not yet monetized
 
@@ -192,7 +192,7 @@ Open: http://localhost:8765/civica-v5.html
 | Fiscal Health | 20% | S&P bond rating (30%), free cash % of budget (25%), pension funded % (25%), debt per capita (20%) |
 | Taxes | 15% | Effective tax rate (45%), tax burden % of income (35%), housing affordability ratio (20%) |
 | Economic Vitality | 10% | Median income vs. MA (40%), 10-yr income growth (35%), 10-yr population growth (25%) |
-| Quality of Life | 7% | Transit access (35%), municipal electric savings $/yr (35%), water quality violations (30%) |
+| Infrastructure & Utilities | 7% | Transit access (35%), municipal electric savings $/yr (35%), water quality violations (30%) |
 | Climate Risk | 3% | Current flood risk % (50%), 2050 flood projection (30%), wildfire rating (20%) |
 
 **Scoring method:** Absolute rubric-based (fixed thresholds per metric). Adding new towns does not change existing town scores.

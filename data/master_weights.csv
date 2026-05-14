@@ -4,5 +4,5 @@ safety,Safety,0.20,#2 stated priority — day-to-day quality of life and communi
 fiscal_health,Fiscal Health,0.20,Predicts future tax stability; Civica's core competitive differentiator vs Zillow/Niche
 taxes,Taxes,0.15,Direct out-of-pocket cost to the homebuyer
 economic_vitality,Economic Vitality,0.10,Is the town growing? Supports property value appreciation and tax base stability
-quality_of_life,Quality of Life,0.07,Livability — transit, utilities, water
+infrastructure_utilities,Infrastructure & Utilities,0.07,Livability — transit, utilities, water
 climate,Climate Risk,0.03,Long-term risk to property value and insurance costs

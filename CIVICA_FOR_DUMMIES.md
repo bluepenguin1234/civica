@@ -103,7 +103,7 @@ Final Civica Score (0–100)
 | Fiscal Health | 20% | Predicts future tax stability — Civica's biggest differentiator |
 | Taxes | 15% | Direct out-of-pocket cost |
 | Economic Vitality | 10% | Is the town growing? Property value implications |
-| Quality of Life | 7% | Transit, utilities, water |
+| Infrastructure & Utilities | 7% | Transit, utilities, water |
 | Climate Risk | 3% | Long-term property value and insurance risk |
 
 **Formula:**
@@ -281,7 +281,7 @@ Good and Fair are **range** filters (not cumulative) — selecting "Good" shows 
 
 ---
 
-### Pillar 6: Quality of Life (7%)
+### Pillar 6: Infrastructure & Utilities (7%)
 
 | Submetric | Weight | What It Measures |
 |---|---|---|
@@ -1056,7 +1056,7 @@ Primary: Census ACS5 → "Age and Sex". Range: 25–55 years.
 
 ---
 
-### PILLAR 6: QUALITY OF LIFE
+### PILLAR 6: INFRASTRUCTURE & UTILITIES
 
 **Field: `elec_save` — Electric Savings vs State Avg ($/yr)**
 
