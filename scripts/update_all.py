@@ -178,6 +178,12 @@ DISTRICT_MAP = {
     "Stow":                 "nashoba",
     "Groton":               "groton-dunstable",
     "Plainville":           "king philip",
+    "Ayer":                 "ayer shirley school district",
+    "Pepperell":            "north middlesex",
+    "Bolton":               "nashoba",
+    "Spencer":              "spencer-e brookfield",
+    "Charlton":             "dudley-charlton reg",
+    "Norfolk":              "king philip",
 }
 
 def get_school(town):
