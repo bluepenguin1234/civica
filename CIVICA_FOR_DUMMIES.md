@@ -22,6 +22,7 @@
 15. [Frequently Asked Questions](#15-frequently-asked-questions)
 16. [Citation Rules](#16-citation-rules)
 17. [Data Collection Playbook](#17-data-collection-playbook)
+18. [Approved Source Registry](#18-approved-source-registry)
 
 ---
 
@@ -1161,6 +1162,102 @@ If a value is truly unavailable after working through all sources:
 **Do NOT estimate. Do NOT interpolate. Do NOT cite a number you cannot verify.**
 
 ---
+
+---
+
+## 18. Approved Source Registry
+
+This is the canonical list of approved data sources for Civica. **Do not use a source not on this list without first adding it here.** If you're unsure whether a source is acceptable, check its tier below — Tier 1 is always safe, Tier 4 requires a note explaining why a primary source was unavailable.
+
+The tiers match the priority rules in §16 Citation Rules: Tier 1 > Tier 2 > Tier 3 > Tier 4. When sources disagree, the higher tier wins.
+
+---
+
+### Tier 1 — Primary / Official Government Sources
+
+These are authoritative. Use by default. No cross-checking required.
+
+| Source ID | Name | Publisher | URL | What It Covers | Update Frequency |
+|---|---|---|---|---|---|
+| CENSUS_ACS5 | American Community Survey 5-Year Estimates | U.S. Census Bureau | https://data.census.gov | Population, income, demographics, housing, commute | Annual |
+| CENSUS_BPS | Building Permits Survey | U.S. Census Bureau | https://www.census.gov/construction/bps/ | Building permits by jurisdiction | Monthly + annual |
+| CENSUS_BFS | Business Formation Statistics | U.S. Census Bureau | https://www.census.gov/econ/bfs/ | Business application filings by geography | Quarterly |
+| BLS_LAUS | Local Area Unemployment Statistics | U.S. Bureau of Labor Statistics | https://www.bls.gov/lau/ | Unemployment rates by city/town | Monthly |
+| FBI_UCR | FBI Uniform Crime Reporting / NIBRS | U.S. FBI | https://cde.ucr.cjis.gov/ | Violent and property crime by agency | Annual (Sept prior year) |
+| EPA_SDWIS | Safe Drinking Water Information System | U.S. EPA | https://enviro.epa.gov/envirofacts/sdwis/search | Water system violations and compliance | Quarterly |
+| EPA_CCR | Consumer Confidence Reports | U.S. EPA / local utilities | https://www.epa.gov/ccr | Annual water quality report from each utility | Annual (by July 1) |
+| EPA_AIRNOW | AirNow Air Quality Data | U.S. EPA | https://www.airnow.gov/ | AQI by location | Real-time + historical |
+| EPA_RADON | Map of Radon Zones | U.S. EPA | https://www.epa.gov/radon/epa-map-radon-zones | Radon zone classification by county | Static (1993 base) |
+| EPA_SUPERFUND | Superfund National Priorities List | U.S. EPA | https://www.epa.gov/superfund | Superfund sites and brownfields by location | Continuous |
+| FCC_BROADBAND | National Broadband Map | U.S. FCC | https://broadbandmap.fcc.gov/ | Broadband availability by location | Biannual |
+| EIA_F861 | Form EIA-861 | U.S. Energy Information Administration | https://www.eia.gov/electricity/data/eia861/ | Electric utility rates, customers, sales | Annual |
+| NCES_CCD | Common Core of Data | U.S. Dept of Education | https://nces.ed.gov/ccd/ | Per-pupil spending, enrollment, graduation | Annual |
+| MA_DESE | DESE District Profiles | Commonwealth of MA DESE | https://profiles.doe.mass.edu/ | MCAS scores, district profiles, accountability | Annual |
+| MA_DOR_DLS | Division of Local Services | Commonwealth of MA DOR | https://dlsgateway.dor.state.ma.us/ | Tax rates, levy, free cash certifications | Annual |
+| MA_PERAC | Public Employee Retirement Administration | Commonwealth of MA PERAC | https://www.mass.gov/orgs/public-employee-retirement-administration-commission | Pension funding ratios and valuations | Annual |
+| EMMA | Electronic Municipal Market Access | MSRB | https://emma.msrb.org/ | Bond ratings, official statements, disclosures | Continuous |
+| TOWN_ACFR | Town Annual Comprehensive Financial Report | Town finance/auditor | (town-specific URL) | Full audited financials | Annual |
+| TOWN_BUDGET | Town Annual Budget | Town manager/select board | (town-specific URL) | Budget documents | Annual |
+| TOWN_WEBSITE | Official town website | Town government | (town-specific URL) | Town form, contacts, services info | Continuous |
+| TOWN_CLERK | Town Clerk election records | Town clerk | (town-specific URL) | Election turnout, voter registration | After each election |
+| CDC_PLACES | PLACES Local Data for Better Health | U.S. CDC | https://www.cdc.gov/places/ | Health outcomes, prevention, social determinants | Annual |
+| USDA_FOOD_ATLAS | Food Access Research Atlas | USDA Economic Research Service | https://www.ers.usda.gov/data-products/food-access-research-atlas/ | Food deserts and access by census tract | Periodic (~4–5 yrs) |
+| DOE_AFDC | Alternative Fuels Data Center | U.S. DOE | https://afdc.energy.gov/ | EV charging stations and alt fuels | Continuous |
+| USDA_FOREST | Forest Service Tree Canopy | U.S. Dept of Agriculture | https://data.fs.usda.gov/ | Tree canopy from satellite analysis | Periodic |
+| IRS_SOI_MIGRATION | IRS Statistics of Income Migration Data | U.S. IRS | https://www.irs.gov/statistics/soi-tax-stats-migration-data | County-to-county migration from tax returns | Annual |
+| IMLS_PLS | Public Libraries Survey | U.S. IMLS | https://www.imls.gov/research-evaluation/data-collection/public-libraries-survey | Library circulation, programs, visits | Annual |
+
+---
+
+### Tier 2 — Authoritative Non-Government Sources
+
+High credibility but not official government data. Use when no Tier 1 equivalent exists. No additional cross-checking required, but note the source.
+
+| Source ID | Name | Publisher | URL | What It Covers | Notes |
+|---|---|---|---|---|---|
+| FIRST_STREET | First Street Foundation Climate Risk | First Street Foundation (501c3) | https://firststreet.org/ | Property-level flood, fire, heat risk | Widely cited; JS-rendered — must look up manually |
+| GFOA_CERT | GFOA Certificate of Achievement | Govt Finance Officers Association | https://www.gfoa.org/award-programs | Recognition for high-quality ACFRs | Annual award listing |
+| TPL_PARKSCORE | ParkScore Index | Trust for Public Land (501c3) | https://www.tpl.org/parkscore | Park acreage, access, investment | Largest cities only |
+| C2ER_COLI | Cost of Living Index | C2ER | https://www.c2er.org/ | Cost of living index (100 = US avg) | Commercial publication; widely cited |
+| NU_LNI | Local News Initiative | Northwestern / Medill School | https://localnewsinitiative.northwestern.edu/ | Local news outlet inventory; news deserts | Academic |
+
+---
+
+### Tier 3 — Aggregators and Commercial Sources
+
+Convenient but derived from primary sources. Always cross-check against a Tier 1 or Tier 2 source before publishing. Note both the aggregator and the underlying primary.
+
+| Source ID | Name | Publisher | URL | What It Covers | Cross-Check With |
+|---|---|---|---|---|---|
+| ZILLOW_ZHVI | Zillow Home Value Index | Zillow | https://www.zillow.com/research/data/ | Smoothed home value index by geography | — (no direct substitute; document vintage) |
+| WALK_SCORE | Walk Score | Redfin / Walk Score | https://www.walkscore.com/ | Walk/Transit/Bike scores by location | MBTA GTFS for transit |
+| SCHOOLDIGGER | SchoolDigger.com | SchoolDigger | https://www.schooldigger.com/ | School rankings | MA_DESE preferred |
+| USNEWS_HS | US News Best High Schools | US News & World Report | https://www.usnews.com/education/best-high-schools | National HS rankings | MA_DESE preferred |
+| AGG_DATAUSA | Data USA | Deloitte / Datawheel | https://datausa.io/ | Aggregates Census + BLS | CENSUS_ACS5, BLS_LAUS |
+| AGG_CITYDATA | City-Data.com | City-Data.com | https://www.city-data.com/ | Aggregates Census + crime | FBI_UCR, CENSUS_ACS5 |
+| AGG_OWNWELL | Ownwell Property Tax | Ownwell | https://www.ownwell.com/ | Property tax rate aggregator | MA_DOR_DLS |
+| AGG_NHSCOUT | NeighborhoodScout | Location, Inc. | https://www.neighborhoodscout.com/ | FBI UCR derivative crime data | FBI_UCR |
+| AGG_TAPWATER | TapWaterData (EWG-derived) | TapWaterData | https://www.tapwaterdata.com/ | Water utility quality summaries | EPA_SDWIS |
+| AGG_NICHE | Niche.com | Niche | https://www.niche.com/ | Place rankings | Do not use as primary; compare only |
+
+---
+
+### Tier 4 — Editorial / Press (Last Resort)
+
+Use only when all higher tiers have been exhausted and the field would otherwise remain null. **Always document in `compiler_notes` that a primary source was unavailable and why.**
+
+| Source ID | Name | Publisher | URL | Notes |
+|---|---|---|---|---|
+| PRESS_LOCAL | Local newspaper | Various | (specific publication) | Cite the specific article; always cross-reference |
+| PRESS_PATCH | Patch.com Local News | Patch Media | https://patch.com/ | Hyperlocal news; verify with primary sources |
+
+---
+
+### Quick Rule: Is This Source Approved?
+
+1. Check this list. If it's here, use it at its tier.
+2. If it's not here and you want to use it, add it to this section first with tier, publisher, URL, and notes — then use it.
+3. Never use a source you can't name. "I found it online" is not a citation.
 
 *Last updated: May 2026*  
 *Civica — Know Before You Buy*
