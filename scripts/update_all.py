@@ -265,6 +265,13 @@ WILDFIRE_UPDATES = {t: "Low" for t in [
     "Mansfield","Easton","North Attleborough","Medway","Millis",
 ]}
 
+
+# MCAS math overrides for towns where K-8 district has the math data but HS district is used for grad/AP
+MATH_OVERRIDES = {
+    "Sudbury":  73.0,   # K-8 district MCAS; lincoln-sudbury HS has no district-level math pct
+    "Wrentham": 66.0,   # K-8 district MCAS; King Philip Regional math (43%) covers 3 towns
+}
+
 # ─── Load methodology ─────────────────────────────────────────────────────────
 def load_methodology():
     def lc(p): return list(csv.DictReader(open(DATA / p, encoding="utf-8")))
@@ -522,6 +529,9 @@ ZHVI = {
     "Grafton":510000,"Milford":445000,
     "Mansfield":530000,"Easton":610000,"North Attleborough":430000,
     "Medway":570000,"Millis":520000,
+    "Sudbury":1050000,"Westwood":1050000,"Holliston":580000,"Bedford":750000,
+    "Randolph":450000,"Pembroke":510000,"Northbridge":420000,"Wrentham":590000,
+    "Maynard":490000,"Tyngsborough":480000,
 }
 RATING_BANDS = [(60,"Hidden Gem"),(50,"Strong Value"),(40,"Market Rate"),(30,"Premium Town"),(0,"Luxury Market")]
 
@@ -554,6 +564,10 @@ COUNTY_MAP = {
     "Grafton":"Worcester","Milford":"Worcester",
     "Mansfield":"Bristol","Easton":"Bristol","North Attleborough":"Bristol",
     "Medway":"Norfolk","Millis":"Norfolk",
+    "Sudbury":"Middlesex","Westwood":"Norfolk","Holliston":"Middlesex",
+    "Bedford":"Middlesex","Randolph":"Norfolk","Pembroke":"Plymouth",
+    "Northbridge":"Worcester","Wrentham":"Norfolk","Maynard":"Middlesex",
+    "Tyngsborough":"Middlesex",
 }
 
 # ─── Phase 1: Fill all data ───────────────────────────────────────────────────
@@ -577,6 +591,10 @@ for row in rows:
         setf(row, "test_scores_math_pct", sc.get("mcas_math_pct"))
         setf(row, "graduation_rate_pct",  sc.get("graduation_rate_pct"))
         setf(row, "ap_participation_pct", sc.get("ap_participation_pct"))
+
+    # K-8 MCAS math override for towns with split K-8/HS districts
+    if town in MATH_OVERRIDES:
+        setf(row, "test_scores_math_pct", MATH_OVERRIDES[town])
 
     # 3. Excel bulk data (authoritative — override existing values)
     fc = free_cash_bulk.get(town.lower())
