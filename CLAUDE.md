@@ -2,6 +2,8 @@
 
 This file is the standing context for every Claude Code session on this project. Read it before doing anything. It tells you what Civica is, what success looks like, what's done, what's next, and what the rules are. With this context you should be able to pick up the next priority and execute without re-briefing.
 
+**Also read `CIVICA_FOR_DUMMIES.md` before touching any scoring, data pipeline, or field logic.** It is the canonical deep reference: every submetric's source, formula, and gotchas; the full add-town workflow; transit canonical values; and the glance writing guide. CLAUDE.md is the quick-start; CIVICA_FOR_DUMMIES.md is the bible.
+
 ---
 
 ## 0. DATA INTEGRITY — NON-NEGOTIABLE
@@ -378,6 +380,8 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 These are calculated from the raw fields above. Set them to `null` when first adding a town; `update_all.py` will fill them in.
 
 `score`, `ter`, `ter_r`, `p_schools`, `p_safety`, `p_taxes`, `p_fiscal`, `p_econ`, `p_qol`, `p_climate`, `value_score`, `value_rating`
+
+**WARNING — `p_qol` naming:** `p_qol` is the Infrastructure & Utilities pillar score. The internal key throughout `update_all.py` and `master_weights.csv` is `quality_of_life` (historical name). The display label was later changed to "Infrastructure & Utilities" but the code key was not renamed. **Do not rename `p_qol` to `p_infra` or change the key in any config file — it will break the scoring pipeline.**
 
 ### Editorial Fields
 | Field | Type | Notes |
