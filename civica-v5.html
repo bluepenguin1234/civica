@@ -1139,10 +1139,10 @@ a{text-decoration:none;color:inherit}
     <div id="leaflet-map"></div>
     <div class="map-legend">
       <div class="leg-title">Civica Score</div>
-      <div class="leg-row"><div class="leg-dot" style="background:#30d158"></div><span class="leg-label">65+ Excellent</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#0d2d52"></div><span class="leg-label">55–64 Good</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#ff9f0a"></div><span class="leg-label">45–54 Fair</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#ff3b30"></div><span class="leg-label">Below 45</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#30d158"></div><span class="leg-label">80+ Excellent</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ffd60a"></div><span class="leg-label">70–79 Good</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff9f0a"></div><span class="leg-label">60–69 Fair</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff3b30"></div><span class="leg-label">Below 60</span></div>
     </div>
   </div>
 
@@ -1622,7 +1622,7 @@ const FORMSPREE_ID='YOUR_FORM_ID';
 /* ═══════════════════════════════
    UTILS
 ═══════════════════════════════ */
-const scoreColor=s=>s>=65?'#30d158':s>=55?'#0d2d52':s>=45?'#ff9f0a':'#ff3b30';
+const scoreColor=s=>s>=80?'#30d158':s>=70?'#ffd60a':s>=60?'#ff9f0a':'#ff3b30';
 const confColor=c=>({high:'#30d158',medium:'#ff9f0a',low:'#ff3b30'})[c]||'#98989d';
 function saveFavs(){localStorage.setItem('civica_favs',JSON.stringify([...state.favs]));}
 
@@ -2588,7 +2588,7 @@ function profMrow(label,val,g){
   </div>`;
 }
 
-const profBarColor=s=>s>=70?'#30d158':s>=45?'#ff9f0a':'#ff3b30';
+const profBarColor=s=>s>=80?'#30d158':s>=70?'#ffd60a':s>=60?'#ff9f0a':'#ff3b30';
 
 function buildPDFHTML(t){
   const date=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
