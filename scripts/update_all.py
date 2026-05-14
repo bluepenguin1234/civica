@@ -3,7 +3,7 @@ Master update pipeline — applies all new data, recomputes scores,
 updates towns.csv and civica-v5.html in one pass.
 """
 
-import csv, re, openpyxl, bisect
+import csv, re, openpyxl
 from pathlib import Path
 
 ROOT     = Path(__file__).parent.parent
@@ -352,19 +352,6 @@ def load_methodology():
         si.setdefault(r["state"], {})[r["metric"]] = float(r["value"])
     return pw, sw, ri, si
 
-# Direction for percentile scoring: True = higher raw value is better, False = lower is better
-DIRECTION = {
-    # Higher raw value = better score
-    "free_cash_pct": True,  "pension_funded": True,  "rank_percentile": True,
-    "test_scores": True,  "graduation_rate": True,
-    "electric_value": True,  "income_level": True,
-    "income_trend": True,  "population_trend": True,
-    # Lower raw value = better score
-    "debt_per_capita": False,  "effective_tax_rate": False,  "tax_burden_to_income": False,
-    "rank_trajectory": False,  "water_quality": False,  "violent_crime": False,
-    "property_crime": False,  "crime_trajectory": False,
-    "flood_risk": False,  "flood_trajectory": False,
-}
 LOOKUP_ONLY = {"bond_rating", "transit", "wildfire"}
 
 def cap(val, lo, hi):
@@ -372,24 +359,11 @@ def cap(val, lo, hi):
     try: return max(lo, min(hi, float(val)))
     except: return val
 
-def percentile_score(value, sorted_vals, higher_is_better):
-    n = len(sorted_vals)
-    below = bisect.bisect_left(sorted_vals, value)
-    above = bisect.bisect_right(sorted_vals, value)
-    pct = 100.0 * (below + (above - below) / 2.0) / n
-    return round(100.0 - pct if not higher_is_better else pct)
-
-def score_submetric(sm_id, raw, ri, dists=None):
+def score_submetric(sm_id, raw, ri):
     if sm_id not in ri: return 50
     rules = ri[sm_id]
     default = float(rules[0]["default_if_missing"])
     if raw is None or raw == "": return default
-    if dists and sm_id in dists and sm_id not in LOOKUP_ONLY and sm_id in DIRECTION:
-        try:
-            v = float(raw)
-            if len(dists[sm_id]) >= 5:
-                return percentile_score(v, dists[sm_id], DIRECTION[sm_id])
-        except: pass
     for rule in rules:
         if rule["rule_type"] == "range":
             try:
@@ -401,7 +375,7 @@ def score_submetric(sm_id, raw, ri, dists=None):
                 return float(rule["score_0_100"])
     return default
 
-def score_town(td, pw, sw, ri, si, dists=None):
+def score_town(td, pw, sw, ri, si):
     ctx = si.get(td.get("state","MA"), si["MA"])
     def sf(a, b):
         try: return float(a)/float(b)
@@ -451,7 +425,7 @@ def score_town(td, pw, sw, ri, si, dists=None):
         # Taxes — housing affordability ratio (home value / household income)
         "housing_affordability": fv("housing_affordability_ratio"),
     }
-    ss = {sm: score_submetric(sm, val, ri, dists) for sm, val in SM.items()}
+    ss = {sm: score_submetric(sm, val, ri) for sm, val in SM.items()}
     ps = {}
     for pillar_id, weights in sw.items():
         ps[pillar_id] = sum(ss[k]*weights[k] for k in weights)
@@ -483,52 +457,6 @@ def score_town(td, pw, sw, ri, si, dists=None):
     conf = "high" if gaps <= 3 else ("medium" if gaps <= 8 else "low")
 
     return civica, ter, ter_r, gaps, conf, ps
-
-def build_distributions(rows, si):
-    """First pass: collect all SM values to build percentile distributions."""
-    raw_vals = {}
-    for td in rows:
-        ctx = si.get(td.get("state","MA"), si["MA"])
-        def sf(a, b):
-            try: return float(a)/float(b)
-            except: return None
-        def fv(k): return td.get(k) or None
-        h = {
-            "tax_burden_pct":      (float(td["median_annual_tax_bill"])/float(td["median_household_income"])*100)
-                                    if td.get("median_annual_tax_bill") and td.get("median_household_income") else None,
-            "rank_percentile":     (1-float(td["district_state_rank"])/float(td["district_state_rank_total"]))*100
-                                    if td.get("district_state_rank") and td.get("district_state_rank_total") else None,
-            "debt_ratio":          sf(fv("debt_per_capita"), ctx["debt_per_capita_median"]),
-            "violent_crime_ratio": sf(fv("violent_crime_per_100k"), ctx["violent_crime_per_100k"]),
-            "property_crime_ratio":sf(fv("property_crime_per_100k"), ctx["property_crime_per_100k"]),
-            "income_ratio":        sf(fv("median_household_income"), ctx["median_household_income"]),
-        }
-        sm_vals = {
-            "free_cash_pct":        fv("free_cash_pct_of_budget"),
-            "pension_funded":       fv("pension_funded_ratio_pct"),
-            "debt_per_capita":      h["debt_ratio"],
-            "effective_tax_rate":   fv("effective_tax_rate_pct"),
-            "tax_burden_to_income": h["tax_burden_pct"],
-            "rank_percentile":      h["rank_percentile"],
-            "rank_trajectory":      cap(fv("district_rank_10yr_change"), -150, 150),
-            "test_scores":          fv("test_scores_math_pct"),
-            "graduation_rate":      fv("graduation_rate_pct"),
-            "violent_crime":        h["violent_crime_ratio"],
-            "property_crime":       h["property_crime_ratio"],
-            "crime_trajectory":     cap(fv("crime_5yr_pct_change"), -75, 150),
-            "income_level":         h["income_ratio"],
-            "income_trend":         fv("income_10yr_change_pct"),
-            "population_trend":     fv("population_10yr_change_pct"),
-            "electric_value":       fv("electric_savings_vs_state_avg"),
-            "water_quality":        cap(fv("water_violations_5yr"), 0, 100),
-            "flood_risk":           fv("flood_risk_pct"),
-            "flood_trajectory":     fv("flood_2050_growth_pts"),
-        }
-        for sm_id, val in sm_vals.items():
-            if val is not None:
-                try: raw_vals.setdefault(sm_id, []).append(float(val))
-                except: pass
-    return {sm_id: sorted(vals) for sm_id, vals in raw_vals.items()}
 
 # ─── Main update loop ─────────────────────────────────────────────────────────
 print("\nLoading methodology...")
@@ -873,19 +801,13 @@ for row in rows:
                 row["housing_affordability_ratio"] = str(ratio)
         except: pass
 
-# ─── Phase 2: Build percentile distributions ──────────────────────────────────
-print("Phase 2: Building percentile distributions...")
-dists = build_distributions(rows, si)
-for sm_id, vals in sorted(dists.items()):
-    print(f"  {sm_id}: n={len(vals)}, range=[{min(vals):.2f}, {max(vals):.2f}]")
-
-# ─── Phase 3: Score all towns ─────────────────────────────────────────────────
-print("Phase 3: Scoring all towns...")
+# ─── Phase 2: Score all towns ─────────────────────────────────────────────────
+print("Phase 2: Scoring all towns...")
 score_changes = []
 for row in rows:
     town = row["town_name"]
     old_score = row.get("civica_score", "")
-    civica, ter, ter_r, gaps, conf, ps = score_town(row, pw, sw, ri, si, dists)
+    civica, ter, ter_r, gaps, conf, ps = score_town(row, pw, sw, ri, si)
     row["civica_score"]     = str(civica)
     row["ter"]              = str(ter) if ter else ""
     row["ter_rating"]       = ter_r
