@@ -109,7 +109,7 @@ Final Civica Score (0–100)
 **Formula:**
 ```
 Civica Score = (Schools × 0.25) + (Safety × 0.20) + (Fiscal × 0.20)
-             + (Taxes × 0.15) + (Econ × 0.10) + (QoL × 0.07) + (Climate × 0.03)
+             + (Taxes × 0.15) + (Econ × 0.10) + (Infra × 0.07) + (Climate × 0.03)
 ```
 
 ### How Raw Data Becomes a 0–100 Score
@@ -345,6 +345,8 @@ A TER of 6.8 (like Needham) means you're getting 6.8 units of Civica quality per
 
 **What it answers:** "Is this town expensive relative to what you get?"
 
+Shown as "Value Tier" on every town card in the directory. Computed by `update_all.py` and stored in `value_rating` / `value_score` fields.
+
 ```
 Value Score = Civica Score ÷ (Town Median Home Price ÷ MA Median Home Price)
 ```
@@ -395,7 +397,7 @@ All inputs are already-computed 0–100 pillar submetric scores.
 
 Civica lets users select a **persona** that reweights the 7 pillars based on what matters most to them. The town list re-sorts by their personalized score.
 
-| Persona | Schools | Safety | Fiscal | Taxes | Econ | QoL | Climate |
+| Persona | Schools | Safety | Fiscal | Taxes | Econ | Infra | Climate |
 |---|---|---|---|---|---|---|---|
 | Balanced Buyer (default) | 25% | 20% | 20% | 15% | 10% | 7% | 3% |
 | Schools First | 40% | 20% | 15% | 12% | 8% | 3% | 2% |
@@ -608,7 +610,13 @@ After `add_town.py` runs, collect the remaining fields:
 
 ### Step 3: Patch the data
 
-Create a patch script (copy `scripts/patch_batch2b.py` as a template) or add the fields directly to `towns.csv`. If the town shares a regional school district with a non-obvious name, add an entry to `DISTRICT_MAP` in `update_all.py`.
+Add the manually collected fields directly to `towns.csv`, or create a patch script using the most recent `scripts/patch_batch*.py` as a template (e.g., `patch_batch3.py`).
+
+If the town shares a regional school district with a non-obvious name (e.g., Sterling is served by Wachusett Regional, not "Sterling"), add an entry to `DISTRICT_MAP` near the top of `update_all.py`. Format:
+
+```python
+"TownName": "district name as it appears in ma_schools_combined.csv",
+```
 
 ### Step 4: Run the pipeline
 
@@ -785,7 +793,7 @@ When a field is genuinely unavailable:
 
 1. **Leave the value column blank** — do not guess, do not interpolate
 2. **Note it in `compiler_notes`**: `"flood_risk: not published — tried First Street 2026-05-14"`
-3. **Increment `data_gaps_count`**
+3. **Increment `data_gaps_count`** (the field is `data_gaps_count` in towns.csv — not `gaps`)
 
 The rubric uses the documented default (typically 50–70). A blank cell with a tracked gap is far better than a guess.
 
@@ -1006,6 +1014,16 @@ Range: 0.1–5.0 per 1,000. Gotcha: Count only Level 2 + Level 3 (publicly liste
 
 ---
 
+**Field: `crime_5yr_pct_change` — Crime 5-Year % Change**
+
+Primary: city-data.com → search town → "Crime" section → note the crime index for the most recent year and for 5 years prior.  
+Calculation: `((current_index − prior_index) / prior_index) × 100`  
+Cross-check: FBI UCR year-over-year trend for the same agency.  
+Range: −50 to +200%. Negative = crime fell (good). Positive = crime rose.  
+Gotcha: If the 5-year-ago baseline is near zero (e.g., index < 1), the % change is meaningless — leave null rather than record a spurious +5000%.
+
+---
+
 ### PILLAR 5: ECONOMIC VITALITY
 
 **Field: `inc10yr` — Income Growth (10yr) %**
@@ -1128,11 +1146,11 @@ Note: Virtually all inland and coastal MA towns score "Low".
 | Fiscal Health | bond, free_cash, pension, debt_pc, gfoa, transp (6) |
 | Schools | d_rank, d_total, d_10yr, math, grad, ap, enrollment_trend (7) |
 | Taxes | eff_rate, med_tax, med_inc, res_rate, tax_non_res, med_home_val (6) |
-| Safety | violent, prop_crime, sex_off (3) |
+| Safety | violent, prop_crime, sex_off, crime_5yr_pct_change (4) |
 | Economic Vitality | inc10yr, pop10yr, unemp, pov, owner_occ, vacancy, med_age (7) |
 | Infrastructure | elec_save, water_viol, transit (3) |
 | Climate | flood, flood50, fire (3) |
-| **Total** | **35 scored + d_total display = 36** |
+| **Total** | **36 scored + d_total display = 37** |
 
 ---
 
@@ -1142,7 +1160,7 @@ If a value is truly unavailable after working through all sources:
 
 1. Leave the field `null`
 2. Document in `compiler_notes`: `"{field}: not published — {what was tried}, {date}"`
-3. Increment `gaps`
+3. Increment `data_gaps_count`
 4. Move on
 
 **Do NOT estimate. Do NOT interpolate. Do NOT cite a number you cannot verify.**

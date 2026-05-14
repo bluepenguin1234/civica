@@ -88,4 +88,4 @@ Previous HTML versions kept for reference. Do not edit.
 | Infrastructure & Utilities | 7% |
 | Climate Risk | 3% |
 
-**Value Score** = Civica Score ÷ (Town ZHVI / MA State ZHVI $613,049) — private, Excel only.
+**Value Score** = Civica Score ÷ (Town ZHVI / MA State ZHVI $613,049) — shown as "Value Tier" on every town card on the live site. Full numeric score also exported to `civica_value_scores.xlsx`.
