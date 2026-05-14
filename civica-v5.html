@@ -1947,29 +1947,6 @@ function renderProf(idx){
       <div style="font-size:.8rem;line-height:1.65;color:#78350f">${t.name} has ${t.gaps} data gaps. Many smaller Massachusetts towns do not publish annual financial reports online, do not carry an active bond rating, or report crime data on a delay. Civica shows verified data only — gaps reflect limited public disclosure, not poor performance. The score may shift as new data becomes available.</div>
     </div>`:''}
 
-    <!-- SCORE EXPLAINED -->
-    ${(()=>{
-      const pillars=[
-        {label:'Schools',          score:schScore},
-        {label:'Safety',           score:safScore},
-        {label:'Fiscal Health',    score:fiscScore},
-        {label:'Taxes',            score:taxScore},
-        {label:'Economic Vitality',score:econScore},
-        {label:'Infra & Utilities',score:qolScore},
-        {label:'Climate Risk',     score:climScore},
-      ];
-      const sorted=[...pillars].sort((a,b)=>b.score-a.score);
-      const top=sorted[0];
-      const second=sorted[1];
-      const bottom=sorted[sorted.length-1];
-      const scoreWord=t.score>=65?'one of the stronger towns in this dataset':t.score>=55?'a solid mid-tier option':t.score>=45?'a below-average score overall':'among the lower-scoring towns in this dataset';
-      const drag=bottom.score<60?` The biggest drag is <strong>${bottom.label} (${bottom.score})</strong>.`:'';
-      return`<div style="padding:12px 32px;background:#fafafa;border-bottom:1px solid #efefef">
-        <span style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#98989d;margin-right:10px">Score Explained</span>
-        <span style="font-size:.82rem;color:#3a3a3c;line-height:1.6">${t.name}'s ${t.score} reflects ${scoreWord}, led by <strong>${top.label} (${top.score})</strong> and <strong>${second.label} (${second.score})</strong>.${drag}</span>
-      </div>`;
-    })()}
-
     <!-- PILLAR SCORES -->
     <div style="padding:22px 32px;background:#fff;border-bottom:1px solid #efefef">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#98989d;margin-bottom:14px">Pillar Scores</div>
