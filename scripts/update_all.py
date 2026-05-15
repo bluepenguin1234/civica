@@ -1061,6 +1061,70 @@ for obj_start, obj_end in objects:
 HTML_FILE.write_text(html, encoding="utf-8")
 print(f"  Patched {patched} town objects")
 
+# ─── Sync verification ────────────────────────────────────────────────────────
+# After patching, confirm every tracked field in towns.csv matches the HTML.
+# If something shows up here, it means a field was updated in towns.csv but
+# the patch loop above isn't writing it back. Add a patch call for it above.
+SYNC_FIELDS = [
+    # (csv_column,                    html_field,   type)
+    ("bond_rating_sp",               "bond",        "str"),
+    ("free_cash_pct_of_budget",      "free_cash",   "num"),
+    ("pension_funded_ratio_pct",     "pension",     "num"),
+    ("debt_per_capita",              "debt_pc",     "num"),
+    ("effective_tax_rate_pct",       "eff_rate",    "num"),
+    ("median_annual_tax_bill",       "med_tax",     "num"),
+    ("median_household_income",      "med_inc",     "num"),
+    ("residential_rate_per_1000",    "res_rate",    "num"),
+    ("test_scores_math_pct",         "math",        "num"),
+    ("graduation_rate_pct",          "grad",        "num"),
+    ("violent_crime_per_100k",       "violent",     "num"),
+    ("property_crime_per_100k",      "prop_crime",  "num"),
+    ("crime_5yr_pct_change",         "crime5yr",    "num"),
+    ("income_10yr_change_pct",       "inc10yr",     "num"),
+    ("population_10yr_change_pct",   "pop10yr",     "num"),
+    ("flood_risk_pct",               "flood",       "num"),
+    ("flood_2050_growth_pts",        "flood50",     "num"),
+    ("wildfire_risk",                "fire",        "str"),
+    ("transit_access",               "transit",     "str"),
+    ("electric_savings_vs_state_avg","elec_save",   "num"),
+    ("water_violations_5yr",         "water_viol",  "num"),
+]
+print("\nVerifying HTML sync with towns.csv...")
+mismatches = []
+for _row in rows:
+    _town = _row["town_name"]
+    _m = re.search(r'\{name:"' + re.escape(_town) + r'".*?\}', html)
+    if not _m:
+        continue
+    _obj = _m.group()
+    for _csv_col, _html_field, _ftype in SYNC_FIELDS:
+        _csv_val = _row.get(_csv_col, "")
+        if not _csv_val:
+            continue
+        if _ftype == "str":
+            _pat = re.search(rf'{re.escape(_html_field)}:"([^"]*)"', _obj)
+            _html_val = _pat.group(1) if _pat else None
+            if _html_val and _html_val.lower() != str(_csv_val).lower():
+                mismatches.append(f"  {_town}.{_html_field}: HTML={_html_val!r} != CSV={_csv_val!r}")
+        else:
+            _pat = re.search(rf'{re.escape(_html_field)}:(-?[\d.]+|null)', _obj)
+            _html_val = _pat.group(1) if _pat else None
+            if _html_val and _html_val != "null":
+                try:
+                    if abs(float(_html_val) - float(_csv_val)) > 0.05:
+                        mismatches.append(f"  {_town}.{_html_field}: HTML={_html_val} != CSV={_csv_val}")
+                except ValueError:
+                    pass
+if mismatches:
+    print(f"  WARNING: {len(mismatches)} field(s) out of sync (towns.csv value not in HTML):")
+    for _msg in mismatches[:25]:
+        print(_msg)
+    if len(mismatches) > 25:
+        print(f"  ... and {len(mismatches)-25} more")
+    print("  -> Add a patch call in update_all.py for each field above, or update towns.csv.")
+else:
+    print(f"  OK — all {len(SYNC_FIELDS)} tracked fields match across {len(rows)} towns")
+
 # ─── Summary ──────────────────────────────────────────────────────────────────
 print("\nSCORE CHANGES:")
 print(f"{'Town':<28} {'Old':>5} {'New':>5} {'Delta':>7}")

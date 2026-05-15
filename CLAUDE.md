@@ -128,6 +128,22 @@ The Edit tool sometimes fails with "file modified since read" on the large civic
 towns.csv → scripts/update_all.py → patches TOWNS array in civica-v5.html → commit → push to main → live in ~2 min
 ```
 
+**towns.csv → TOWNS array field map** — every towns.csv column that feeds a TOWNS field must have a corresponding `patch_any` / `patch_str` call in `update_all.py`. If you add a new field to towns.csv and it needs to appear in the TOWNS array, add a patch call. `update_all.py` runs a sync check at the end and will warn if any tracked field is out of sync.
+
+| towns.csv column | TOWNS field | towns.csv column | TOWNS field |
+|---|---|---|---|
+| `bond_rating_sp` | `bond` | `violent_crime_per_100k` | `violent` |
+| `free_cash_pct_of_budget` | `free_cash` | `property_crime_per_100k` | `prop_crime` |
+| `pension_funded_ratio_pct` | `pension` | `crime_5yr_pct_change` | `crime5yr` |
+| `debt_per_capita` | `debt_pc` | `income_10yr_change_pct` | `inc10yr` |
+| `effective_tax_rate_pct` | `eff_rate` | `population_10yr_change_pct` | `pop10yr` |
+| `median_annual_tax_bill` | `med_tax` | `flood_risk_pct` | `flood` |
+| `median_household_income` | `med_inc` | `flood_2050_growth_pts` | `flood50` |
+| `residential_rate_per_1000` | `res_rate` | `wildfire_risk` | `fire` |
+| `test_scores_math_pct` | `math` | `transit_access` | `transit` |
+| `graduation_rate_pct` | `grad` | `electric_savings_vs_state_avg` | `elec_save` |
+| `district_rank_10yr_change` | `d_10yr` | `water_violations_5yr` | `water_viol` |
+
 **To add a new town — use `add_town.py`:**
 
 ```powershell
