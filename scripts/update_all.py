@@ -541,6 +541,15 @@ ZHVI = {
     "Abington":510000,"Whitman":455000,"Rockland":465000,"Middleborough":430000,
     "Wareham":370000,"Bridgewater":450000,"East Bridgewater":475000,
     "West Bridgewater":485000,"Carver":400000,"Marion":650000,
+    # Added from Census ACS med_home_val (Zillow ZHVI not yet sourced)
+    "Dover":1582164,"Sherborn":1126122,"Carlisle":1232938,"Stow":612500,
+    "Groton":722853,"Plainville":629500,"Harvard":909900,"Bolton":778260,
+    "Mendon":689000,"Wayland":1050000,"Boxborough":750000,
+    "Norfolk":725293,"Bellingham":474575,"Pepperell":581134,"Townsend":375000,
+    "Lancaster":480000,"Clinton":330000,"Sterling":475000,"Ayer":499635,
+    "Spencer":421251,"Oxford":387501,"Charlton":461465,"Sturbridge":375000,
+    "East Longmeadow":418463,"Ludlow":353403,"South Hadley":330000,
+    "Webster":400000,"Fairhaven":385000,"Somerset":385000,
 }
 RATING_BANDS = [(60,"Hidden Gem"),(50,"Strong Value"),(40,"Market Rate"),(30,"Premium Town"),(0,"Luxury Market")]
 
