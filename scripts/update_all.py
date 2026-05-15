@@ -523,7 +523,7 @@ ZHVI = {
     "Grafton":510000,"Milford":445000,
     "Mansfield":530000,"Easton":610000,"North Attleborough":430000,
     "Medway":570000,"Millis":520000,
-    "Sudbury":1050000,"Westwood":1050000,"Holliston":580000,"Bedford":750000,
+    "Sudbury":1050000,"Westwood":1050000,"Holliston":580000,"Bedford":750000,"Lincoln":1275627,
     "Randolph":450000,"Pembroke":510000,"Northbridge":420000,"Wrentham":590000,
     "Maynard":490000,"Tyngsborough":480000,
     "Barnstable":580000,"Falmouth":660000,"Sandwich":575000,"Yarmouth":490000,
@@ -999,6 +999,28 @@ for obj_start, obj_end in objects:
         obj = patch_any(obj, 'violent',  viol)
     if fv("property_crime_per_100k"):
         obj = patch_any(obj, 'prop_crime', prop)
+    if fv("crime_5yr_pct_change"):
+        obj = patch_any(obj, 'crime5yr', js_num("crime_5yr_pct_change"))
+    if fv("effective_tax_rate_pct"):
+        obj = patch_any(obj, 'eff_rate', js_num("effective_tax_rate_pct"))
+    if fv("median_annual_tax_bill"):
+        obj = patch_any(obj, 'med_tax',  js_num("median_annual_tax_bill"))
+    if fv("residential_rate_per_1000"):
+        obj = patch_any(obj, 'res_rate', js_num("residential_rate_per_1000"))
+    if fv("pension_funded_ratio_pct"):
+        obj = patch_any(obj, 'pension',  pens)
+    if fv("electric_savings_vs_state_avg"):
+        obj = patch_any(obj, 'elec_save', js_num("electric_savings_vs_state_avg"))
+    if fv("water_violations_5yr"):
+        obj = patch_any(obj, 'water_viol', js_num("water_violations_5yr"))
+    if fv("flood_risk_pct"):
+        obj = patch_any(obj, 'flood',    flood)
+    if fv("flood_2050_growth_pts"):
+        obj = patch_any(obj, 'flood50',  fl50)
+    if fv("wildfire_risk"):
+        obj = patch_str(obj, 'fire',     fire)
+    if fv("transit_access"):
+        obj = patch_str(obj, 'transit',  js_str("transit_access"))
 
     obj = ensure_field(obj, 'p_schools', row["p_schools"])
     obj = ensure_field(obj, 'p_safety',  row["p_safety"])
