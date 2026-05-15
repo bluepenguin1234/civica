@@ -268,7 +268,7 @@ Use these to make good UX and feature prioritization decisions.
 
 | File | Fields covered |
 |---|---|
-| `data/bulk/census_acs_ma_towns.csv` | `pop`, `med_inc`, `inc10yr`, `pop10yr`, `bach`, `unemp`, `pov`, `med_home_val`, `owner_occ`, `vacancy`, `med_age`, `commute` |
+| `data/bulk/census_acs_ma_towns.csv` | `pop`, `med_inc`, `inc10yr`, `pop10yr`, `bach`, `unemp`, `pov`, `owner_occ`, `vacancy`, `med_age`, `commute` |
 | `data/bulk/ma_schools_combined.csv` | `math`, `grad`, `ap` (via district name — check `DISTRICT_MAP` in update_all.py) |
 | `data/bulk/CFC_PerBudg.xlsx` | `free_cash` |
 | `data/bulk/municipaldebt2022.xlsx` | `debt_pc` |
@@ -281,7 +281,7 @@ Use these to make good UX and feature prioritization decisions.
 | Bond ratings (`bond`) | EMMA / MSRB (emma.msrb.org) | As published |
 | Pension funded % (`pension`) | MA PERAC annual report | Annual |
 | Crime rates (`violent`, `prop_crime`) | FBI UCR / MA EOPSS | Annual |
-| Home values (`med_home_val` supplement) | Zillow ZHVI | Monthly |
+| Home values (`med_home_val`) | Zillow ZHVI preferred; Census ACS as fallback. **Not in towns.csv** — update the `ZHVI` dict in `update_all.py` directly. | As needed |
 | Flood risk (`flood`, `flood50`) | First Street Foundation | Periodic |
 | Wildfire rating (`fire`) | First Street Foundation | Periodic |
 | Municipal electric savings (`elec_save`) | Confirmed MLDs only (see below) | Periodic |
@@ -385,7 +385,7 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 ### Demographics & Housing
 | Field | Type | Notes |
 |---|---|---|
-| `med_home_val` | integer | Median home value $. Source: Zillow ZHVI or Census ACS. |
+| `med_home_val` | integer | Median home value $. **Not in towns.csv** — lives in the `ZHVI` dict in `update_all.py`. To update a town's value, edit that dict and re-run the pipeline. Source: Zillow ZHVI preferred; Census ACS as fallback. |
 | `owner_occ` | float | Owner-occupancy rate %. Source: Census ACS. |
 | `vacancy` | float | Vacancy rate %. Source: Census ACS. |
 | `med_age` | float | Median resident age. Source: Census ACS. |

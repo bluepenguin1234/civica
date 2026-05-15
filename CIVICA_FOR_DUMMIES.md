@@ -992,7 +992,8 @@ Range: 5–40%. Gotcha: Use assessed value mix, not tax revenue split.
 
 **Field: `med_home_val` — Median Home Value ($)**
 
-Primary: Census ACS5 → "Housing" → "Median Value (Dollars)".  
+**Not in towns.csv.** Lives in the `ZHVI` dict in `update_all.py` — to update, edit that dict and re-run the pipeline.  
+Source: Zillow ZHVI preferred; Census ACS as fallback.  
 Range: $200,000–$2,000,000+.
 
 ---
@@ -1163,7 +1164,7 @@ Note: Virtually all inland and coastal MA towns score "Low".
 |---|---|
 | Fiscal Health | bond, free_cash, pension, debt_pc, gfoa, transp (6) |
 | Schools | d_rank, d_total, d_10yr, math, grad, ap, enrollment_trend (7) |
-| Taxes | eff_rate, med_tax, med_inc, res_rate, tax_non_res, med_home_val (6) |
+| Taxes | eff_rate, med_tax, med_inc, res_rate, tax_non_res (5) — med_home_val is in ZHVI dict, not towns.csv |
 | Safety | violent, prop_crime, sex_off, crime_5yr_pct_change (4) |
 | Economic Vitality | inc10yr, pop10yr, unemp, pov, owner_occ, vacancy, med_age (7) |
 | Infrastructure | elec_save, water_viol, transit (3) |
