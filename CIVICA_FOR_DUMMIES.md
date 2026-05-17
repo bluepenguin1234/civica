@@ -460,10 +460,12 @@ C:\Users\Brian\Desktop\Civica\data\
   source_dictionary.csv        ← data source metadata
 
   bulk/
-    census_acs_ma_towns.csv    ← Census ACS data for all 351 MA towns
-    ma_schools_combined.csv    ← DESE school data for all 397 districts
-    CFC_PerBudg.xlsx           ← MA DOR free cash data (all 351 municipalities)
-    municipaldebt2022.xlsx     ← MA DOR municipal debt data
+    census_acs_ma_towns.csv              ← Census ACS data for all 351 MA towns
+    ma_schools_combined.csv              ← DESE school data for all 397 districts
+    CFC_PerBudg.xlsx                     ← MA DOR free cash data (all 351 municipalities)
+    municipaldebt2022.xlsx               ← MA DOR municipal debt data
+    dls-community-comparison-fy2025.xlsx.xlsx  ← DLS single-family tax bill (med_tax) for all 351 towns
+    mma-municipal-directory-2026.csv.csv       ← MMA directory: residential tax rate (res_rate) for all towns
 ```
 
 ---
@@ -555,6 +557,8 @@ Here's what it does, step by step:
 - Pulls DESE school data from `bulk/ma_schools_combined.csv` → updates test scores, grad rate
 - Pulls free cash from `bulk/CFC_PerBudg.xlsx` → overrides existing values (authoritative)
 - Pulls debt per capita from `bulk/municipaldebt2022.xlsx` → overrides existing values
+- Pulls median tax bill (`med_tax`) from `bulk/dls-community-comparison-fy2025.xlsx.xlsx`
+- Pulls residential rate (`res_rate`) from `bulk/mma-municipal-directory-2026.csv.csv`
 - Applies hardcoded updates (bond ratings, pension ratios, crime corrections, etc.)
 - Calculates derived fields: `housing_affordability_ratio` = ZHVI ÷ median income
 
@@ -597,7 +601,7 @@ py scripts\add_town.py "TownName" `
     --transit "none" --pension 54.54
 ```
 
-This auto-fills from bulk files: Census ACS (income, pop, demographics), DESE schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), and computed district rank. It also inserts the town into both `towns.csv` and `civica-v5.html`.
+This auto-fills from bulk files: Census ACS (income, pop, demographics), DESE schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), computed district rank, median tax bill from the DLS community comparison file (`med_tax`), and residential rate from the MMA municipal directory (`res_rate`). It also inserts the town into both `towns.csv` and `civica-v5.html`.
 
 The script prints a list of fields still requiring manual web lookup.
 
@@ -609,10 +613,12 @@ After `add_town.py` runs, collect the remaining fields:
 |---|---|
 | Bond rating | EMMA (emma.msrb.org) |
 | Pension funded ratio | MA PERAC annual report |
-| Tax rates (eff_rate, res_rate, med_tax) | MA DOR DLS Gateway |
+| Effective tax rate (`eff_rate`) | MA DOR DLS Gateway (web — not in bulk files) |
 | Crime stats (violent, property, 5yr trend) | city-data.com → cross-check FBI UCR |
 | Flood risk (flood, flood50) | First Street Foundation (manual lookup — JS-rendered) |
 | Wildfire risk | First Street Foundation — almost always `"low"` for MA |
+
+**Note:** `med_tax` and `res_rate` are now auto-filled by `add_town.py` from the bulk files — you no longer need to look them up manually for new towns. Only `eff_rate` still requires a web lookup.
 
 **Wildfire values must be lowercase:** `"low"`, `"moderate"`, `"high"`, `"very high"`, `"extreme"`.
 
@@ -961,8 +967,9 @@ Range: 0.5–2.5%.
 
 **Field: `med_tax` — Median Annual Tax Bill ($)**
 
-Primary: Census ACS5 → "Median Real Estate Taxes Paid".  
-Fallback: Ownwell.com (verify — Ownwell sometimes has corrupted data for small towns; cross-check against `eff_rate × med_home_val`).  
+**Auto-filled from bulk:** `add_town.py` reads `data/bulk/dls-community-comparison-fy2025.xlsx.xlsx` → "FY 2025 Single Family Tax Bill" column. No manual lookup needed for new towns.  
+Override: pass `--med-tax XXXX` to `add_town.py` if you need to use a different value.  
+Fallback (if bulk lookup fails): Ownwell.com (verify — Ownwell sometimes has corrupted data for small towns; cross-check against `eff_rate × med_home_val`).  
 Range: $1,000–$20,000. Validation: should ≈ `eff_rate × med_home_val`. Off by >50%? Re-check.
 
 ---
@@ -977,7 +984,9 @@ Gotcha: Use median *household* income, not median *family* income (family is typ
 
 **Field: `res_rate` — Residential Rate (per $1,000 AV)**
 
-Primary: MA DOR DLS Gateway → Tax Rates → most recent FY → residential rate column.  
+**Auto-filled from bulk:** `add_town.py` reads `data/bulk/mma-municipal-directory-2026.csv.csv` → `residential_tax_rate` column. No manual lookup needed for new towns.  
+Override: pass `--res-rate XX.XX` to `add_town.py` if you need to use a different value.  
+Fallback (if bulk lookup fails): MA DOR DLS Gateway → Tax Rates → most recent FY → residential rate column.  
 Range: $5–$30. Gotcha: Some towns have split rates. Always use the residential rate, not the commercial rate.
 
 ---

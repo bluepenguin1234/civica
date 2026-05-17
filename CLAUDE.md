@@ -11,8 +11,8 @@ This file is the standing context for every Claude Code session on this project.
 **Every single data field in every town object must come from a real, documented source. No estimates. No guesses. No placeholders dressed up as real values.**
 
 The correct workflow for adding any town is:
-1. Run `py scripts\add_town.py "TownName" --lat X --lng X --zip X --zhvi X --county X` — auto-fills census, schools, free cash, debt, and district rank from bulk files
-2. Web-source the remaining flagged fields (bond rating, crime, pension, tax rates, flood risk) — see Section 12 for sources; enter them in `towns.csv` or pass as flags
+1. Run `py scripts\add_town.py "TownName" --lat X --lng X --zip X --zhvi X --county X` — auto-fills census, schools, free cash, debt, district rank, median tax bill (DLS bulk), and residential rate (MMA bulk) from bulk files
+2. Web-source the remaining flagged fields (bond rating, crime, pension, effective tax rate, flood risk) — see Section 12 for sources; enter them in `towns.csv` or pass as flags
 3. Run `py scripts\update_all.py` to compute scores and patch civica-v5.html
 4. Never hand-edit computed fields in the TOWNS array
 
@@ -153,10 +153,10 @@ py scripts\add_town.py "TownName" `
     --transit "none"
 ```
 
-`add_town.py` auto-fills from bulk files: census (income, pop, education trends), schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), and **computed district rank** (derived from bulk composite — no manual lookup needed). It prints a list of which fields still require manual web lookup, then inserts the town into both `towns.csv` and `civica-v5.html`.
+`add_town.py` auto-fills from bulk files: census (income, pop, education trends), schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), **computed district rank** (derived from bulk composite — no manual lookup needed), **median tax bill** (`med_tax` from DLS community comparison file), and **residential rate** (`res_rate` from MMA municipal directory). It prints a list of which fields still require manual web lookup, then inserts the town into both `towns.csv` and `civica-v5.html`.
 
 **After running `add_town.py`:**
-1. Look up the flagged manual fields (bond rating, pension, crime stats, tax rates, flood risk)
+1. Look up the flagged manual fields (bond rating, pension, crime stats, effective tax rate, flood risk)
 2. Add them to `towns.csv` or pass them as flags to the script (see `--bond`, `--violent`, `--eff-rate`, etc.)
 3. Run `py scripts\update_all.py` to score and patch HTML
 4. Validate: run the Node.js syntax check (Section 15, Rule 6)
@@ -164,7 +164,7 @@ py scripts\add_town.py "TownName" `
 **What still needs manual lookup** for each new town:
 - Bond rating → EMMA (emma.msrb.org) or MA MFOB
 - Pension funded ratio → MA PERAC annual report
-- Tax rates (eff_rate, res_rate, med_tax) → MA DLS Gateway (browser download)
+- Effective tax rate (`eff_rate`) → MA DLS Gateway (browser download)
 - Crime stats → ma.beyond2020.com (browser download)
 - Flood risk → RiskFactor.com or First Street Foundation
 
@@ -262,7 +262,7 @@ Use these to make good UX and feature prioritization decisions.
 
 **RULE: Every field must have a real source. If you cannot verify a value, use `null`. Never estimate, round, or infer. See Section 0.**
 
-**Always check local bulk files before going to the web.** The four files in `data/bulk/` cover the majority of fields for every MA town. Only use web sources for the fields that aren't in the bulk files.
+**Always check local bulk files before going to the web.** The six files in `data/bulk/` cover the majority of fields for every MA town. Only use web sources for the fields that aren't in the bulk files.
 
 ### Already downloaded — use these first
 
@@ -272,6 +272,8 @@ Use these to make good UX and feature prioritization decisions.
 | `data/bulk/ma_schools_combined.csv` | `math`, `grad`, `ap` (via district name — check `DISTRICT_MAP` in update_all.py) |
 | `data/bulk/CFC_PerBudg.xlsx` | `free_cash` |
 | `data/bulk/municipaldebt2022.xlsx` | `debt_pc` |
+| `data/bulk/dls-community-comparison-fy2025.xlsx.xlsx` | `med_tax` (FY 2025 single-family tax bill) |
+| `data/bulk/mma-municipal-directory-2026.csv.csv` | `res_rate` (residential tax rate per $1,000) |
 
 ### Web lookups — only for fields not in bulk files
 
@@ -286,7 +288,7 @@ Use these to make good UX and feature prioritization decisions.
 | Wildfire rating (`fire`) | First Street Foundation | Periodic |
 | Municipal electric savings (`elec_save`) | Confirmed MLDs only (see below) | Periodic |
 | Sex offender density (`sex_off`) | MA Sex Offender Registry Board | Periodic |
-| Tax rates (`eff_rate`, `res_rate`) | MA DLS / town assessor | Annual |
+| Effective tax rate (`eff_rate`) | MA DLS / town assessor | Annual |
 | GFOA years (`gfoa`) | GFOA website | Annual |
 
 Field-level source metadata: `data/source_dictionary.csv`

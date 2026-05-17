@@ -2,7 +2,8 @@
 Add a single new MA town to towns.csv and civica-v5.html in one command.
 
 Auto-fills from bulk data: census (income, pop, education), schools (math%, grad%, AP%),
-free-cash Excel, debt Excel, and computes district rank from bulk composite.
+free-cash Excel, debt Excel, district rank from bulk composite, median tax bill from
+DLS community comparison (med_tax), and residential rate from MMA directory (res_rate).
 
 Usage:
   py scripts/add_town.py "Northampton" ^
@@ -23,8 +24,8 @@ Optional (can be added later / updated by update_all.py):
   --bond             S&P bond rating (AAA, AA+, AA, AA-, A+, A, etc.)
   --pension          Pension funded ratio (%)
   --eff-rate         Effective tax rate (%)
-  --res-rate         Residential rate per $1000
-  --med-tax          Median annual tax bill ($)
+  --res-rate         Residential rate per $1000 (auto-filled from MMA bulk; this flag overrides)
+  --med-tax          Median annual tax bill ($) (auto-filled from DLS bulk; this flag overrides)
   --violent          Violent crime per 100k
   --prop-crime       Property crime per 100k
   --water-viol       Water violations (5yr count)
@@ -165,6 +166,34 @@ if debt_path.exists():
                     except: pass
     wb.close()
 
+# DLS median tax bill
+med_tax_bulk = None
+dls_path = BULK / "dls-community-comparison-fy2025.xlsx.xlsx"
+if dls_path.exists():
+    wb = openpyxl.load_workbook(dls_path, read_only=True, data_only=True)
+    ws = wb.active
+    rows_it = ws.iter_rows(values_only=True)
+    hdrs = [str(h).strip() if h else "" for h in next(rows_it)]
+    mi = next((i for i, h in enumerate(hdrs) if "municipality" in h.lower()), None)
+    ti = next((i for i, h in enumerate(hdrs) if "single family tax bill" in h.lower()), None)
+    if None not in (mi, ti):
+        for r in rows_it:
+            if r[mi] and str(r[mi]).strip().lower() == town.lower():
+                try: med_tax_bulk = int(float(r[ti]))
+                except: pass
+                break
+    wb.close()
+
+# MMA residential tax rate
+res_rate_bulk = None
+mma_path = BULK / "mma-municipal-directory-2026.csv.csv"
+if mma_path.exists():
+    for _row in csv.DictReader(open(mma_path, encoding="utf-8-sig")):
+        if _row.get("Title", "").strip().lower() == town.lower():
+            try: res_rate_bulk = float(_row["residential_tax_rate"])
+            except: pass
+            break
+
 # ─── Regional school districts ────────────────────────────────────────────────
 DISTRICT_MAP = {
     "Boxford": "masconomet", "Topsfield": "masconomet", "Middleton": "masconomet",
@@ -238,6 +267,9 @@ TRANSIT_DISPLAY = {
 }
 transit_disp = TRANSIT_DISPLAY.get(args.transit.lower().strip(), args.transit)
 
+med_tax_val  = args.med_tax  if args.med_tax  is not None else med_tax_bulk
+res_rate_val = args.res_rate if args.res_rate is not None else res_rate_bulk
+
 def _js_num(v):  return str(v) if v is not None else "null"
 def _js_str(v):  return f'"{v}"' if v else "null"
 def _js_str_req(v): return f'"{v}"'
@@ -266,8 +298,8 @@ new_row.update({
     "pension_funded_ratio_pct":    str(args.pension) if args.pension else "",
     "debt_per_capita":             str(debt_pc_val) if debt_pc_val else "",
     "effective_tax_rate_pct":      str(args.eff_rate) if args.eff_rate else "",
-    "residential_rate_per_1000":   str(args.res_rate) if args.res_rate else "",
-    "median_annual_tax_bill":      str(args.med_tax) if args.med_tax else "",
+    "residential_rate_per_1000":   str(res_rate_val) if res_rate_val is not None else "",
+    "median_annual_tax_bill":      str(int(med_tax_val)) if med_tax_val is not None else "",
     "median_household_income":     str(med_inc) if med_inc else "",
     "district_state_rank":         str(d_rank) if d_rank else "",
     "district_state_rank_total":   str(d_total) if d_total else "351",
@@ -311,9 +343,9 @@ fields = {
     "pension":    _js(args.pension),
     "debt_pc":    _js(debt_pc_val),
     "eff_rate":   _js(args.eff_rate),
-    "med_tax":    _js(args.med_tax),
+    "med_tax":    _js(med_tax_val),
     "med_inc":    _js(med_inc),
-    "res_rate":   _js(args.res_rate),
+    "res_rate":   _js(res_rate_val),
     "d_rank":     _js(d_rank),
     "d_total":    _js(d_total, "351"),
     "d_10yr":     "null",
@@ -358,14 +390,20 @@ if free_cash_val: print(f"    free cash: {free_cash_val}%")
 else:             print(f"    free cash: not in Excel bulk")
 if debt_pc_val:   print(f"    debt/capita: ${debt_pc_val:,.0f}")
 else:             print(f"    debt/capita: not in Excel bulk")
+src = "CLI flag" if args.med_tax is not None else ("DLS bulk" if med_tax_bulk is not None else None)
+if med_tax_val is not None: print(f"    med_tax: ${med_tax_val:,} ({src})")
+else:                        print(f"    med_tax: not found in DLS bulk — needs manual lookup")
+src2 = "CLI flag" if args.res_rate is not None else ("MMA bulk" if res_rate_bulk is not None else None)
+if res_rate_val is not None: print(f"    res_rate: {res_rate_val} ({src2})")
+else:                         print(f"    res_rate: not found in MMA bulk — needs manual lookup")
 
 print("\n  Still needs manual lookup (or will default to null):")
 missing = []
-if not args.bond:      missing.append("bond_rating (S&P MFOB or Moody's)")
-if not args.pension:   missing.append("pension_funded_ratio_pct (PERAC)")
-if not args.eff_rate:  missing.append("effective_tax_rate_pct (DLS Gateway)")
-if not args.res_rate:  missing.append("residential_rate_per_1000 (DLS Gateway)")
-if not args.med_tax:   missing.append("median_annual_tax_bill (DLS)")
+if not args.bond:            missing.append("bond_rating (S&P MFOB or Moody's)")
+if not args.pension:         missing.append("pension_funded_ratio_pct (PERAC)")
+if not args.eff_rate:        missing.append("effective_tax_rate_pct (DLS Gateway)")
+if res_rate_val is None:     missing.append("residential_rate_per_1000 (MMA bulk missing — check MMA CSV spelling)")
+if med_tax_val is None:      missing.append("median_annual_tax_bill (DLS bulk missing — check DLS xlsx spelling)")
 if not args.violent:   missing.append("violent_crime_per_100k (beyond2020.com)")
 if not args.prop_crime: missing.append("property_crime_per_100k (beyond2020.com)")
 if not args.flood:     missing.append("flood_risk_pct (RiskFactor.com)")
