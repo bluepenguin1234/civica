@@ -2729,7 +2729,7 @@ function buildPDFHTML(t){
       ${mrow('Median Tax Bill',t.med_tax!=null?'$'+t.med_tax.toLocaleString():null,'na')}
       ${mrow('Median Household Income',t.med_inc!=null?'$'+t.med_inc.toLocaleString():null,'na')}
       ${mrow('School District Rank',t.d_rank!=null?'#'+t.d_rank+'/351':null,G('d_rank',t.d_rank))}
-      ${mrow('10-Year Rank Change',t.d_10yr||null,t.d_10yr&&!t.d_10yr.includes('decl')?'green':'yellow')}
+      ${mrow('10-Year Rank Change',t.d_10yr!=null?(t.d_10yr>0?'+':'')+t.d_10yr:null,t.d_10yr!=null?(t.d_10yr<=0?'green':'yellow'):'na')}
       ${mrow('Math Proficiency',t.math!=null?t.math+'%':null,G('math',t.math))}
       ${mrow('Graduation Rate',t.grad!=null?t.grad+'%':null,G('grad',t.grad))}
       ${mrow('AP Enrollment',t.ap!=null?t.ap+'%':null,'na')}
