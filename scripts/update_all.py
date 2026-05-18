@@ -230,31 +230,165 @@ BOND_UPDATES = {
     "Tyngsborough": "AA+",   # S&P 2024, 8th consecutive year
 }
 
-# Pension funded ratios (PERAC data)
-ESSEX_REGIONAL_PENSION = 53.79  # covers 18 Essex County towns
-PENSION_UPDATES = {
-    "Lawrence":              65.0,
-    "Haverhill":             69.4,
-    "Uxbridge":              51.9,
-    "Ipswich":               ESSEX_REGIONAL_PENSION,
-    "Lynnfield":             ESSEX_REGIONAL_PENSION,
-    "Rockport":              ESSEX_REGIONAL_PENSION,
-    "Manchester-by-the-Sea": ESSEX_REGIONAL_PENSION,
-    "Boxford":               ESSEX_REGIONAL_PENSION,
-    "Hamilton":              ESSEX_REGIONAL_PENSION,
-    "Georgetown":            ESSEX_REGIONAL_PENSION,
-    "Middleton":             ESSEX_REGIONAL_PENSION,
-    "Salisbury":             ESSEX_REGIONAL_PENSION,
-    "Topsfield":             ESSEX_REGIONAL_PENSION,
-    "Merrimac":              ESSEX_REGIONAL_PENSION,
-    "Groveland":             ESSEX_REGIONAL_PENSION,
-    "Newbury":               ESSEX_REGIONAL_PENSION,
-    "West Newbury":          ESSEX_REGIONAL_PENSION,
-    "Rowley":                ESSEX_REGIONAL_PENSION,
-    "Nahant":                ESSEX_REGIONAL_PENSION,
-    "Wenham":                ESSEX_REGIONAL_PENSION,
-    "Essex":                 ESSEX_REGIONAL_PENSION,
+# Pension funded ratios — loaded from PERAC bulk file
+# Town → PERAC system name (only needed where they differ or use a regional system)
+TOWN_PENSION_SYSTEM = {
+    # Essex Regional (covers towns without own Essex County systems)
+    "Ipswich":               "Essex Regional",
+    "Lynnfield":             "Essex Regional",
+    "Rockport":              "Essex Regional",
+    "Manchester-by-the-Sea": "Essex Regional",
+    "Boxford":               "Essex Regional",
+    "Hamilton":              "Essex Regional",
+    "Georgetown":            "Essex Regional",
+    "Middleton":             "Essex Regional",
+    "Salisbury":             "Essex Regional",
+    "Topsfield":             "Essex Regional",
+    "Merrimac":              "Essex Regional",
+    "Groveland":             "Essex Regional",
+    "Newbury":               "Essex Regional",
+    "West Newbury":          "Essex Regional",
+    "Rowley":                "Essex Regional",
+    "Nahant":                "Essex Regional",
+    "Wenham":                "Essex Regional",
+    "Essex":                 "Essex Regional",
+    # Barnstable County (Cape Cod towns without own systems)
+    "Barnstable":            "Barnstable County",
+    "Sandwich":              "Barnstable County",
+    "Yarmouth":              "Barnstable County",
+    "Dennis":                "Barnstable County",
+    "Harwich":               "Barnstable County",
+    "Chatham":               "Barnstable County",
+    "Brewster":              "Barnstable County",
+    "Orleans":               "Barnstable County",
+    "Mashpee":               "Barnstable County",
+    "Provincetown":          "Barnstable County",
+    # Norfolk County (towns without own systems)
+    "Walpole":               "Norfolk County",
+    "Sharon":                "Norfolk County",
+    "Franklin":              "Norfolk County",
+    "Foxborough":            "Norfolk County",
+    "Medfield":              "Norfolk County",
+    "Westwood":              "Norfolk County",
+    "Canton":                "Norfolk County",
+    "Randolph":              "Norfolk County",
+    "Medway":                "Norfolk County",
+    "Millis":                "Norfolk County",
+    "Bellingham":            "Norfolk County",
+    "Wrentham":              "Norfolk County",
+    "Plainville":            "Norfolk County",
+    "Norfolk":               "Norfolk County",
+    "Dover":                 "Norfolk County",
+    "Sherborn":              "Norfolk County",
+    "Stoughton":             "Norfolk County",
+    # Plymouth County (towns without own systems)
+    "Abington":              "Plymouth County",
+    "Whitman":               "Plymouth County",
+    "Rockland":              "Plymouth County",
+    "Middleborough":         "Plymouth County",
+    "Wareham":               "Plymouth County",
+    "Bridgewater":           "Plymouth County",
+    "East Bridgewater":      "Plymouth County",
+    "West Bridgewater":      "Plymouth County",
+    "Carver":                "Plymouth County",
+    "Hanover":               "Plymouth County",
+    "Marshfield":            "Plymouth County",
+    "Duxbury":               "Plymouth County",
+    "Scituate":              "Plymouth County",
+    "Norwell":               "Plymouth County",
+    "Kingston":              "Plymouth County",
+    "Pembroke":              "Plymouth County",
+    "Cohasset":              "Plymouth County",
+    "Marion":                "Plymouth County",
+    # Middlesex County (towns without own systems)
+    "Acton":                 "Middlesex County",
+    "Ashland":               "Middlesex County",
+    "Billerica":             "Middlesex County",
+    "Bolton":                "Middlesex County",
+    "Burlington":            "Middlesex County",
+    "Carlisle":              "Middlesex County",
+    "Chelmsford":            "Middlesex County",
+    "Dracut":                "Middlesex County",
+    "Groton":                "Middlesex County",
+    "Harvard":               "Middlesex County",
+    "Holliston":             "Middlesex County",
+    "Hopkinton":             "Middlesex County",
+    "Hudson":                "Middlesex County",
+    "Lincoln":               "Middlesex County",
+    "Littleton":             "Middlesex County",
+    "Pepperell":             "Middlesex County",
+    "Stow":                  "Middlesex County",
+    "Sudbury":               "Middlesex County",
+    "Tewksbury":             "Middlesex County",
+    "Townsend":              "Middlesex County",
+    "Tyngsborough":          "Middlesex County",
+    "Wayland":               "Middlesex County",
+    "Westford":              "Middlesex County",
+    "Wilmington":            "Middlesex County",
+    "Boxborough":            "Middlesex County",
+    "Ayer":                  "Middlesex County",
+    "Bedford":               "Middlesex County",
+    # Hampshire County
+    "Amherst":               "Hampshire County",
+    "South Hadley":          "Hampshire County",
+    # Hampden County
+    "Agawam":                "Hampden County",
+    "Longmeadow":            "Hampden County",
+    "East Longmeadow":       "Hampden County",
+    "Ludlow":                "Hampden County",
+    # Worcester Regional
+    "Uxbridge":              "Worcester Regional",
+    "Grafton":               "Worcester Regional",
+    "Northborough":          "Worcester Regional",
+    "Southborough":          "Worcester Regional",
+    "Upton":                 "Worcester Regional",
+    "Millbury":              "Worcester Regional",
+    "Leicester":             "Worcester Regional",
+    "Oxford":                "Worcester Regional",
+    "Charlton":              "Worcester Regional",
+    "Sturbridge":            "Worcester Regional",
+    "Sterling":              "Worcester Regional",
+    "Holden":                "Worcester Regional",
+    "Lancaster":             "Worcester Regional",
+    "Spencer":               "Worcester Regional",
+    "Auburn":                "Worcester Regional",
+    # Bristol County (towns without own systems)
+    "Dartmouth":             "Bristol County",
+    "Easton":                "Bristol County",
+    "Mansfield":             "Bristol County",
+    "Norton":                "Bristol County",
+    "Raynham":               "Bristol County",
+    "Rehoboth":              "Bristol County",
+    "Seekonk":               "Bristol County",
+    "Somerset":              "Bristol County",
+    "Swansea":               "Bristol County",
+    # Additional Middlesex County towns
+    "Weston":                "Middlesex County",
+    # Additional Worcester Regional towns
+    "Mendon":                "Worcester Regional",
+    "Westborough":           "Worcester Regional",
+    "Sutton":                "Worcester Regional",
+    # North Andover uses Essex Regional (no own board)
+    "North Andover":         "Essex Regional",
+    # PERAC system name differs from Civica town name
+    "North Attleborough":    "North Attleboro",
+    "Boston":                "Boston (City)",
 }
+
+print("Loading PERAC pension bulk file...")
+PENSION_BULK = {}
+_perac_path = BULK / "perac_funded_ratios_2024.csv"
+if _perac_path.exists():
+    for _row in csv.DictReader(open(_perac_path, encoding="utf-8")):
+        PENSION_BULK[_row["system_name"]] = float(_row["funded_ratio_pct"])
+    print(f"  {len(PENSION_BULK)} retirement systems loaded")
+else:
+    print(f"  WARNING: {_perac_path.name} not found — pension will not auto-fill")
+
+def get_pension(town):
+    """Return PERAC funded ratio for a town, or None if unknown."""
+    system = TOWN_PENSION_SYSTEM.get(town, town)
+    return PENSION_BULK.get(system)
 
 # GFOA consecutive years confirmed
 GFOA_UPDATES = {
@@ -759,7 +893,7 @@ for row in rows:
 
     # 4. Agent data — fill gaps only
     setf_if_empty(row, "bond_rating_sp",                  BOND_UPDATES.get(town))
-    setf_if_empty(row, "pension_funded_ratio_pct",         PENSION_UPDATES.get(town))
+    setf_if_empty(row, "pension_funded_ratio_pct",         get_pension(town))
     setf_if_empty(row, "gfoa_certificate_consecutive_years", GFOA_UPDATES.get(town))
     setf_if_empty(row, "free_cash_pct_of_budget",          FREE_CASH_UPDATES.get(town))
     setf_if_empty(row, "district_rank_10yr_change",        RANK_CHANGE_UPDATES.get(town))

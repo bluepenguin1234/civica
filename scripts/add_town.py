@@ -217,6 +217,69 @@ if zhvi_path.exists():
                 except: pass
                 break
 
+# PERAC pension funded ratios
+TOWN_PENSION_SYSTEM = {
+    "Ipswich":"Essex Regional","Lynnfield":"Essex Regional","Rockport":"Essex Regional",
+    "Manchester-by-the-Sea":"Essex Regional","Boxford":"Essex Regional","Hamilton":"Essex Regional",
+    "Georgetown":"Essex Regional","Middleton":"Essex Regional","Salisbury":"Essex Regional",
+    "Topsfield":"Essex Regional","Merrimac":"Essex Regional","Groveland":"Essex Regional",
+    "Newbury":"Essex Regional","West Newbury":"Essex Regional","Rowley":"Essex Regional",
+    "Nahant":"Essex Regional","Wenham":"Essex Regional","Essex":"Essex Regional",
+    "Barnstable":"Barnstable County","Sandwich":"Barnstable County","Yarmouth":"Barnstable County",
+    "Dennis":"Barnstable County","Harwich":"Barnstable County","Chatham":"Barnstable County",
+    "Brewster":"Barnstable County","Orleans":"Barnstable County","Mashpee":"Barnstable County",
+    "Provincetown":"Barnstable County",
+    "Walpole":"Norfolk County","Sharon":"Norfolk County","Franklin":"Norfolk County",
+    "Foxborough":"Norfolk County","Medfield":"Norfolk County","Westwood":"Norfolk County",
+    "Canton":"Norfolk County","Randolph":"Norfolk County","Medway":"Norfolk County",
+    "Millis":"Norfolk County","Bellingham":"Norfolk County","Wrentham":"Norfolk County",
+    "Plainville":"Norfolk County","Norfolk":"Norfolk County","Dover":"Norfolk County",
+    "Sherborn":"Norfolk County","Stoughton":"Norfolk County",
+    "Abington":"Plymouth County","Whitman":"Plymouth County","Rockland":"Plymouth County",
+    "Middleborough":"Plymouth County","Wareham":"Plymouth County","Bridgewater":"Plymouth County",
+    "East Bridgewater":"Plymouth County","West Bridgewater":"Plymouth County","Carver":"Plymouth County",
+    "Hanover":"Plymouth County","Marshfield":"Plymouth County","Duxbury":"Plymouth County",
+    "Scituate":"Plymouth County","Norwell":"Plymouth County","Kingston":"Plymouth County",
+    "Pembroke":"Plymouth County","Cohasset":"Plymouth County","Marion":"Plymouth County",
+    "Acton":"Middlesex County","Ashland":"Middlesex County","Billerica":"Middlesex County",
+    "Bolton":"Middlesex County","Burlington":"Middlesex County","Carlisle":"Middlesex County",
+    "Chelmsford":"Middlesex County","Dracut":"Middlesex County","Groton":"Middlesex County",
+    "Harvard":"Middlesex County","Holliston":"Middlesex County","Hopkinton":"Middlesex County",
+    "Hudson":"Middlesex County","Lincoln":"Middlesex County","Littleton":"Middlesex County",
+    "Pepperell":"Middlesex County","Stow":"Middlesex County","Sudbury":"Middlesex County",
+    "Tewksbury":"Middlesex County","Townsend":"Middlesex County","Tyngsborough":"Middlesex County",
+    "Wayland":"Middlesex County","Westford":"Middlesex County","Wilmington":"Middlesex County",
+    "Boxborough":"Middlesex County","Ayer":"Middlesex County","Bedford":"Middlesex County",
+    "Amherst":"Hampshire County","South Hadley":"Hampshire County",
+    "Agawam":"Hampden County","Longmeadow":"Hampden County",
+    "East Longmeadow":"Hampden County","Ludlow":"Hampden County",
+    "Uxbridge":"Worcester Regional","Grafton":"Worcester Regional","Northborough":"Worcester Regional",
+    "Southborough":"Worcester Regional","Upton":"Worcester Regional","Millbury":"Worcester Regional",
+    "Leicester":"Worcester Regional","Oxford":"Worcester Regional","Charlton":"Worcester Regional",
+    "Sturbridge":"Worcester Regional","Sterling":"Worcester Regional","Holden":"Worcester Regional",
+    "Lancaster":"Worcester Regional","Spencer":"Worcester Regional","Auburn":"Worcester Regional",
+    "North Attleborough":"North Attleboro","Boston":"Boston (City)",
+    # Bristol County (towns without own systems)
+    "Dartmouth":"Bristol County","Easton":"Bristol County","Mansfield":"Bristol County",
+    "Norton":"Bristol County","Raynham":"Bristol County","Rehoboth":"Bristol County",
+    "Seekonk":"Bristol County","Somerset":"Bristol County","Swansea":"Bristol County",
+    # Additional Middlesex County towns
+    "Weston":"Middlesex County",
+    # Additional Worcester Regional towns
+    "Mendon":"Worcester Regional","Westborough":"Worcester Regional","Sutton":"Worcester Regional",
+    # North Andover uses Essex Regional (no own board)
+    "North Andover":"Essex Regional",
+}
+pension_bulk = None
+perac_path = BULK / "perac_funded_ratios_2024.csv"
+if perac_path.exists():
+    system_name = TOWN_PENSION_SYSTEM.get(town, town)
+    for _row in csv.DictReader(open(perac_path, encoding="utf-8")):
+        if _row["system_name"] == system_name:
+            try: pension_bulk = float(_row["funded_ratio_pct"])
+            except: pass
+            break
+
 # ─── Regional school districts ────────────────────────────────────────────────
 DISTRICT_MAP = {
     "Boxford": "masconomet", "Topsfield": "masconomet", "Middleton": "masconomet",
@@ -283,6 +346,7 @@ med_tax_val  = args.med_tax  if args.med_tax  is not None else med_tax_bulk
 res_rate_val = args.res_rate if args.res_rate is not None else res_rate_bulk
 eff_rate_val = args.eff_rate if args.eff_rate is not None else (round(res_rate_val / 10, 3) if res_rate_val is not None else None)
 zhvi_val     = int(args.zhvi) if args.zhvi is not None else zhvi_bulk
+pension_val  = args.pension  if args.pension  is not None else pension_bulk
 
 ha_ratio = round(zhvi_val / med_inc, 2) if med_inc and zhvi_val else None
 
@@ -320,7 +384,7 @@ new_row.update({
     "population":                  str(pop) if pop else "",
     "bond_rating_sp":              args.bond or "",
     "free_cash_pct_of_budget":     str(free_cash_val) if free_cash_val else "",
-    "pension_funded_ratio_pct":    str(args.pension) if args.pension else "",
+    "pension_funded_ratio_pct":    str(pension_val) if pension_val is not None else "",
     "debt_per_capita":             str(debt_pc_val) if debt_pc_val else "",
     "effective_tax_rate_pct":      str(eff_rate_val) if eff_rate_val is not None else "",
     "residential_rate_per_1000":   str(res_rate_val) if res_rate_val is not None else "",
@@ -365,7 +429,7 @@ fields = {
     "pop":        _js(pop),
     "bond":       f'"{args.bond}"' if args.bond else "null",
     "free_cash":  _js(free_cash_val),
-    "pension":    _js(args.pension),
+    "pension":    _js(pension_val),
     "debt_pc":    _js(debt_pc_val),
     "eff_rate":   _js(eff_rate_val),
     "med_tax":    _js(med_tax_val),
@@ -427,11 +491,15 @@ else:                         print(f"    eff_rate: not computed — res_rate mi
 src4 = "CLI flag" if args.zhvi is not None else ("Zillow bulk" if zhvi_bulk is not None else None)
 if zhvi_val is not None: print(f"    zhvi: ${zhvi_val:,} ({src4})")
 else:                     print(f"    zhvi: not found in Zillow bulk — pass --zhvi manually")
+sys_name = TOWN_PENSION_SYSTEM.get(town, town)
+src5 = "CLI flag" if args.pension is not None else (f"PERAC bulk ({sys_name})" if pension_bulk is not None else None)
+if pension_val is not None: print(f"    pension: {pension_val}% ({src5})")
+else:                        print(f"    pension: not in PERAC bulk map — needs manual lookup or add to TOWN_PENSION_SYSTEM")
 
 print("\n  Still needs manual lookup (or will default to null):")
 missing = []
 if not args.bond:            missing.append("bond_rating (S&P MFOB or Moody's)")
-if not args.pension:         missing.append("pension_funded_ratio_pct (PERAC)")
+if pension_val is None:      missing.append("pension_funded_ratio_pct (PERAC) — not in bulk map; check TOWN_PENSION_SYSTEM")
 if eff_rate_val is None:     missing.append("effective_tax_rate_pct (DLS Gateway) — only needed if res_rate also missing")
 if res_rate_val is None:     missing.append("residential_rate_per_1000 (MMA bulk missing — check MMA CSV spelling)")
 if med_tax_val is None:      missing.append("median_annual_tax_bill (DLS bulk missing — check DLS xlsx spelling)")
