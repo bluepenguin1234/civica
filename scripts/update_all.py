@@ -328,6 +328,7 @@ TOWN_PENSION_SYSTEM = {
     "Boxborough":            "Middlesex County",
     "Ayer":                  "Middlesex County",
     "Bedford":               "Middlesex County",
+    "North Reading":         "Middlesex County",
     # Hampshire County
     "Amherst":               "Hampshire County",
     "South Hadley":          "Hampshire County",
@@ -893,7 +894,11 @@ for row in rows:
 
     # 4. Agent data — fill gaps only
     setf_if_empty(row, "bond_rating_sp",                  BOND_UPDATES.get(town))
-    setf_if_empty(row, "pension_funded_ratio_pct",         get_pension(town))
+    _pension_bulk = get_pension(town)
+    if _pension_bulk is not None:
+        setf(row, "pension_funded_ratio_pct", _pension_bulk)   # bulk overrides stale manual values
+    else:
+        setf_if_empty(row, "pension_funded_ratio_pct", None)
     setf_if_empty(row, "gfoa_certificate_consecutive_years", GFOA_UPDATES.get(town))
     setf_if_empty(row, "free_cash_pct_of_budget",          FREE_CASH_UPDATES.get(town))
     setf_if_empty(row, "district_rank_10yr_change",        RANK_CHANGE_UPDATES.get(town))

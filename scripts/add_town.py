@@ -250,6 +250,7 @@ TOWN_PENSION_SYSTEM = {
     "Tewksbury":"Middlesex County","Townsend":"Middlesex County","Tyngsborough":"Middlesex County",
     "Wayland":"Middlesex County","Westford":"Middlesex County","Wilmington":"Middlesex County",
     "Boxborough":"Middlesex County","Ayer":"Middlesex County","Bedford":"Middlesex County",
+    "North Reading":"Middlesex County",
     "Amherst":"Hampshire County","South Hadley":"Hampshire County",
     "Agawam":"Hampden County","Longmeadow":"Hampden County",
     "East Longmeadow":"Hampden County","Ludlow":"Hampden County",

@@ -1,106 +1,105 @@
 system_name,funded_ratio_pct
-Adams,9.67
-Amesbury,9.43
-Andover,9.43
-Arlington,9.49
-Attleboro,9.81
-Barnstable County,9.35
-Belmont,8.58
-Berkshire County,9.63
-Beverly,9.57
-Blue Hills Regional Vocational School,9.41
-Boston (City),8.33
-Boston (Teachers),9.56
-Braintree,11.25
-Bristol County,8.18
-Brockton,9.64
-Brookline,9.5
-Cambridge,9.74
-Chelsea,9.69
-Chicopee,11.6
-Clinton,9.6
-Concord,8.93
-Danvers,13.17
-Dedham,9.71
-Dukes County,9.03
-Easthampton,9.47
-Essex Regional,9.04
-Everett,9.71
-Fairhaven,9.55
-Fall River,9.48
-Falmouth,6.1
-Fitchburg,9.47
-Framingham,9.68
-Franklin Regional,9.12
-Gardner,9.59
-Gloucester,9.68
-Greater Lawrence Sanitary District,19.92
-Greenfield,9.58
-Hampden County,9.56
-Hampshire County,8.6
-Haverhill,9.15
-Hingham,9.64
-Holyoke,5.56
-Hull,8.96
-Lawrence,9.41
-Leominster,9.63
-Lexington,17.11
-Lowell,9.55
-Lynn,9.2
-MHFA (Mass. Housing Finance Agency),8.41
-MTRS (Mass. Teachers),9.64
-MWRA,8.97
-Malden,15.39
-Marblehead,9.61
-Marlborough,7.52
-MassPort,9.08
-Maynard,13.74
-Medford,8.96
-Melrose,9.37
-Methuen,9.67
-Middlesex County,9.29
-Milford,9.24
-Milton,9.58
-Minuteman Regional School District,9.32
-Montague,9.59
-Natick,10.97
-Needham,9.47
-New Bedford,11.46
-Newburyport,9.7
-Newton,9.49
-Norfolk County,9.8
-North Adams,15.74
-North Attleboro,10.78
-Northampton,14.78
-Northbridge,9.8
-Norwood,7.11
-Peabody,9.88
-Pittsfield,9.5
-Plymouth,9.67
-Plymouth County,9.82
-Quincy,8.6
-Reading,9.78
-Revere,9.49
-Salem,9.36
-Saugus,9.21
-Shrewsbury,9.1
-Somerville,15.38
-Southbridge,9.56
-Springfield,9.79
-State,9.64
-Stoneham,9.15
-Swampscott,8.55
-Taunton,10.26
-Wakefield,9.61
-Waltham,11.94
-Watertown,9.37
-Webster,9.74
-Wellesley,9.59
-West Springfield,14.46
-Westfield,8.45
-Weymouth,8.47
-Winchester,9.61
-Winthrop,9.48
-Woburn,9.47
-Worcester,9.31
-Worcester Regional,9.36
+Adams,69.9
+Amesbury,64.5
+Andover,95.6
+Arlington,66.8
+Attleboro,69.8
+Barnstable County,66.9
+Belmont,76.1
+Berkshire County,95.4
+Beverly,75.3
+Blue Hills Regional Vocational School,87.1
+Boston (City),85.8
+Braintree,73.8
+Bristol County,66.0
+Brockton,88.2
+Brookline,74.4
+Cambridge,91.7
+Chelsea,87.0
+Chicopee,90.9
+Clinton,76.3
+Concord,93.1
+Danvers,64.5
+Dedham,93.2
+Dukes County,86.3
+Easthampton,77.0
+Essex Regional,63.3
+Everett,81.5
+Fairhaven,84.6
+Fall River,50.9
+Falmouth,73.2
+Fitchburg,56.9
+Framingham,83.4
+Franklin Regional,79.3
+Gardner,66.2
+Gloucester,60.4
+Greater Lawrence Sanitary District,106.9
+Greenfield,66.6
+Hampden County,54.7
+Hampshire County,75.1
+Haverhill,69.4
+Hingham,78.8
+Holyoke,81.5
+Hull,82.8
+Lawrence,63.6
+Leominster,101.3
+Lexington,82.3
+Lowell,63.6
+Lynn,65.5
+MHFA,93.3
+MTRS,60.4
+MWRA,88.9
+Malden,81.3
+Marblehead,71.5
+Marlborough,84.1
+MassPort,96.4
+Maynard,80.3
+Medford,69.7
+Melrose,65.2
+Methuen,69.2
+Middlesex County,57.5
+Milford,70.3
+Milton,98.4
+Minuteman Regional School District,99.7
+Montague,83.3
+Natick,70.4
+Needham,76.8
+New Bedford,54.5
+Newburyport,75.5
+Newton,64.2
+Norfolk County,70.7
+North Adams,84.8
+North Attleboro,77.7
+Northampton,75.1
+Northbridge,85.4
+Norwood,76.3
+Peabody,59.5
+Pittsfield,55.9
+Plymouth,59.3
+Plymouth County,67.5
+Quincy,92.6
+Reading,77.5
+Revere,70.5
+Salem,73.5
+Saugus,91.2
+Shrewsbury,94.4
+Somerville,75.1
+Southbridge,81.3
+Springfield,40.1
+State,72.5
+Stoneham,91.6
+Swampscott,70.1
+Taunton,80.2
+Wakefield,73.9
+Waltham,67.0
+Watertown,100.2
+Webster,69.5
+Wellesley,90.3
+West Springfield,72.1
+Westfield,78.4
+Weymouth,72.1
+Winchester,92.2
+Winthrop,102.1
+Woburn,66.4
+Worcester,76.6
+Worcester Regional,51.9
