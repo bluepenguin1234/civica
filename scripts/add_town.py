@@ -4,12 +4,13 @@ Add a single new MA town to towns.csv and civica-v5.html in one command.
 Auto-fills from bulk data: census (income, pop, education), schools (math%, grad%, AP%),
 free-cash Excel, debt Excel, district rank from bulk composite, median tax bill from
 DLS community comparison (med_tax), residential rate from MMA directory (res_rate),
-and effective tax rate (eff_rate = res_rate / 10, computed automatically).
+effective tax rate (eff_rate = res_rate / 10, computed automatically), and median home
+value (zhvi from Zillow city ZHVI bulk file).
 
 Usage:
   py scripts/add_town.py "Northampton" ^
       --lat 42.3251 --lng -72.6412 ^
-      --zip "01060,01062" --zhvi 470000 --county Hampshire ^
+      --zip "01060,01062" --county Hampshire ^
       --transit "none"
 
 Required:
@@ -17,13 +18,13 @@ Required:
   --lat              Latitude
   --lng              Longitude
   --zip              Zip code(s), comma-separated if multiple
-  --zhvi             Median home value in dollars (Zillow ZHVI)
   --county           County name
 
 Optional (can be added later / updated by update_all.py):
   --transit          commuter_rail_in_town | commuter_rail_nearby | bus_only | none
   --bond             S&P bond rating (AAA, AA+, AA, AA-, A+, A, etc.)
   --pension          Pension funded ratio (%)
+  --zhvi             Median home value $ (auto-filled from Zillow bulk; this flag overrides)
   --eff-rate         Effective tax rate (%) (auto-computed as res_rate/10; this flag overrides)
   --res-rate         Residential rate per $1000 (auto-filled from MMA bulk; this flag overrides)
   --med-tax          Median annual tax bill ($) (auto-filled from DLS bulk; this flag overrides)
@@ -53,7 +54,7 @@ ap.add_argument("town", help="Town name")
 ap.add_argument("--lat",        type=float, required=True)
 ap.add_argument("--lng",        type=float, required=True)
 ap.add_argument("--zip",        required=True, dest="zip_codes")
-ap.add_argument("--zhvi",       type=float, required=True, help="Median home value (Zillow)")
+ap.add_argument("--zhvi",       type=float, default=None, help="Median home value (Zillow ZHVI) — auto-filled from bulk if omitted")
 ap.add_argument("--county",     required=True)
 ap.add_argument("--transit",    default="none")
 ap.add_argument("--bond",       default="")
@@ -195,6 +196,27 @@ if mma_path.exists():
             except: pass
             break
 
+# Zillow ZHVI (city-level bulk file)
+ZILLOW_NAME_MAP = {
+    "Manchester-by-the-Sea": "Manchester",
+    "North Attleborough":    "North Attleboro",
+    "Tyngsborough":          "Tyngsboro",
+    "Boxborough":            "Boxboro",
+}
+zhvi_bulk = None
+zhvi_path = BULK / "zillow_zhvi_city_2026.csv"
+if zhvi_path.exists():
+    zillow_name = ZILLOW_NAME_MAP.get(town, town)
+    with open(zhvi_path, encoding="utf-8") as _f:
+        _reader = csv.DictReader(_f)
+        _date_cols = [h for h in _reader.fieldnames if h[:2] == "20"]
+        _last_col  = _date_cols[-1]
+        for _row in _reader:
+            if _row.get("State") == "MA" and _row["RegionName"] == zillow_name and _row.get(_last_col):
+                try: zhvi_bulk = int(float(_row[_last_col]))
+                except: pass
+                break
+
 # ─── Regional school districts ────────────────────────────────────────────────
 DISTRICT_MAP = {
     "Boxford": "masconomet", "Topsfield": "masconomet", "Middleton": "masconomet",
@@ -257,7 +279,12 @@ math  = float(sc["mcas_math_pct"])       if sc and sc.get("mcas_math_pct") else 
 grad  = float(sc["graduation_rate_pct"]) if sc and sc.get("graduation_rate_pct") else None
 ap    = float(sc["ap_participation_pct"]) if sc and sc.get("ap_participation_pct") else None
 
-ha_ratio = round(args.zhvi / med_inc, 2) if med_inc and args.zhvi else None
+med_tax_val  = args.med_tax  if args.med_tax  is not None else med_tax_bulk
+res_rate_val = args.res_rate if args.res_rate is not None else res_rate_bulk
+eff_rate_val = args.eff_rate if args.eff_rate is not None else (round(res_rate_val / 10, 3) if res_rate_val is not None else None)
+zhvi_val     = int(args.zhvi) if args.zhvi is not None else zhvi_bulk
+
+ha_ratio = round(zhvi_val / med_inc, 2) if med_inc and zhvi_val else None
 
 TRANSIT_DISPLAY = {
     "commuter_rail_in_town": "Commuter Rail (in town)",
@@ -267,10 +294,6 @@ TRANSIT_DISPLAY = {
     "no":                    "None",
 }
 transit_disp = TRANSIT_DISPLAY.get(args.transit.lower().strip(), args.transit)
-
-med_tax_val  = args.med_tax  if args.med_tax  is not None else med_tax_bulk
-res_rate_val = args.res_rate if args.res_rate is not None else res_rate_bulk
-eff_rate_val = args.eff_rate if args.eff_rate is not None else (round(res_rate_val / 10, 3) if res_rate_val is not None else None)
 
 def _js_num(v):  return str(v) if v is not None else "null"
 def _js_str(v):  return f'"{v}"' if v else "null"
@@ -374,7 +397,7 @@ fields = {
     "ter_r":      '"N/A"',
     "gaps":       "99",
     "conf":       '"low"',
-    "med_home_val": str(int(args.zhvi)),
+    "med_home_val": str(zhvi_val) if zhvi_val else "null",
     "commute":    _js(args.commute),
 }
 
@@ -401,6 +424,9 @@ else:                         print(f"    res_rate: not found in MMA bulk — ne
 src3 = "CLI flag" if args.eff_rate is not None else ("computed from res_rate" if res_rate_val is not None else None)
 if eff_rate_val is not None: print(f"    eff_rate: {eff_rate_val} ({src3})")
 else:                         print(f"    eff_rate: not computed — res_rate missing; needs manual lookup")
+src4 = "CLI flag" if args.zhvi is not None else ("Zillow bulk" if zhvi_bulk is not None else None)
+if zhvi_val is not None: print(f"    zhvi: ${zhvi_val:,} ({src4})")
+else:                     print(f"    zhvi: not found in Zillow bulk — pass --zhvi manually")
 
 print("\n  Still needs manual lookup (or will default to null):")
 missing = []
@@ -409,6 +435,7 @@ if not args.pension:         missing.append("pension_funded_ratio_pct (PERAC)")
 if eff_rate_val is None:     missing.append("effective_tax_rate_pct (DLS Gateway) — only needed if res_rate also missing")
 if res_rate_val is None:     missing.append("residential_rate_per_1000 (MMA bulk missing — check MMA CSV spelling)")
 if med_tax_val is None:      missing.append("median_annual_tax_bill (DLS bulk missing — check DLS xlsx spelling)")
+if zhvi_val is None:         missing.append("med_home_val / zhvi (not in Zillow bulk — pass --zhvi XXXXXX)")
 if not args.violent:   missing.append("violent_crime_per_100k (beyond2020.com)")
 if not args.prop_crime: missing.append("property_crime_per_100k (beyond2020.com)")
 if not args.flood:     missing.append("flood_risk_pct (RiskFactor.com)")

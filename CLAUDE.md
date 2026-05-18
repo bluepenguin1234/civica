@@ -153,10 +153,10 @@ py scripts\add_town.py "TownName" `
     --transit "none"
 ```
 
-`add_town.py` auto-fills from bulk files: census (income, pop, education trends), schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), **computed district rank** (derived from bulk composite — no manual lookup needed), **median tax bill** (`med_tax` from DLS community comparison file), **residential rate** (`res_rate` from MMA municipal directory), and **effective tax rate** (`eff_rate` = `res_rate / 10`, computed automatically). It prints a list of which fields still require manual web lookup, then inserts the town into both `towns.csv` and `civica-v5.html`.
+`add_town.py` auto-fills from bulk files: census (income, pop, education trends), schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), **computed district rank** (derived from bulk composite — no manual lookup needed), **median tax bill** (`med_tax` from DLS community comparison file), **residential rate** (`res_rate` from MMA municipal directory), **effective tax rate** (`eff_rate` = `res_rate / 10`, computed automatically), and **median home value** (`zhvi` from Zillow city ZHVI bulk file). It prints a list of which fields still require manual web lookup, then inserts the town into both `towns.csv` and `civica-v5.html`.
 
 **After running `add_town.py`:**
-1. Look up the flagged manual fields (bond rating, pension, crime stats, flood risk)
+1. Look up the flagged manual fields (bond rating, pension, crime stats, flood risk) — zhvi, eff_rate, res_rate, med_tax are now all auto-filled
 2. Add them to `towns.csv` or pass them as flags to the script (see `--bond`, `--violent`, etc.)
 3. Run `py scripts\update_all.py` to score and patch HTML
 4. Validate: run the Node.js syntax check (Section 15, Rule 6)
@@ -274,6 +274,7 @@ Use these to make good UX and feature prioritization decisions.
 | `data/bulk/municipaldebt2022.xlsx` | `debt_pc` |
 | `data/bulk/dls-community-comparison-fy2025.xlsx.xlsx` | `med_tax` (FY 2025 single-family tax bill) |
 | `data/bulk/mma-municipal-directory-2026.csv.csv` | `res_rate` (residential tax rate per $1,000) |
+| `data/bulk/zillow_zhvi_city_2026.csv` | `med_home_val` / `zhvi` (Zillow ZHVI, April 2026, 356 MA towns) |
 
 ### Web lookups — only for fields not in bulk files
 
@@ -283,7 +284,7 @@ Use these to make good UX and feature prioritization decisions.
 | Bond ratings (`bond`) | EMMA / MSRB (emma.msrb.org) | As published |
 | Pension funded % (`pension`) | MA PERAC annual report | Annual |
 | Crime rates (`violent`, `prop_crime`) | FBI UCR / MA EOPSS | Annual |
-| Home values (`med_home_val`) | Zillow ZHVI preferred; Census ACS as fallback. **Not in towns.csv** — update the `ZHVI` dict in `update_all.py` directly. | As needed |
+| Home values (`med_home_val`) | **Auto-filled** from `data/bulk/zillow_zhvi_city_2026.csv` by `update_all.py`. To refresh, replace the bulk file with a new Zillow download. | Annual |
 | Flood risk (`flood`, `flood50`) | First Street Foundation | Periodic |
 | Wildfire rating (`fire`) | First Street Foundation | Periodic |
 | Municipal electric savings (`elec_save`) | Confirmed MLDs only (see below) | Periodic |

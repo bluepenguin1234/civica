@@ -490,67 +490,36 @@ def setf_if_empty(row, field, value):
         row[field] = str(value)
 
 MA_ZHVI = 613049.0
-ZHVI = {
-    "Cambridge":995293,"Lynn":537825,"Lawrence":455876,"Somerville":892143,
-    "Haverhill":497568,"Medford":784462,"Peabody":652390,"Methuen":561211,
-    "Arlington":1005584,"Salem":572734,"Woburn":704405,"Chelsea":505101,
-    "Beverly":696077,"Andover":911128,"Lexington":1469802,"North Andover":760639,
-    "Saugus":650624,"Danvers":674241,"Gloucester":693415,"Wakefield":756484,
-    "Belmont":1377983,"Burlington":824833,"Reading":844034,"Winchester":1449988,
-    "Newburyport":845604,"Amesbury":570013,"Marblehead":959425,"Uxbridge":487277,
-    "Swampscott":763080,"Lynnfield":1018229,"Ipswich":790546,"Middleton":819582,
-    "Salisbury":589785,"Georgetown":708796,"Boxford":989433,"Hamilton":827397,
-    "Newbury":844611,"Groveland":648353,"Topsfield":898745,"Merrimac":597359,
-    "Rockport":834071,"Rowley":733628,"Manchester-by-the-Sea":1183983,
-    "Wenham":938834,"West Newbury":861236,"Essex":827029,"Nahant":903532,
-    "Boston":720000,"Revere":440000,"Winthrop":520000,
-    "Newton":1200000,"Waltham":720000,"Malden":545000,"Everett":530000,
-    "Watertown":840000,"Framingham":575000,"Natick":775000,
-    "Acton":840000,"Concord":1100000,"Stoneham":690000,
-    "Quincy":535000,"Braintree":640000,"Milton":970000,"Brookline":1450000,
-    "Dedham":690000,"Needham":1250000,"Wellesley":1750000,"Weymouth":530000,
-    "Canton":720000,"Norwood":580000,
-    "Hull":689098,"Hingham":1100000,"Duxbury":980000,"Scituate":850000,"Cohasset":1250000,
-    "Norwell":850000,"Hanover":660000,"Marshfield":640000,"Kingston":520000,
-    "Plymouth":540000,"Brockton":435000,
-    "Lowell":425000,"Chelmsford":595000,"Billerica":682000,"Tewksbury":593000,
-    "Wilmington":764000,"Melrose":843000,"Ashland":615000,"Marlborough":570000,
-    "Hudson":545000,"Hopkinton":877000,
-    "Walpole":620000,"Sharon":680000,"Franklin":590000,"Foxborough":540000,
-    "Medfield":870000,"Westford":730000,"Weston":1620000,"Dracut":430000,
-    "Littleton":555000,"Stoughton":475000,
-    "Shrewsbury":530000,"Westborough":620000,"Northborough":595000,
-    "Grafton":510000,"Milford":445000,
-    "Mansfield":530000,"Easton":610000,"North Attleborough":430000,
-    "Medway":570000,"Millis":520000,
-    "Sudbury":1050000,"Westwood":1050000,"Holliston":580000,"Bedford":750000,"Lincoln":1275627,
-    "Randolph":450000,"Pembroke":510000,"Northbridge":420000,"Wrentham":590000,
-    "Maynard":490000,"Tyngsborough":480000,
-    "Barnstable":580000,"Falmouth":660000,"Sandwich":575000,"Yarmouth":490000,
-    "Dennis":520000,"Harwich":640000,"Chatham":1400000,"Brewster":680000,
-    "Orleans":780000,"Mashpee":560000,"Provincetown":924274,
-    "Worcester":310000,"Leominster":375000,"Fitchburg":310000,"Auburn":400000,
-    "Holden":490000,"Southborough":790000,"Sutton":610000,"Upton":640000,
-    "Millbury":430000,"Leicester":365000,
-    "Attleboro":435000,"Taunton":395000,"New Bedford":295000,"Fall River":270000,
-    "Dartmouth":465000,"Norton":545000,"Seekonk":445000,"Raynham":470000,
-    "Rehoboth":545000,"Swansea":420000,
-    "Springfield":245000,"Northampton":470000,"Amherst":545000,"Westfield":340000,
-    "Chicopee":300000,"Holyoke":265000,"Agawam":360000,"West Springfield":315000,
-    "Longmeadow":480000,"Easthampton":375000,
-    "Abington":510000,"Whitman":455000,"Rockland":465000,"Middleborough":430000,
-    "Wareham":370000,"Bridgewater":450000,"East Bridgewater":475000,
-    "West Bridgewater":485000,"Carver":400000,"Marion":650000,
-    # Added from Census ACS med_home_val (Zillow ZHVI not yet sourced)
-    "Dover":1582164,"Sherborn":1126122,"Carlisle":1232938,"Stow":612500,
-    "Groton":722853,"Plainville":629500,"Harvard":909900,"Bolton":778260,
-    "Mendon":689000,"Wayland":1050000,"Boxborough":750000,
-    "Norfolk":725293,"Bellingham":474575,"Pepperell":581134,"Townsend":375000,
-    "Lancaster":480000,"Clinton":330000,"Sterling":475000,"Ayer":499635,
-    "Spencer":421251,"Oxford":387501,"Charlton":461465,"Sturbridge":375000,
-    "East Longmeadow":418463,"Ludlow":353403,"South Hadley":330000,
-    "Webster":400000,"Fairhaven":385000,"Somerset":385000,
+
+# Civica name → Zillow RegionName (only needed where they differ)
+ZILLOW_NAME_MAP = {
+    "Manchester-by-the-Sea": "Manchester",
+    "North Attleborough":    "North Attleboro",
+    "Tyngsborough":          "Tyngsboro",
+    "Boxborough":            "Boxboro",
 }
+
+# Load Zillow ZHVI from bulk file (most-recent month, MA cities only)
+print("Loading Zillow ZHVI bulk file...")
+ZHVI = {}
+_zhvi_path = BULK / "zillow_zhvi_city_2026.csv"
+if _zhvi_path.exists():
+    with open(_zhvi_path, encoding="utf-8") as _f:
+        _reader = csv.DictReader(_f)
+        _date_cols = [h for h in _reader.fieldnames if h[:2] == "20"]
+        _last_col  = _date_cols[-1]
+        for _row in _reader:
+            if _row.get("State") == "MA" and _row.get(_last_col):
+                try:
+                    ZHVI[_row["RegionName"]] = int(float(_row[_last_col]))
+                except: pass
+    # Apply reverse name map so Civica town names resolve correctly
+    for _civica, _zillow in ZILLOW_NAME_MAP.items():
+        if _zillow in ZHVI:
+            ZHVI[_civica] = ZHVI[_zillow]
+    print(f"  {len(ZHVI)} MA towns loaded (Zillow ZHVI as of {_last_col})")
+else:
+    print(f"  WARNING: {_zhvi_path.name} not found — med_home_val will be null")
 RATING_BANDS = [(60,"Hidden Gem"),(50,"Strong Value"),(40,"Market Rate"),(30,"Premium Town"),(0,"Luxury Market")]
 
 COUNTY_MAP = {
