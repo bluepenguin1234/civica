@@ -153,20 +153,20 @@ py scripts\add_town.py "TownName" `
     --transit "none"
 ```
 
-`add_town.py` auto-fills from bulk files: census (income, pop, education trends), schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), **computed district rank** (derived from bulk composite — no manual lookup needed), **median tax bill** (`med_tax` from DLS community comparison file), and **residential rate** (`res_rate` from MMA municipal directory). It prints a list of which fields still require manual web lookup, then inserts the town into both `towns.csv` and `civica-v5.html`.
+`add_town.py` auto-fills from bulk files: census (income, pop, education trends), schools (math%, grad%, AP%), free cash (Excel), debt/capita (Excel), **computed district rank** (derived from bulk composite — no manual lookup needed), **median tax bill** (`med_tax` from DLS community comparison file), **residential rate** (`res_rate` from MMA municipal directory), and **effective tax rate** (`eff_rate` = `res_rate / 10`, computed automatically). It prints a list of which fields still require manual web lookup, then inserts the town into both `towns.csv` and `civica-v5.html`.
 
 **After running `add_town.py`:**
-1. Look up the flagged manual fields (bond rating, pension, crime stats, effective tax rate, flood risk)
-2. Add them to `towns.csv` or pass them as flags to the script (see `--bond`, `--violent`, `--eff-rate`, etc.)
+1. Look up the flagged manual fields (bond rating, pension, crime stats, flood risk)
+2. Add them to `towns.csv` or pass them as flags to the script (see `--bond`, `--violent`, etc.)
 3. Run `py scripts\update_all.py` to score and patch HTML
 4. Validate: run the Node.js syntax check (Section 15, Rule 6)
 
 **What still needs manual lookup** for each new town:
 - Bond rating → EMMA (emma.msrb.org) or MA MFOB
 - Pension funded ratio → MA PERAC annual report
-- Effective tax rate (`eff_rate`) → MA DLS Gateway (browser download)
 - Crime stats → ma.beyond2020.com (browser download)
 - Flood risk → RiskFactor.com or First Street Foundation
+- Effective tax rate (`eff_rate`) → only needed if MMA bulk missing for the town (rare)
 
 **Town count:** Fully dynamic — `class="js-town-count"` spans auto-populate from `TOWNS.length`. No manual update ever needed.
 
@@ -288,7 +288,7 @@ Use these to make good UX and feature prioritization decisions.
 | Wildfire rating (`fire`) | First Street Foundation | Periodic |
 | Municipal electric savings (`elec_save`) | Confirmed MLDs only (see below) | Periodic |
 | Sex offender density (`sex_off`) | MA Sex Offender Registry Board | Periodic |
-| Effective tax rate (`eff_rate`) | MA DLS / town assessor | Annual |
+| Effective tax rate (`eff_rate`) | **Auto-computed** as `res_rate / 10` by `add_town.py`. Manual lookup (MA DLS / town assessor) only if MMA bulk file missing for the town. | Annual |
 | GFOA years (`gfoa`) | GFOA website | Annual |
 
 Field-level source metadata: `data/source_dictionary.csv`

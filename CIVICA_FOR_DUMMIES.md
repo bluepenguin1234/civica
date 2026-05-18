@@ -613,12 +613,12 @@ After `add_town.py` runs, collect the remaining fields:
 |---|---|
 | Bond rating | EMMA (emma.msrb.org) |
 | Pension funded ratio | MA PERAC annual report |
-| Effective tax rate (`eff_rate`) | MA DOR DLS Gateway (web — not in bulk files) |
 | Crime stats (violent, property, 5yr trend) | city-data.com → cross-check FBI UCR |
 | Flood risk (flood, flood50) | First Street Foundation (manual lookup — JS-rendered) |
 | Wildfire risk | First Street Foundation — almost always `"low"` for MA |
+| Effective tax rate (`eff_rate`) | **Auto-computed** as `res_rate / 10` — no manual lookup needed unless MMA bulk missing |
 
-**Note:** `med_tax` and `res_rate` are now auto-filled by `add_town.py` from the bulk files — you no longer need to look them up manually for new towns. Only `eff_rate` still requires a web lookup.
+**Note:** `med_tax`, `res_rate`, and `eff_rate` are now auto-filled by `add_town.py` from bulk files. `eff_rate` is derived automatically as `res_rate / 10`. Manual web lookups are only needed for bond, pension, crime, and flood.
 
 **Wildfire values must be lowercase:** `"low"`, `"moderate"`, `"high"`, `"very high"`, `"extreme"`.
 
@@ -959,8 +959,9 @@ Range: 10–80%.
 
 **Field: `eff_rate` — Effective Tax Rate %**
 
-Calculation: `residential_rate_per_1000 / 10` (valid for MA towns where assessment ratio is 100%).  
-Or: `(median_annual_tax_bill / median_home_value) × 100`  
+**Auto-computed:** `add_town.py` computes this automatically as `res_rate / 10`. No manual lookup needed as long as MMA bulk (`res_rate`) is available.  
+Override: pass `--eff-rate X.XXX` to `add_town.py` to use a different value.  
+Formula: `residential_rate_per_1000 / 10` (valid because MA towns assess at 100% of value).  
 Range: 0.5–2.5%.
 
 ---

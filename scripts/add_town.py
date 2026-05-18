@@ -3,7 +3,8 @@ Add a single new MA town to towns.csv and civica-v5.html in one command.
 
 Auto-fills from bulk data: census (income, pop, education), schools (math%, grad%, AP%),
 free-cash Excel, debt Excel, district rank from bulk composite, median tax bill from
-DLS community comparison (med_tax), and residential rate from MMA directory (res_rate).
+DLS community comparison (med_tax), residential rate from MMA directory (res_rate),
+and effective tax rate (eff_rate = res_rate / 10, computed automatically).
 
 Usage:
   py scripts/add_town.py "Northampton" ^
@@ -23,7 +24,7 @@ Optional (can be added later / updated by update_all.py):
   --transit          commuter_rail_in_town | commuter_rail_nearby | bus_only | none
   --bond             S&P bond rating (AAA, AA+, AA, AA-, A+, A, etc.)
   --pension          Pension funded ratio (%)
-  --eff-rate         Effective tax rate (%)
+  --eff-rate         Effective tax rate (%) (auto-computed as res_rate/10; this flag overrides)
   --res-rate         Residential rate per $1000 (auto-filled from MMA bulk; this flag overrides)
   --med-tax          Median annual tax bill ($) (auto-filled from DLS bulk; this flag overrides)
   --violent          Violent crime per 100k
@@ -269,6 +270,7 @@ transit_disp = TRANSIT_DISPLAY.get(args.transit.lower().strip(), args.transit)
 
 med_tax_val  = args.med_tax  if args.med_tax  is not None else med_tax_bulk
 res_rate_val = args.res_rate if args.res_rate is not None else res_rate_bulk
+eff_rate_val = args.eff_rate if args.eff_rate is not None else (round(res_rate_val / 10, 3) if res_rate_val is not None else None)
 
 def _js_num(v):  return str(v) if v is not None else "null"
 def _js_str(v):  return f'"{v}"' if v else "null"
@@ -297,7 +299,7 @@ new_row.update({
     "free_cash_pct_of_budget":     str(free_cash_val) if free_cash_val else "",
     "pension_funded_ratio_pct":    str(args.pension) if args.pension else "",
     "debt_per_capita":             str(debt_pc_val) if debt_pc_val else "",
-    "effective_tax_rate_pct":      str(args.eff_rate) if args.eff_rate else "",
+    "effective_tax_rate_pct":      str(eff_rate_val) if eff_rate_val is not None else "",
     "residential_rate_per_1000":   str(res_rate_val) if res_rate_val is not None else "",
     "median_annual_tax_bill":      str(int(med_tax_val)) if med_tax_val is not None else "",
     "median_household_income":     str(med_inc) if med_inc else "",
@@ -342,7 +344,7 @@ fields = {
     "free_cash":  _js(free_cash_val),
     "pension":    _js(args.pension),
     "debt_pc":    _js(debt_pc_val),
-    "eff_rate":   _js(args.eff_rate),
+    "eff_rate":   _js(eff_rate_val),
     "med_tax":    _js(med_tax_val),
     "med_inc":    _js(med_inc),
     "res_rate":   _js(res_rate_val),
@@ -396,12 +398,15 @@ else:                        print(f"    med_tax: not found in DLS bulk — need
 src2 = "CLI flag" if args.res_rate is not None else ("MMA bulk" if res_rate_bulk is not None else None)
 if res_rate_val is not None: print(f"    res_rate: {res_rate_val} ({src2})")
 else:                         print(f"    res_rate: not found in MMA bulk — needs manual lookup")
+src3 = "CLI flag" if args.eff_rate is not None else ("computed from res_rate" if res_rate_val is not None else None)
+if eff_rate_val is not None: print(f"    eff_rate: {eff_rate_val} ({src3})")
+else:                         print(f"    eff_rate: not computed — res_rate missing; needs manual lookup")
 
 print("\n  Still needs manual lookup (or will default to null):")
 missing = []
 if not args.bond:            missing.append("bond_rating (S&P MFOB or Moody's)")
 if not args.pension:         missing.append("pension_funded_ratio_pct (PERAC)")
-if not args.eff_rate:        missing.append("effective_tax_rate_pct (DLS Gateway)")
+if eff_rate_val is None:     missing.append("effective_tax_rate_pct (DLS Gateway) — only needed if res_rate also missing")
 if res_rate_val is None:     missing.append("residential_rate_per_1000 (MMA bulk missing — check MMA CSV spelling)")
 if med_tax_val is None:      missing.append("median_annual_tax_bill (DLS bulk missing — check DLS xlsx spelling)")
 if not args.violent:   missing.append("violent_crime_per_100k (beyond2020.com)")
