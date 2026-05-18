@@ -343,8 +343,8 @@ Every town in the TOWNS array in `civica-v5.html` is one JavaScript object. Thes
 ### Schools
 | Field | Type | Notes |
 |---|---|---|
-| `d_rank` | integer | [required] DESE district rank out of 351. Source: SchoolDigger or DESE profiles. |
-| `d_total` | integer | Total MA districts in the ranking (varies by data vintage — auto-filled by `add_town.py`; do not hardcode). |
+| `d_rank` | integer | [required] DESE district rank out of ~396. Auto-computed from bulk schools file by `update_all.py`; no manual lookup needed. |
+| `d_total` | integer | Total rankable MA school districts. **Always auto-set to current RANK_TOTAL by `update_all.py` — never hardcode.** Currently 396. Higher than 351 (municipalities) because regional districts count separately. |
 | `d_10yr` | float or null | District rank change over 10 years. **Negative = improved** (rank number decreased = better position). **Positive = declined** (rank number increased = worse position). Source: SchoolDigger historical. |
 | `math` | float | [required] MCAS math % proficient/advanced. Source: DESE. |
 | `grad` | float | [required] Graduation rate %. Source: DESE. |
@@ -454,7 +454,7 @@ Only include if transit is notable and wasn't covered in sentence 1, or if there
 
 ### Rules
 
-1. **Use real numbers.** School rank X of 351, tax bill $X, crime X/100k, electric savings $X/yr. Never vague ("strong schools" → "schools ranked #75 of 351 statewide").
+1. **Use real numbers.** School rank X of 396, tax bill $X, crime X/100k, electric savings $X/yr. Never vague ("strong schools" → "schools ranked #75 of 396 statewide").
 2. **One town, one voice.** Don't compare to other towns by name. Anchor to statewide ("top quartile"), not to peers.
 3. **The caveat is mandatory.** Every glance must have one honest limitation or trade-off. No town gets a pure sell job.
 4. **No marketing language.** Never: "great place to live," "vibrant community," "something for everyone," "hidden gem" (that's the Value Rating's job). State facts.
@@ -468,7 +468,7 @@ Only include if transit is notable and wasn't covered in sentence 1, or if there
 
 - "Weston is a beautiful town with excellent schools and strong property values." → No numbers, pure marketing, no caveat.
 - "A great community for families looking for top schools and low crime." → No town identity, no specificity, sounds like Niche.com copy.
-- "Weston ranks #12 of 351 in schools, has an AA+ bond rating, a 92% graduation rate, a median tax bill of $18,400, low crime at 45/100k violent..." → Listing raw data instead of synthesizing it. That's what the data table is for.
+- "Weston ranks #12 of 396 in schools, has an AA+ bond rating, a 92% graduation rate, a median tax bill of $18,400, low crime at 45/100k violent..." → Listing raw data instead of synthesizing it. That's what the data table is for.
 
 ---
 

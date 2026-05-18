@@ -154,7 +154,7 @@ Civica uses **absolute scoring**, not percentile scoring. Every score is compute
 - `violent_crime_ratio` — town crime rate ÷ MA state average
 - `income_ratio` — town median income ÷ MA median income
 - `debt_ratio` — town debt per capita ÷ MA average
-- School district rank — already ranked among all 351 MA districts
+- School district rank — already ranked among all ~396 MA school districts (more than 351 municipalities because regional districts count separately)
 
 These ratios are baked into the raw data, not the rubric — so they're fixed unless you re-pull state averages.
 
@@ -205,7 +205,7 @@ Good and Fair are **range** filters (not cumulative) — selecting "Good" shows 
 
 | Submetric | Weight | What It Measures |
 |---|---|---|
-| School District State Rank | 35% | Where the district ranks out of 351 MA districts |
+| School District State Rank | 35% | Where the district ranks out of ~396 MA school districts |
 | MCAS Math Proficiency | 25% | % of students scoring Proficient or Advanced on state math test |
 | Graduation Rate | 20% | % of students who graduate on time |
 | 10-Year Rank Trend | 20% | Has the district improved or declined over 10 years? |
@@ -461,7 +461,7 @@ C:\Users\Brian\Desktop\Civica\data\
 
   bulk/
     census_acs_ma_towns.csv              ← Census ACS data for all 351 MA towns
-    ma_schools_combined.csv              ← DESE school data for all 397 districts
+    ma_schools_combined.csv              ← DESE school data for all ~396 rankable districts
     CFC_PerBudg.xlsx                     ← MA DOR free cash data (all 351 municipalities)
     municipaldebt2022.xlsx               ← MA DOR municipal debt data
     dls-community-comparison-fy2025.xlsx.xlsx  ← DLS single-family tax bill (med_tax) for all 351 towns
@@ -914,7 +914,7 @@ Primary: SchoolDigger → search district name → record "State Rank (#X of Y d
 Fallback: MA DESE district profiles.  
 Gotcha: Districts ≠ towns. Two towns may share a regional district. Use the district serving the town's K–12 students.
 
-**Field: `d_total`** — collect at the same time as `d_rank` (denominator shown on same SchoolDigger page). Expected value for MA: ~350.
+**Field: `d_total`** — **Do not collect manually.** Auto-computed by `add_town.py` and always kept current by `update_all.py` from the bulk schools file. Currently 396. Do not hardcode 351 — MA has more school districts than municipalities because regional districts count as separate entries.
 
 ---
 

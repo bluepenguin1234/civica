@@ -608,7 +608,7 @@ def _auto_glance(town, row, civica, ter, ter_r, ps):
     """Return a 2-3 sentence glance description auto-generated from scores."""
     bond     = row.get("bond_rating_sp", "")
     d_rank   = row.get("district_state_rank", "")
-    d_total  = row.get("district_state_rank_total", "") or "351"
+    d_total  = row.get("district_state_rank_total", "") or str(RANK_TOTAL)
     violent  = row.get("violent_crime_per_100k", "")
     med_tax  = row.get("median_annual_tax_bill", "")
     med_inc  = row.get("median_household_income", "")
@@ -774,12 +774,11 @@ for row in rows:
     if town in MATH_OVERRIDES:
         setf(row, "test_scores_math_pct", MATH_OVERRIDES[town])
 
-    # Auto-fill district rank from bulk composite (only if not already set)
-    if not row.get("district_state_rank"):
-        auto_rank, auto_total = get_school_rank(town)
-        if auto_rank:
-            setf_if_empty(row, "district_state_rank", auto_rank)
-            setf_if_empty(row, "district_state_rank_total", auto_total)
+    # Always update district rank and total from bulk composite (authoritative)
+    auto_rank, auto_total = get_school_rank(town)
+    if auto_rank:
+        setf(row, "district_state_rank", auto_rank)
+        setf(row, "district_state_rank_total", auto_total)
 
     # 3. Excel bulk data (authoritative — override existing values)
     fc = free_cash_bulk.get(town.lower())
@@ -1030,6 +1029,9 @@ for obj_start, obj_end in objects:
         obj = patch_str(obj, 'fire',     fire)
     if fv("transit_access"):
         obj = patch_str(obj, 'transit',  js_str("transit_access"))
+    if fv("district_state_rank"):
+        obj = patch_any(obj, 'd_rank',   js_num("district_state_rank"))
+    obj = patch_any(obj, 'd_total', str(RANK_TOTAL))
 
     obj = ensure_field(obj, 'p_schools', row["p_schools"])
     obj = ensure_field(obj, 'p_safety',  row["p_safety"])
